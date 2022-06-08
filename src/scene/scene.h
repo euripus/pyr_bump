@@ -36,13 +36,18 @@ class SceneSystem : public ISystem
 public:
     static SceneComponent GetDefaultSceneComponent();
 
+    // ISystem interface
     bool        init() override;
-    void        update(entt::DefaultRegistry & reg, float time_delta) override;
+    void        update(Registry & reg, float time_delta) override;
+    void        postUpdate() override;
     std::string getName() const override { return "Scene positions."; }
 
     void addNode(SceneComponent node, Entity parent = null_entity_id);
 
-    // internal use
+    Entity   m_root_id;
+    Registry m_reg;
+
+private:
     void updateTransform(Entity ent, bool initiator);
     void updateBound(SceneComponent & node);
     void propagateBoundToRoot(Entity ent);

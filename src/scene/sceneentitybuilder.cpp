@@ -2,7 +2,7 @@
 #include "scene.h"
 #include "camera.h"
 
-Entity SceneEntityBuilder::BuildEntity(entt::DefaultRegistry & reg, build_flags flags)
+Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
 {
     Entity entity = null_entity_id;
 
@@ -10,7 +10,7 @@ Entity SceneEntityBuilder::BuildEntity(entt::DefaultRegistry & reg, build_flags 
     {
         entity = reg.create();
 
-        auto scene                               = evnt::Scene::GetDefaultSceneComponent();
+        auto scene                               = evnt::SceneSystem::GetDefaultSceneComponent();
         scene.entity_id                          = entity;
         reg.assign<evnt::SceneComponent>(entity) = scene;
     }

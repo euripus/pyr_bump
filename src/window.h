@@ -16,8 +16,6 @@
 #include "input/input.h"
 #include "scene/camera.h"
 
-using Entity = entt::DefaultRegistry::entity_type;
-
 class Window
 {
     // window state
@@ -51,12 +49,12 @@ class Window
     GLuint  m_elementbuffer   = 0;
 
 public:
-    evnt::Camera          m_cam;
-	// World
-    Entity                m_root;
-    Entity                m_camera;
-	// App
-	entt::DefaultRegistry m_reg;
+    evnt::Camera m_cam;
+    // World
+    Entity m_root;
+    Entity m_camera;
+    // App
+    Registry m_reg;
 
     Window(int width, int height, char const * title);
     ~Window();

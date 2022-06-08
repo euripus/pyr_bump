@@ -254,9 +254,8 @@ public:
         if(managed<Component>())
         {
             auto & cpool = pool<Component>();
-			
-     		cpool.reset();    /// !!!!!!!!!!!!!!!!!!!
 
+            cpool.reset();   /// !!!!!!!!!!!!!!!!!!!
             /*for(auto entity : entities)
             {
                 if(cpool.has(entity))

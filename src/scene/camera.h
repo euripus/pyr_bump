@@ -23,7 +23,7 @@ public:
     static CameraComponent GetDefaultCamComponent();
 
     bool        init() override;
-    void        update(entt::DefaultRegistry & reg, float time_delta) override;
+    void        update(Registry & reg, float time_delta) override;
     std::string getName() const override { return "Camera"; }
 
     void setupProjMatrix(CameraComponent & cam, float fov, float aspect, float near_plane, float far_plane);

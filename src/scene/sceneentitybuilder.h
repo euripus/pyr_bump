@@ -5,7 +5,8 @@
 
 #include "../ent/registry.hpp"
 
-using Entity = entt::DefaultRegistry::entity_type;
+using Entity   = entt::DefaultRegistry::entity_type;
+using Registry = entt::DefaultRegistry;
 
 constexpr Entity null_entity_id = static_cast<Entity>(-1);
 
@@ -33,14 +34,15 @@ constexpr build_flags obj_flags{0b11001};     // pos + material + mesh
 class SceneEntityBuilder
 {
 public:
-    static Entity BuildEntity(entt::DefaultRegistry & reg, build_flags flags);
+    static Entity BuildEntity(Registry & reg, build_flags flags);
 };
 
 struct ISystem
 {
-    virtual bool        init()                                                       = 0;
-    virtual void        update(entt::DefaultRegistry & reg, float time_delta = 1.0f) = 0;
-    virtual std::string getName() const                                              = 0;
+    virtual bool        init()                                          = 0;
+    virtual void        update(Registry & reg, float time_delta = 1.0f) = 0;
+    virtual void        postUpdate() {}
+    virtual std::string getName() const = 0;
 };
 
 #endif   // SCENEENTITYBUILDER_H

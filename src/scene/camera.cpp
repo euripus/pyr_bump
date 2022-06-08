@@ -87,7 +87,12 @@ CameraComponent CameraSystem::GetDefaultCamComponent()
     return new_cam;
 }
 
-void CameraSystem::update(entt::DefaultRegistry & reg, float time_delta)
+bool CameraSystem::init()
+{
+    return true;
+}
+
+void CameraSystem::update(Registry & reg, float time_delta)
 {
     for(auto ent : reg.view<evnt::SceneComponent, CameraComponent>())
     {
