@@ -1,0 +1,12 @@
+*.[oa]
+*.dll
+*.lib
+*.exe
+*~
+*.user
+*.user.*
+obj/
+include/
+bin/*.tga
+bin/pyr_bump
+bin/pyr_bump_d
