@@ -48,10 +48,9 @@ class Window
     GLsizei m_indices_size    = 0;
     GLuint  m_elementbuffer   = 0;
 	
-	bool createDefaultScene();
+	bool createDefaultScene(int width, int height);
 
 public:
-    evnt::Camera m_cam;
     // World
     Entity m_root;
     Entity m_camera;
@@ -72,6 +71,8 @@ public:
     void initScene();
     void fullscreen(bool is_fullscreen);
     void run();
+	
+	void moveForward(float speed);
 
     // keys
     void key_f1();
