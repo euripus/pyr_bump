@@ -29,7 +29,7 @@ void CameraSystem::update(Registry & reg, float time_delta)
 
         if(pos.is_transformed)
         {
-            setupViewMatrix(cam, pos.abs);
+            SetupViewMatrix(cam, pos.abs);
         }
     }
 }

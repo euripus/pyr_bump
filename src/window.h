@@ -14,6 +14,7 @@
 
 #include "scene/sceneentitybuilder.h"
 #include "input/input.h"
+#include "scene/scene.h"
 #include "scene/camera.h"
 
 class Window
@@ -47,17 +48,17 @@ class Window
     GLuint  m_bitangentbuffer = 0;
     GLsizei m_indices_size    = 0;
     GLuint  m_elementbuffer   = 0;
-	
-	bool createDefaultScene(int width, int height);
+
+    bool createDefaultScene(int width, int height);
 
 public:
     // World
-    Entity m_root;
-    Entity m_camera;
-	SceneSystem * m_scene_sys;
+    Entity              m_root;
+    Entity              m_camera;
+    evnt::SceneSystem * m_scene_sys;
     // App
-    Registry m_reg;
-	SystemsMgr m_sys;
+    Registry   m_reg;
+    SystemsMgr m_sys;
 
     Window(int width, int height, char const * title);
     ~Window();
@@ -71,8 +72,8 @@ public:
     void initScene();
     void fullscreen(bool is_fullscreen);
     void run();
-	
-	void moveForward(float speed);
+
+    void moveForward(float speed);
 
     // keys
     void key_f1();

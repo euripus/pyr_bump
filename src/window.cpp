@@ -19,11 +19,12 @@ char const * diffuse_tex_fname     = "diffuse.tga";
 char const * bump_tex_fname        = "normal.tga";
 }   // namespace
 
-Window::Window(int width, int height, char const * title) : m_size{width, height}, m_title{title}, m_scene_sys{nullptr}, m_reg{}, m_sys{m_reg}
+Window::Window(int width, int height, char const * title) :
+    m_size{width, height}, m_title{title}, m_scene_sys{nullptr}, m_reg{}, m_sys{m_reg}
 {
-	// Create scene
-	if(!createDefaultScene(width, height))
-		throw std::runtime_error{"Failed to create scene."};
+    // Create scene
+    if(!createDefaultScene(width, height))
+        throw std::runtime_error{"Failed to create scene."};
 
     // Initialise GLFW
     if(!glfwInit())
@@ -56,20 +57,20 @@ Window::~Window()
 
 void Window::create()
 {
-	auto & cam = m_reg.get<CameraComponent>(m_camera);
-	
-	GLFWmonitor * mon;
+    auto & cam = m_reg.get<CameraComponent>(m_camera);
+
+    GLFWmonitor * mon;
     if(m_is_fullscreen)
     {
-        mon    = glfwGetPrimaryMonitor();
-        cam.m_vp_size.x  = mp_base_video_mode->width;
+        mon             = glfwGetPrimaryMonitor();
+        cam.m_vp_size.x = mp_base_video_mode->width;
         cam.m_vp_size.y = mp_base_video_mode->height;
     }
     else
     {
         glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-        mon    = nullptr;
-        cam.m_vp_size.x  = m_size.x;
+        mon             = nullptr;
+        cam.m_vp_size.x = m_size.x;
         cam.m_vp_size.y = m_size.y;
     }
 
@@ -97,9 +98,10 @@ void Window::create()
     }
     glfwMakeContextCurrent(mp_glfw_win);
     glfwSetWindowTitle(mp_glfw_win, m_title.c_str());
-	
-	glViewport(cam.m_vp_pos.x, cam.m_vp_pos.y, cam.m_vp_size.x, cam.m_vp_size.y);
-    CameraSystem::SetupProjMatrix(cam, 45.0f, static_cast<float>(cam.m_vp_size.x) / static_cast<float>(cam.m_vp_size.y), 0.1f, 100.0f);
+
+    glViewport(cam.m_vp_pos.x, cam.m_vp_pos.y, cam.m_vp_size.x, cam.m_vp_size.y);
+    CameraSystem::SetupProjMatrix(
+        cam, 45.0f, static_cast<float>(cam.m_vp_size.x) / static_cast<float>(cam.m_vp_size.y), 0.1f, 100.0f);
 
     // Ensure we can capture the escape key being pressed below
     glfwSetInputMode(mp_glfw_win, GLFW_STICKY_KEYS, GL_TRUE);
@@ -137,36 +139,36 @@ void Window::fullscreen(bool is_fullscreen)
 
 bool Window::createDefaultScene(int width, int height)
 {
-	// create systems
-	auto pos_sys_ptr = std:make_unique<SceneSystem>(m_reg);
-	m_scene_sys = pos_sys_ptr.get();
-	m_sys.addSystem(std::move(pos_sys_ptr));
-	
-	auto cam_sys_ptr = std:make_unique<CameraSystem>();
-	//auto * cam_sys = cam_sys_ptr.get()
-	m_sys.addSystem(std::move(cam_sys_ptr));
-	
-	// add nodes
-	// root
-	m_root = SceneEntityBuilder::BuildEntity(m_reg, pos_flags);
-	m_scene_sys->addNode(m_root);
-	//camera
-	m_camera   = SceneEntityBuilder::BuildEntity(m_reg, cam_flags);
+    // create systems
+    auto pos_sys_ptr = std ::make_unique<evnt::SceneSystem>(m_reg);
+    m_scene_sys      = pos_sys_ptr.get();
+    m_sys.addSystem(std::move(pos_sys_ptr));
+
+    auto cam_sys_ptr = std ::make_unique<CameraSystem>();
+    // auto * cam_sys = cam_sys_ptr.get()
+    m_sys.addSystem(std::move(cam_sys_ptr));
+
+    // add nodes
+    // root
+    m_root = SceneEntityBuilder::BuildEntity(m_reg, pos_flags);
+    m_scene_sys->addNode(m_root);
+    // camera
+    m_camera   = SceneEntityBuilder::BuildEntity(m_reg, cam_flags);
     auto & cam = m_reg.get<CameraComponent>(m_camera);
-	
-	cam.m_vp_size.x = width;
+
+    cam.m_vp_size.x = width;
     cam.m_vp_size.y = height;
-	
-	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-	CameraSystem::SetupProjMatrix(cam, 45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
-	// View matrix
-    CameraSystem::SetupViewMatrix(cam, glm::translate(trans, glm::vec3(0, 0, 5)));
-	
-	m_scene_sys->addNode(m_camera, m_root);
-	//light
-	//mesh
-	
-	return true;
+
+    // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+    CameraSystem::SetupProjMatrix(cam, 45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+    // View matrix
+    CameraSystem::SetupViewMatrix(cam, glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 5)));
+
+    m_scene_sys->addNode(m_camera, m_root);
+    // light
+    // mesh
+
+    return true;
 }
 
 void Window::initScene()
@@ -296,7 +298,8 @@ void Window::initScene()
     if(info_log_length > 0)
     {
         std::vector<char> fragment_shader_error_message(static_cast<size_t>(info_log_length + 1));
-        glGetShaderInfoLog(fragment_shader_iD, info_log_length, nullptr, fragment_shader_error_message.data());
+        glGetShaderInfoLog(fragment_shader_iD, info_log_length, nullptr,
+                           fragment_shader_error_message.data());
         std::cout << fragment_shader_error_message.data() << std::endl;
     }
 
@@ -341,8 +344,8 @@ void Window::run()
     {
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		auto & cam = m_reg.get<CameraComponent>(m_camera);
+
+        auto & cam = m_reg.get<CameraComponent>(m_camera);
         glMatrixMode(GL_PROJECTION);
         glLoadMatrixf(glm::value_ptr(cam.m_proj_mat));
 
@@ -355,7 +358,7 @@ void Window::run()
         glUseProgram(m_program_id);
 
         glUniform3f(m_light_pos_id, 0.5f, 5.5f, 0.5f);
-        glUniform3fv(m_cam_pos_id, 1, glm::value_ptr(m_cam.getAbsPos()));
+        glUniform3fv(m_cam_pos_id, 1, glm::value_ptr(cam.m_abs_pos));
         glUniform3f(m_ambient_col_id, 0.1f, 0.1f, 0.1f);
         glUniform3f(m_specular_col_id, 1.0f, 1.0f, 1.0f);
         glUniform1f(m_specular_pow_id, 25.0f);
@@ -415,8 +418,8 @@ void Window::run()
         // Swap buffers
         glfwSwapBuffers(mp_glfw_win);
         glfwPollEvents();
-         
-		// post render jobs
+
+        // post render jobs
         if(!m_post_render_jobs.empty())
         {
             for(auto & j : m_post_render_jobs)
@@ -425,29 +428,29 @@ void Window::run()
             }
             m_post_render_jobs.clear();
         }
-		
-		m_sys.update();
+
+        m_sys.update();
     }   // Check if the ESC key was pressed or the window was closed
     while(!m_input_ptr->isKeyPressed(KeyboardKey::Key_Escape) && glfwWindowShouldClose(mp_glfw_win) == 0);
 }
 
 void Window::moveForward(float speed)
 {
-	auto & cam = m_reg.get<CameraComponent>(m_camera);
-	auto & pos = m_reg.get<SceneComponent>(m_camera);
-	
-	glm::vec4 dir = pos.abs * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
-	//glm::vec4 right = pos.abs * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
-	//glm::vec4 up = pos.abs * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
-	glm::vec4 new_pos = cam.m_abs_pos + dir * speed;
-	
-	glm::mat4 new_trans = glm::translate(glm::mat4(1.0f), glm::vec3(new_pos));
-	
-	TransformComponent tr_cmp;
-	tr_cmp.replase_local_matrix = false;
-	tr_cmp.new_mat = new_trans;
-	
-	m_reg.accomodate<TransformComponent>(m_camera, tr_cmp);
+    auto & cam = m_reg.get<CameraComponent>(m_camera);
+    auto & pos = m_reg.get<evnt::SceneComponent>(m_camera);
+
+    glm::vec4 dir = pos.abs * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
+    // glm::vec4 right = pos.abs * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+    // glm::vec4 up = pos.abs * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+    glm::vec4 new_pos = glm::vec4(cam.m_abs_pos, 1.0f) + dir * speed;
+
+    glm::mat4 new_trans = glm::translate(glm::mat4(1.0f), glm::vec3(new_pos));
+
+    evnt::TransformComponent tr_cmp;
+    tr_cmp.replase_local_matrix = false;
+    tr_cmp.new_mat              = new_trans;
+
+    m_reg.accomodate<evnt::TransformComponent>(m_camera, tr_cmp);
 }
 
 void Window::key_f1()

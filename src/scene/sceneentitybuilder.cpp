@@ -27,15 +27,31 @@ Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
     return entity;
 }
 
-void SystemsMgr::update(float time_delta);
+void SystemsMgr::addSystem(std::unique_ptr<ISystem> sys_ptr)
 {
-	for(auto & sys : m_systems)
-	{
-		sys->update(m_reg, time_delta);
-	}
-	
-	for(auto & sys : m_systems)
-	{
-		sys->postUpdate();
-	}
+    m_systems.push_back(std::move(sys_ptr));
+}
+
+bool SystemsMgr::initSystems()
+{
+    for(auto & sys : m_systems)
+    {
+        if(!sys->init())
+            return false;
+    }
+
+    return true;
+}
+
+void SystemsMgr::update(float time_delta)
+{
+    for(auto & sys : m_systems)
+    {
+        sys->update(m_reg, time_delta);
+    }
+
+    for(auto & sys : m_systems)
+    {
+        sys->postUpdate();
+    }
 }

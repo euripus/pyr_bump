@@ -42,10 +42,10 @@ void evnt::SceneSystem::postUpdate()
     }
 }
 
-void evnt::SceneSystem::addNode(Entity node_id, Entity parent = null_entity_id)
+void evnt::SceneSystem::addNode(Entity node_id, Entity parent)
 {
-	auto & node = m_reg.get<SceneComponent>(node_id);
-	
+    auto & node = m_reg.get<SceneComponent>(node_id);
+
     if(parent == null_entity_id)
     {
         m_root_id = node_id;
@@ -53,7 +53,8 @@ void evnt::SceneSystem::addNode(Entity node_id, Entity parent = null_entity_id)
     }
     else
     {
-        auto & parent_node = m_reg.get<SceneComponent>(node.parent);
+        auto & parent_node = m_reg.get<SceneComponent>(parent);
+        node.parent        = parent;
 
         parent_node.children.push_back(node_id);
         updateTransform(node_id, true);

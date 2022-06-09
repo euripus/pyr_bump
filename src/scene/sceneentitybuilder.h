@@ -41,7 +41,7 @@ public:
 
 struct ISystem
 {
-    virtual bool        init()   { return true; }
+    virtual bool        init() { return true; }
     virtual void        update(Registry & reg, float time_delta = 1.0f) = 0;
     virtual void        postUpdate() {}
     virtual std::string getName() const = 0;
@@ -49,15 +49,15 @@ struct ISystem
 
 class SystemsMgr
 {
-	std::vector<std::unique_ptr<ISystem>> m_systems;
-	Registry & m_reg;
+    std::vector<std::unique_ptr<ISystem>> m_systems;
+    Registry &                            m_reg;
 public:
-	SystemsMgr(Registry & reg) : m_reg(reg) {}
+    SystemsMgr(Registry & reg) : m_reg(reg) {}
 
-	void addSystem(std::unique_ptr<ISystem> sys_ptr);
+    void addSystem(std::unique_ptr<ISystem> sys_ptr);
 
-	bool initSystems();
-	void update(float time_delta = 1.0f);
+    bool initSystems();
+    void update(float time_delta = 1.0f);
 };
 
 #endif   // SCENEENTITYBUILDER_H

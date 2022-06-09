@@ -35,8 +35,8 @@ class SceneSystem : public ISystem
 {
 public:
     static SceneComponent GetDefaultSceneComponent();
-	
-	SceneSystem(Registry & reg) : m_reg(reg) {}
+
+    SceneSystem(Registry & reg) : m_reg(reg) {}
 
     // ISystem interface
     // bool        init() override;
@@ -46,7 +46,7 @@ public:
 
     void addNode(Entity node_id, Entity parent = null_entity_id);
 
-    Entity   m_root_id;
+    Entity     m_root_id;
     Registry & m_reg;
 
 private:

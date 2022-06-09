@@ -21,12 +21,13 @@ class CameraSystem : public ISystem
 {
 public:
     static CameraComponent GetDefaultCamComponent();
-	static void SetupProjMatrix(CameraComponent & cam, float fov, float aspect, float near_plane, float far_plane);
-    static void SetupViewMatrix(CameraComponent & cam, glm::mat4 const & new_trans);
+    static void            SetupProjMatrix(CameraComponent & cam, float fov, float aspect, float near_plane,
+                                           float far_plane);
+    static void            SetupViewMatrix(CameraComponent & cam, glm::mat4 const & new_trans);
 
     // bool        init() override;
     void        update(Registry & reg, float time_delta) override;
-    std::string getName() const override { return "Camera"; }    
+    std::string getName() const override { return "Camera"; }
 };
 
 #endif   // CAMERA_H
