@@ -26,3 +26,16 @@ Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
 
     return entity;
 }
+
+void SystemsMgr::update(float time_delta);
+{
+	for(auto & sys : m_systems)
+	{
+		sys->update(m_reg, time_delta);
+	}
+	
+	for(auto & sys : m_systems)
+	{
+		sys->postUpdate();
+	}
+}

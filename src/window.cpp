@@ -19,7 +19,7 @@ char const * diffuse_tex_fname     = "diffuse.tga";
 char const * bump_tex_fname        = "normal.tga";
 }   // namespace
 
-Window::Window(int width, int height, char const * title) : m_size{width, height}, m_title{title}
+Window::Window(int width, int height, char const * title) : m_size{width, height}, m_title{title}, m_scene_sys{nullptr}, m_reg{}, m_sys{m_reg}
 {
     // Set default camera
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
@@ -27,16 +27,6 @@ Window::Window(int width, int height, char const * title) : m_size{width, height
     // View matrix
     glm::mat4 trans = glm::rotate(glm::mat4{1.0f}, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     m_cam.transformUpdate(glm::translate(trans, glm::vec3(0, 0, 5)));
-
-    m_camera   = SceneEntityBuilder::BuildEntity(m_reg, cam_flags);
-    auto & cam = m_reg.get<CameraComponent>(m_camera);
-
-    cam.m_vp_size.x = width;
-    cam.m_vp_size.y = height;
-
-    CameraSystem cs;
-    cs.setupProjMatrix(cam, 45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
-    cs.setupViewMatrix(cam, glm::translate(trans, glm::vec3(0, 0, 5)));
 
     // Initialise GLFW
     if(!glfwInit())
@@ -147,8 +137,43 @@ void Window::fullscreen(bool is_fullscreen)
     create();
 }
 
+bool Window::createDefaultScene()
+{
+	// create systems
+	auto pos_sys_ptr = std:make_unique<SceneSystem>(m_reg);
+	m_scene_sys = pos_sys_ptr.get();
+	m_sys.addSystem(std::move(pos_sys_ptr));
+	
+	auto cam_sys_ptr = std:make_unique<CameraSystem>();
+	//auto * cam_sys = cam_sys_ptr.get()
+	m_sys.addSystem(std::move(cam_sys_ptr));
+	
+	// add nodes
+	// root
+	m_root = SceneEntityBuilder::BuildEntity(m_reg, pos_flags);
+	m_scene_sys->addNode(m_root);
+	//camera
+	m_camera   = SceneEntityBuilder::BuildEntity(m_reg, cam_flags);
+    auto & cam = m_reg.get<CameraComponent>(m_camera);
+	
+	cam.m_vp_size.x = m_size.x;
+    cam.m_vp_size.y = m_size.y;
+	
+	CameraSystem::SetupProjMatrix(cam, 45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+    CameraSystem::SetupViewMatrix(cam, glm::translate(trans, glm::vec3(0, 0, 5)));
+	
+	m_scene_sys->addNode(m_camera, m_root);
+	//light
+	//mesh
+	
+	return true;
+}
+
 void Window::initScene()
 {
+	// Create scene
+		if(!createDefaultScene())
+			throw std::runtime_error{"Failed to create scene."};
     // Load the textures
     {
         tex::ImageData tex_data;
@@ -252,7 +277,7 @@ void Window::initScene()
 
     // Compile Vertex Shader
     char const * vertex_source_pointer = vertex_shader_code.c_str();
-    glShaderSource(vertex_shader_id, 1, &vertex_source_pointer, NULL);
+    glShaderSource(vertex_shader_id, 1, &vertex_source_pointer, nullptr);
     glCompileShader(vertex_shader_id);
     // Check Vertex Shader
     glGetShaderiv(vertex_shader_id, GL_COMPILE_STATUS, &result);
@@ -260,13 +285,13 @@ void Window::initScene()
     if(info_log_length > 0)
     {
         std::vector<char> vertex_shader_error_message(static_cast<size_t>(info_log_length + 1));
-        glGetShaderInfoLog(vertex_shader_id, info_log_length, NULL, vertex_shader_error_message.data());
+        glGetShaderInfoLog(vertex_shader_id, info_log_length, nullptr, vertex_shader_error_message.data());
         std::cout << vertex_shader_error_message.data() << std::endl;
     }
 
     // Compile Fragment Shader
     char const * fragment_source_pointer = fragment_shader_code.c_str();
-    glShaderSource(fragment_shader_iD, 1, &fragment_source_pointer, NULL);
+    glShaderSource(fragment_shader_iD, 1, &fragment_source_pointer, nullptr);
     glCompileShader(fragment_shader_iD);
     // Check Fragment Shader
     glGetShaderiv(fragment_shader_iD, GL_COMPILE_STATUS, &result);
@@ -274,7 +299,7 @@ void Window::initScene()
     if(info_log_length > 0)
     {
         std::vector<char> fragment_shader_error_message(static_cast<size_t>(info_log_length + 1));
-        glGetShaderInfoLog(fragment_shader_iD, info_log_length, NULL, fragment_shader_error_message.data());
+        glGetShaderInfoLog(fragment_shader_iD, info_log_length, nullptr, fragment_shader_error_message.data());
         std::cout << fragment_shader_error_message.data() << std::endl;
     }
 
@@ -289,7 +314,7 @@ void Window::initScene()
     if(info_log_length > 0)
     {
         std::vector<char> program_error_message(static_cast<size_t>(info_log_length + 1));
-        glGetProgramInfoLog(m_program_id, info_log_length, NULL, program_error_message.data());
+        glGetProgramInfoLog(m_program_id, info_log_length, nullptr, program_error_message.data());
         std::cout << program_error_message.data() << std::endl;
     }
 
@@ -392,7 +417,8 @@ void Window::run()
         // Swap buffers
         glfwSwapBuffers(mp_glfw_win);
         glfwPollEvents();
-
+         
+		// post render jobs
         if(!m_post_render_jobs.empty())
         {
             for(auto & j : m_post_render_jobs)
@@ -401,6 +427,8 @@ void Window::run()
             }
             m_post_render_jobs.clear();
         }
+		
+		m_sys.update();
     }   // Check if the ESC key was pressed or the window was closed
     while(!m_input_ptr->isKeyPressed(KeyboardKey::Key_Escape) && glfwWindowShouldClose(mp_glfw_win) == 0);
 }

@@ -87,11 +87,6 @@ CameraComponent CameraSystem::GetDefaultCamComponent()
     return new_cam;
 }
 
-bool CameraSystem::init()
-{
-    return true;
-}
-
 void CameraSystem::update(Registry & reg, float time_delta)
 {
     for(auto ent : reg.view<evnt::SceneComponent, CameraComponent>())
@@ -106,7 +101,7 @@ void CameraSystem::update(Registry & reg, float time_delta)
     }
 }
 
-void CameraSystem::setupProjMatrix(CameraComponent & cam, float fov, float aspect, float near_plane,
+void CameraSystem::SetupProjMatrix(CameraComponent & cam, float fov, float aspect, float near_plane,
                                    float far_plane)
 {
     float ymax = near_plane * glm::tan(glm::radians(fov / 2));
@@ -129,7 +124,7 @@ void CameraSystem::setupProjMatrix(CameraComponent & cam, float fov, float aspec
     cam.m_frustum.buildViewFrustum(cam.m_view_mat, cam.m_proj_mat);
 }
 
-void CameraSystem::setupViewMatrix(CameraComponent & cam, glm::mat4 const & new_trans)
+void CameraSystem::SetupViewMatrix(CameraComponent & cam, glm::mat4 const & new_trans)
 {
     cam.m_abs_pos  = glm::vec3(new_trans[3][0], new_trans[3][1], new_trans[3][2]);
     cam.m_view_mat = glm::inverse(new_trans);

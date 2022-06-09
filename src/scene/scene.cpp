@@ -13,11 +13,6 @@ evnt::SceneComponent evnt::SceneSystem::GetDefaultSceneComponent()
     return node;
 }
 
-bool evnt::SceneSystem::init()
-{
-    return true;
-}
-
 void evnt::SceneSystem::update(Registry & reg, float time_delta)
 {
     for(auto ent : reg.view<SceneComponent, TransformComponent>())
@@ -47,19 +42,21 @@ void evnt::SceneSystem::postUpdate()
     }
 }
 
-void evnt::SceneSystem::addNode(SceneComponent node, Entity parent)
+void evnt::SceneSystem::addNode(Entity node_id, Entity parent = null_entity_id)
 {
+	auto & node = m_reg.get<SceneComponent>(node_id);
+	
     if(parent == null_entity_id)
     {
-        m_root_id = node.entity_id;
+        m_root_id = node_id;
         updateBound(node);
     }
     else
     {
         auto & parent_node = m_reg.get<SceneComponent>(node.parent);
 
-        parent_node.children.push_back(node.entity_id);
-        updateTransform(node.entity_id, true);
+        parent_node.children.push_back(node_id);
+        updateTransform(node_id, true);
     }
 }
 

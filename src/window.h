@@ -47,14 +47,18 @@ class Window
     GLuint  m_bitangentbuffer = 0;
     GLsizei m_indices_size    = 0;
     GLuint  m_elementbuffer   = 0;
+	
+	bool createDefaultScene();
 
 public:
     evnt::Camera m_cam;
     // World
     Entity m_root;
     Entity m_camera;
+	SceneSystem * m_scene_sys;
     // App
     Registry m_reg;
+	SystemsMgr m_sys;
 
     Window(int width, int height, char const * title);
     ~Window();
