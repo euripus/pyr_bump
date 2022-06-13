@@ -162,8 +162,8 @@ bool Window::createDefaultScene(int width, int height)
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
     CameraSystem::SetupProjMatrix(cam, 45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
     // View matrix
-    glm::mat4 view = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    CameraSystem::SetupViewMatrix(cam, glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f)));
+    glm::mat4 view = glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    CameraSystem::SetupViewMatrix(cam, glm::translate(view, glm::vec3(1.0f, 0.0f, 1.0f)));
 
     m_scene_sys->addNode(m_camera, m_root);
     // light
