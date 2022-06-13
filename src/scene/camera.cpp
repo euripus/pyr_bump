@@ -59,8 +59,9 @@ void CameraSystem::SetupProjMatrix(CameraComponent & cam, float fov, float aspec
 
 void CameraSystem::SetupViewMatrix(CameraComponent & cam, glm::mat4 const & new_trans)
 {
-    cam.m_abs_pos  = glm::vec3(new_trans[3][0], new_trans[3][1], new_trans[3][2]);
-    cam.m_view_mat = glm::inverse(new_trans);
+    cam.m_abs_pos  = glm::vec3(new_trans * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    cam.m_view_mat = glm::lookAt(cam.m_abs_pos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    // glm::inverse(new_trans);
 
     cam.m_frustum.buildViewFrustum(cam.m_view_mat, cam.m_proj_mat);
 }
