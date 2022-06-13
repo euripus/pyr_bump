@@ -15,8 +15,16 @@ evnt::SceneComponent evnt::SceneSystem::GetDefaultSceneComponent()
 
 void evnt::SceneSystem::update(Registry & reg, float time_delta)
 {
+    bool in_loop = false;
+
     for(auto ent : reg.view<SceneComponent, TransformComponent>())
     {
+        if(!in_loop)
+        {
+            in_loop             = true;
+            m_transform_updated = true;
+        }
+
         auto & trans = reg.get<TransformComponent>(ent);
         auto & pos   = reg.get<SceneComponent>(ent);
 
@@ -29,16 +37,21 @@ void evnt::SceneSystem::update(Registry & reg, float time_delta)
     }
 
     // clear all TransformComponent
-    reg.reset<TransformComponent>();
+    if(m_transform_updated)
+        reg.reset<TransformComponent>();
 }
 
 void evnt::SceneSystem::postUpdate()
 {
-    for(auto ent : m_reg.view<TransformComponent>())
+    if(m_transform_updated)
     {
-        auto & pos = m_reg.get<SceneComponent>(ent);
+        for(auto ent : m_reg.view<SceneComponent>())
+        {
+            auto & pos = m_reg.get<SceneComponent>(ent);
 
-        pos.is_transformed = false;
+            pos.is_transformed = false;
+        }
+        m_transform_updated = false;
     }
 }
 
@@ -58,6 +71,8 @@ void evnt::SceneSystem::addNode(Entity node_id, Entity parent)
 
         parent_node.children.push_back(node_id);
         updateTransform(node_id, true);
+
+        m_transform_updated = true;
     }
 }
 

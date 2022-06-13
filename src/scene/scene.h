@@ -50,6 +50,8 @@ public:
     Registry & m_reg;
 
 private:
+    bool m_transform_updated = false;
+
     void updateTransform(Entity ent, bool initiator);
     void updateBound(SceneComponent & node);
     void propagateBoundToRoot(Entity ent);
