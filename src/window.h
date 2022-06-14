@@ -1,4 +1,4 @@
-﻿#ifndef WINDOW_H
+#ifndef WINDOW_H
 #define WINDOW_H
 
 #include <memory>
@@ -23,12 +23,12 @@ class Window
     bool                m_is_fullscreen    = false;
     GLFWvidmode const * mp_base_video_mode = nullptr;
     GLFWwindow *        mp_glfw_win        = nullptr;
-    glm::ivec2          m_size;
+    glm::ivec2 const    m_size; // initial size
     std::string         m_title;
 
     std::unique_ptr<Input>             m_input_ptr;
     std::vector<std::function<void()>> m_post_render_jobs;
-    // scene state
+    // material state
     GLuint m_base_map   = 0;
     GLuint m_bump_map   = 0;
     GLuint m_program_id = 0;
