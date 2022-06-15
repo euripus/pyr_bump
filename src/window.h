@@ -23,7 +23,7 @@ class Window
     bool                m_is_fullscreen    = false;
     GLFWvidmode const * mp_base_video_mode = nullptr;
     GLFWwindow *        mp_glfw_win        = nullptr;
-    glm::ivec2 const    m_size; // initial size
+    glm::ivec2 const    m_size;   // initial size
     std::string         m_title;
 
     std::unique_ptr<Input>             m_input_ptr;
@@ -55,7 +55,7 @@ public:
     // World
     Entity              m_root;
     Entity              m_camera;
-	Entity m_light;
+    Entity              m_light;
     evnt::SceneSystem * m_scene_sys;
     // App
     Registry   m_reg;
@@ -75,6 +75,8 @@ public:
     void run();
 
     void moveForward(float speed);
+    void moveSideward(float speed);
+    void moveUp(float speed);
 
     // keys
     void key_f1();

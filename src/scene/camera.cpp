@@ -22,7 +22,7 @@ CameraComponent CameraSystem::GetDefaultCamComponent()
 
 void CameraSystem::update(Registry & reg, float time_delta)
 {
-    for(auto ent : reg.view<evnt::SceneComponent, CameraComponent, IsTransformed>())
+    for(auto ent : reg.view<evnt::SceneComponent, CameraComponent, evnt::IsTransformed>())
     {
         auto & pos = reg.get<evnt::SceneComponent>(ent);
         auto & cam = reg.get<CameraComponent>(ent);

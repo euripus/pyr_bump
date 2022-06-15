@@ -4,10 +4,10 @@ evnt::SceneComponent evnt::SceneSystem::GetDefaultSceneComponent()
 {
     evnt::SceneComponent node;
     // set defaults
-    node.abs            = glm::mat4(1.0f);
-    node.rel            = glm::mat4(1.0f);
-    node.entity_id      = null_entity_id;
-    node.parent         = null_entity_id;
+    node.abs       = glm::mat4(1.0f);
+    node.rel       = glm::mat4(1.0f);
+    node.entity_id = null_entity_id;
+    node.parent    = null_entity_id;
 
     return node;
 }
@@ -49,8 +49,8 @@ void evnt::SceneSystem::postUpdate()
             auto & pos = m_reg.get<SceneComponent>(ent);
 
         }*/
-		
-		reg.reset<IsTransformed>();
+
+        m_reg.reset<IsTransformed>();
         m_transform_updated = false;
     }
 }
@@ -89,8 +89,8 @@ void evnt::SceneSystem::updateTransform(Entity ent, bool initiator)
     {
         node.abs = node.rel;
     }
-	// mark entity
-	m_reg.add_component<evnt::IsTransformed>(ent, {});
+    // mark entity
+    m_reg.add_component<evnt::IsTransformed>(ent);
 
     for(auto & ch : node.children)
     {

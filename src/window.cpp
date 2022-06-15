@@ -8,6 +8,7 @@
 
 #include "res/imagedata.h"
 #include "res/mesh.h"
+#include "scene/light.h"
 #include "input/inputglfw.h"
 
 namespace
@@ -126,8 +127,18 @@ void Window::create()
     m_input_ptr = std::make_unique<InputGLFW>(mp_glfw_win);
     // bind keys
     m_input_ptr->bindKeyFunctor(KeyboardKey::Key_F1, std::bind(&Window::key_f1, this), "toggle fulscreen");
-	m_input_ptr->bindKeyFunctor(KeyboardKey::Key_W, std::bind(&Window::moveForward, this, 0.2f), "move forward");
-	m_input_ptr->bindKeyFunctor(KeyboardKey::Key_S, std::bind(&Window::moveForward, this, -0.2), "move backward");
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_W, std::bind(&Window::moveForward, this, 0.2f),
+                                "move forward");
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_S, std::bind(&Window::moveForward, this, -0.2),
+                                "move backward");
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_A, std::bind(&Window::moveSideward, this, -0.2f),
+                                "move left");
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_D, std::bind(&Window::moveSideward, this, 0.2),
+                                "move right");
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_Z, std::bind(&Window::moveUp, this, 0.2f),
+                                "move left");
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_X, std::bind(&Window::moveUp, this, -0.2),
+                                "move right");
 }
 
 void Window::fullscreen(bool is_fullscreen)
@@ -142,28 +153,28 @@ void Window::fullscreen(bool is_fullscreen)
 bool Window::createDefaultScene(int width, int height)
 {
     // create systems
-	std::unique_ptr<ISystem> ptr;
-    ptr = std::make_unique<evnt::SceneSystem>(m_reg);
-    m_scene_sys      = ptr.get();
+    std::unique_ptr<ISystem> ptr;
+    ptr         = std::make_unique<evnt::SceneSystem>(m_reg);
+    m_scene_sys = static_cast<evnt::SceneSystem *>(ptr.get());
     m_sys.addSystem(std::move(ptr));
 
     ptr = std::make_unique<CameraSystem>();
     // auto * cam_sys = cam_sys_ptr.get()
     m_sys.addSystem(std::move(ptr));
-	
-	ptr = std::make_unique<LightSystem>();
+
+    ptr = std::make_unique<LightSystem>();
     m_sys.addSystem(std::move(ptr));
 
     // add nodes
-	evnt::TransformComponent transform{};
-	transform.replase_local_matrix = true;
-	
+    evnt::TransformComponent transform{};
+    transform.replase_local_matrix = true;
+
     // root
     m_root = SceneEntityBuilder::BuildEntity(m_reg, pos_flags);
     m_scene_sys->addNode(m_root);
     // camera
-    m_camera       = SceneEntityBuilder::BuildEntity(m_reg, cam_flags);
-    auto & cam     = m_reg.get<CameraComponent>(m_camera);
+    m_camera   = SceneEntityBuilder::BuildEntity(m_reg, cam_flags);
+    auto & cam = m_reg.get<CameraComponent>(m_camera);
 
     cam.m_vp_size.x = width;
     cam.m_vp_size.y = height;
@@ -171,18 +182,18 @@ bool Window::createDefaultScene(int width, int height)
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
     CameraSystem::SetupProjMatrix(cam, 45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
     // Set cam transform
-    glm::mat4 view              = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.0f, 3.0f));
-    transform.new_mat              = glm::rotate(view, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 view    = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.0f, 3.0f));
+    transform.new_mat = glm::rotate(view, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     m_reg.add_component<evnt::TransformComponent>(m_camera, transform);
 
     m_scene_sys->addNode(m_camera, m_root);
     // light
-	m_light = SceneEntityBuilder::BuildEntity(m_reg, light_flags);
-	
-	transform.new_mat = glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 0.0f, 3.0f));
-	m_reg.add_component<evnt::TransformComponent>(m_light, transform);
-	
-	m_scene_sys->addNode(m_light, m_root);
+    m_light = SceneEntityBuilder::BuildEntity(m_reg, light_flags);
+
+    transform.new_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 5.0f));
+    m_reg.add_component<evnt::TransformComponent>(m_light, transform);
+
+    m_scene_sys->addNode(m_light, m_root);
     // mesh
 
     return true;
@@ -362,9 +373,9 @@ void Window::run()
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        auto const & cam = m_reg.get<CameraComponent>(m_camera);
-		auto const & light = m_reg.get<LightComponent>(m_light);
-		
+        auto const & cam   = m_reg.get<CameraComponent>(m_camera);
+        auto const & light = m_reg.get<LightComponent>(m_light);
+
         glMatrixMode(GL_PROJECTION);
         glLoadMatrixf(glm::value_ptr(cam.m_proj_mat));
 
@@ -376,7 +387,7 @@ void Window::run()
 
         glUseProgram(m_program_id);
 
-        glUniform3fv(m_light_pos_id, glm::value_ptr(glm::vec3(light.position)));
+        glUniform3fv(m_light_pos_id, 1, glm::value_ptr(glm::vec3(light.position)));
         glUniform3fv(m_cam_pos_id, 1, glm::value_ptr(cam.m_abs_pos));
         glUniform3f(m_ambient_col_id, 0.1f, 0.1f, 0.1f);
         glUniform3f(m_specular_col_id, 1.0f, 1.0f, 1.0f);
@@ -455,13 +466,43 @@ void Window::run()
 
 void Window::moveForward(float speed)
 {
-    auto & cam = m_reg.get<CameraComponent>(m_camera);
-    auto & pos = m_reg.get<evnt::SceneComponent>(m_camera);
+    auto const & pos = m_reg.get<evnt::SceneComponent>(m_camera);
 
-    glm::vec4 dir = pos.abs * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
-    // glm::vec4 right = pos.abs * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+    glm::vec4 dir     = pos.abs * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
+    glm::vec4 new_pos = dir * speed;
+
+    glm::mat4 new_trans = glm::translate(glm::mat4(1.0f), glm::vec3(new_pos));
+
+    evnt::TransformComponent tr_cmp;
+    tr_cmp.replase_local_matrix = false;
+    tr_cmp.new_mat              = new_trans;
+
+    m_reg.add_component<evnt::TransformComponent>(m_camera, tr_cmp);
+}
+
+void Window::moveSideward(float speed)
+{
+    auto const & pos = m_reg.get<evnt::SceneComponent>(m_camera);
+
+    glm::vec4 right = pos.abs * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
     // glm::vec4 up = pos.abs * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
-    glm::vec4 new_pos = glm::vec4(cam.m_abs_pos, 1.0f) + dir * speed;
+    glm::vec4 new_pos = right * speed;
+
+    glm::mat4 new_trans = glm::translate(glm::mat4(1.0f), glm::vec3(new_pos));
+
+    evnt::TransformComponent tr_cmp;
+    tr_cmp.replase_local_matrix = false;
+    tr_cmp.new_mat              = new_trans;
+
+    m_reg.add_component<evnt::TransformComponent>(m_camera, tr_cmp);
+}
+
+void Window::moveUp(float speed)
+{
+    auto const & pos = m_reg.get<evnt::SceneComponent>(m_camera);
+
+    glm::vec4 up      = pos.abs * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+    glm::vec4 new_pos = up * speed;
 
     glm::mat4 new_trans = glm::translate(glm::mat4(1.0f), glm::vec3(new_pos));
 

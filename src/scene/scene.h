@@ -31,7 +31,7 @@ struct TransformComponent
 // tag type
 struct IsTransformed
 {
-	bool val = true;
+    bool val = true;
 };
 
 class SceneSystem : public ISystem

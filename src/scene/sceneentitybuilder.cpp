@@ -1,6 +1,7 @@
 #include "sceneentitybuilder.h"
 #include "scene.h"
 #include "camera.h"
+#include "light.h"
 
 Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
 {
@@ -10,8 +11,8 @@ Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
     {
         entity = reg.create();
 
-        auto scene                               = evnt::SceneSystem::GetDefaultSceneComponent();
-        scene.entity_id                          = entity;
+        auto scene      = evnt::SceneSystem::GetDefaultSceneComponent();
+        scene.entity_id = entity;
         reg.assign<evnt::SceneComponent>(entity, scene);
     }
     if(flags[ComponentFlagsBitsPos::cam])
@@ -19,16 +20,16 @@ Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
         if(entity == null_entity_id)
             entity = reg.create();
 
-        auto cam                            = CameraSystem::GetDefaultCamComponent();
-        cam.m_entity_id                     = entity;
+        auto cam        = CameraSystem::GetDefaultCamComponent();
+        cam.m_entity_id = entity;
         reg.assign<CameraComponent>(entity, cam);
     }
-	if(flags[ComponentFlagsBitsPos::light])
+    if(flags[ComponentFlagsBitsPos::light])
     {
         if(entity == null_entity_id)
             entity = reg.create();
 
-        auto light                          = LightSystem::GetDefaultLightComponent();
+        auto light = LightSystem::GetDefaultLightComponent();
         reg.assign<LightComponent>(entity, light);
     }
 
