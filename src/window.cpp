@@ -155,7 +155,6 @@ bool Window::createDefaultScene(int width, int height)
     // camera
     m_camera       = SceneEntityBuilder::BuildEntity(m_reg, cam_flags);
     auto & cam     = m_reg.get<CameraComponent>(m_camera);
-    auto & cam_pos = m_reg.get<evnt::SceneComponent>(m_camera);
 
     cam.m_vp_size.x = width;
     cam.m_vp_size.y = height;
@@ -163,11 +162,11 @@ bool Window::createDefaultScene(int width, int height)
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
     CameraSystem::SetupProjMatrix(cam, 45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
     // Set cam transform
-	TransformComponent cam_tr{};
-	cam_tr.replase_local_matrix = true;
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.0f, 3.0f));
-    cam_tr.new_mat = glm::rotate(view, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	reg.accomodate<TransformComponent>(m_camera) = cam_tr;
+    evnt::TransformComponent cam_tr{};
+    cam_tr.replase_local_matrix = true;
+    glm::mat4 view              = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.0f, 3.0f));
+    cam_tr.new_mat              = glm::rotate(view, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    m_reg.accomodate<evnt::TransformComponent>(m_camera) = cam_tr;
 
     m_scene_sys->addNode(m_camera, m_root);
     // light
