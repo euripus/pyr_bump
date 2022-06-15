@@ -8,7 +8,6 @@ evnt::SceneComponent evnt::SceneSystem::GetDefaultSceneComponent()
     node.rel            = glm::mat4(1.0f);
     node.entity_id      = null_entity_id;
     node.parent         = null_entity_id;
-    node.is_transformed = false;
 
     return node;
 }
@@ -45,12 +44,13 @@ void evnt::SceneSystem::postUpdate()
 {
     if(m_transform_updated)
     {
-        for(auto ent : m_reg.view<SceneComponent>())
+        /*for(auto ent : m_reg.view<SceneComponent, IsTransformed>())
         {
             auto & pos = m_reg.get<SceneComponent>(ent);
 
-            pos.is_transformed = false;
-        }
+        }*/
+		
+		reg.reset<IsTransformed>();
         m_transform_updated = false;
     }
 }
@@ -80,8 +80,6 @@ void evnt::SceneSystem::updateTransform(Entity ent, bool initiator)
 {
     auto & node = m_reg.get<SceneComponent>(ent);
 
-    node.is_transformed = true;
-
     if(NotNull(node.parent))
     {
         auto & parent_node = m_reg.get<SceneComponent>(node.parent);
@@ -91,6 +89,8 @@ void evnt::SceneSystem::updateTransform(Entity ent, bool initiator)
     {
         node.abs = node.rel;
     }
+	// mark entity
+	m_reg.add_component<evnt::IsTransformed>(ent, {});
 
     for(auto & ch : node.children)
     {

@@ -16,7 +16,6 @@ struct SceneComponent
     glm::mat4           rel;
     std::optional<AABB> bbox;
     std::string         name;
-    bool                is_transformed;
 
     Entity              entity_id;
     Entity              parent;
@@ -27,8 +26,12 @@ struct TransformComponent
 {
     glm::mat4 new_mat{1.0f};
     bool      replase_local_matrix = false;
+};
 
-    // Entity node_id = null_entity_id;
+// tag type
+struct IsTransformed
+{
+	bool val = true;
 };
 
 class SceneSystem : public ISystem

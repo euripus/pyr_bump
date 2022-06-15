@@ -126,6 +126,8 @@ void Window::create()
     m_input_ptr = std::make_unique<InputGLFW>(mp_glfw_win);
     // bind keys
     m_input_ptr->bindKeyFunctor(KeyboardKey::Key_F1, std::bind(&Window::key_f1, this), "toggle fulscreen");
+	m_input_ptr->bindKeyFunctor(KeyboardKey::Key_W, std::bind(&Window::moveForward, this, 0.2f), "move forward");
+	m_input_ptr->bindKeyFunctor(KeyboardKey::Key_S, std::bind(&Window::moveForward, this, -0.2), "move backward");
 }
 
 void Window::fullscreen(bool is_fullscreen)
@@ -140,15 +142,22 @@ void Window::fullscreen(bool is_fullscreen)
 bool Window::createDefaultScene(int width, int height)
 {
     // create systems
-    auto pos_sys_ptr = std ::make_unique<evnt::SceneSystem>(m_reg);
-    m_scene_sys      = pos_sys_ptr.get();
-    m_sys.addSystem(std::move(pos_sys_ptr));
+	std::unique_ptr<ISystem> ptr;
+    ptr = std::make_unique<evnt::SceneSystem>(m_reg);
+    m_scene_sys      = ptr.get();
+    m_sys.addSystem(std::move(ptr));
 
-    auto cam_sys_ptr = std ::make_unique<CameraSystem>();
+    ptr = std::make_unique<CameraSystem>();
     // auto * cam_sys = cam_sys_ptr.get()
-    m_sys.addSystem(std::move(cam_sys_ptr));
+    m_sys.addSystem(std::move(ptr));
+	
+	ptr = std::make_unique<LightSystem>();
+    m_sys.addSystem(std::move(ptr));
 
     // add nodes
+	evnt::TransformComponent transform{};
+	transform.replase_local_matrix = true;
+	
     // root
     m_root = SceneEntityBuilder::BuildEntity(m_reg, pos_flags);
     m_scene_sys->addNode(m_root);
@@ -162,14 +171,18 @@ bool Window::createDefaultScene(int width, int height)
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
     CameraSystem::SetupProjMatrix(cam, 45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
     // Set cam transform
-    evnt::TransformComponent cam_tr{};
-    cam_tr.replase_local_matrix = true;
     glm::mat4 view              = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.0f, 3.0f));
-    cam_tr.new_mat              = glm::rotate(view, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    m_reg.accomodate<evnt::TransformComponent>(m_camera) = cam_tr;
+    transform.new_mat              = glm::rotate(view, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    m_reg.add_component<evnt::TransformComponent>(m_camera, transform);
 
     m_scene_sys->addNode(m_camera, m_root);
     // light
+	m_light = SceneEntityBuilder::BuildEntity(m_reg, light_flags);
+	
+	transform.new_mat = glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 0.0f, 3.0f));
+	m_reg.add_component<evnt::TransformComponent>(m_light, transform);
+	
+	m_scene_sys->addNode(m_light, m_root);
     // mesh
 
     return true;
@@ -350,6 +363,8 @@ void Window::run()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         auto const & cam = m_reg.get<CameraComponent>(m_camera);
+		auto const & light = m_reg.get<LightComponent>(m_light);
+		
         glMatrixMode(GL_PROJECTION);
         glLoadMatrixf(glm::value_ptr(cam.m_proj_mat));
 
@@ -361,7 +376,7 @@ void Window::run()
 
         glUseProgram(m_program_id);
 
-        glUniform3f(m_light_pos_id, 0.5f, 5.5f, 0.5f);
+        glUniform3fv(m_light_pos_id, glm::value_ptr(glm::vec3(light.position)));
         glUniform3fv(m_cam_pos_id, 1, glm::value_ptr(cam.m_abs_pos));
         glUniform3f(m_ambient_col_id, 0.1f, 0.1f, 0.1f);
         glUniform3f(m_specular_col_id, 1.0f, 1.0f, 1.0f);
@@ -454,7 +469,7 @@ void Window::moveForward(float speed)
     tr_cmp.replase_local_matrix = false;
     tr_cmp.new_mat              = new_trans;
 
-    m_reg.accomodate<evnt::TransformComponent>(m_camera, tr_cmp);
+    m_reg.add_component<evnt::TransformComponent>(m_camera, tr_cmp);
 }
 
 void Window::key_f1()

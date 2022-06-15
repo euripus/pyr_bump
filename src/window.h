@@ -55,6 +55,7 @@ public:
     // World
     Entity              m_root;
     Entity              m_camera;
+	Entity m_light;
     evnt::SceneSystem * m_scene_sys;
     // App
     Registry   m_reg;

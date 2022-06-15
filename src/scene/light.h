@@ -27,7 +27,8 @@ struct LightComponent
 class LightSystem : public ISystem
 {
 public:
-    bool        init();
+	static LightComponent GetDefaultLightComponent(LightType l_type = LightType::Point);
+
     void        update(Registry & reg, float time_delta);
     std::string getName() const { return "LightSystem"; }
 };

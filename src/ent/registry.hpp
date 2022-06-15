@@ -173,7 +173,7 @@ public:
     }
 
     template<typename Component, typename... Args>
-    Component & accomodate(entity_type entity, Args &&... args)
+    Component & add_component(entity_type entity, Args &&... args)
     {
         assert(valid(entity));
 
