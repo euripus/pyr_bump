@@ -3,32 +3,32 @@
 
 void Input::update()
 {
-	// call keys
-	for(auto & [key, vec] : m_key_bind_map)
-	{
-		if(m_keys_states[static_cast<size_t>(key)])
-		{
-			for(auto & [func, desc] : vec)
-			{
-				func();
-			}
-		}
-	}
-	
-	// call buttons
-	for(auto & [but, vec] : m_mouse_bind_map)
-	{
-		if(m_mouse_buttons_state[static_cast<size_t>(but)])
-		{
-			for(auto & [func, desc] : vec)
-			{
-				func();
-			}
-		}
-	}
-	// clear button state
-	m_mouse_buttons_state[static_cast<size_t>(Buttons::Button_Pos)] = false;
-	m_mouse_buttons_state[static_cast<size_t>(Buttons::Button_Whell)] = false;
+    // call keys
+    for(auto & [key, vec] : m_key_bind_map)
+    {
+        if(m_keys_states[static_cast<size_t>(key)])
+        {
+            for(auto & [func, desc] : vec)
+            {
+                func();
+            }
+        }
+    }
+
+    // call buttons
+    for(auto & [but, vec] : m_mouse_bind_map)
+    {
+        if(m_mouse_buttons_state[static_cast<size_t>(but)])
+        {
+            for(auto & [func, desc] : vec)
+            {
+                func();
+            }
+        }
+    }
+    // clear button state
+    m_mouse_buttons_state[static_cast<size_t>(Buttons::Button_Pos)]   = false;
+    m_mouse_buttons_state[static_cast<size_t>(Buttons::Button_Whell)] = false;
 }
 
 void Input::bindKeyFunctor(KeyboardKey key, std::function<void()> func, std::string desc)
@@ -56,6 +56,14 @@ void Input::bindButtonFunctor(Buttons button, std::function<void()> func, std::s
         auto v = std::vector<func_ptr>{};
         v.push_back({func, desc});
         m_mouse_bind_map[button] = std::move(v);
+    }
+}
+
+void Input::unbindKeyFunctor(KeyboardKey key)
+{
+    if(auto it = m_key_bind_map.find(key); it != m_key_bind_map.end())
+    {
+        it->second.clear();
     }
 }
 
@@ -88,14 +96,14 @@ void Input::buttonEvent(Buttons button_id, bool press)
 
 void Input::mousePos(int32_t xpos, int32_t ypos)
 {
-    m_mouse_position = glm::ivec2{xpos, ypos};
+    m_mouse_position                                                = glm::ivec2{xpos, ypos};
     m_mouse_buttons_state[static_cast<size_t>(Buttons::Button_Pos)] = true;
 }
 
 void Input::mouseWhell(int32_t offset)
 {
-    m_mouse_wheel = offset;
-	m_mouse_buttons_state[static_cast<size_t>(Buttons::Button_Whell)] = true;
+    m_mouse_wheel                                                     = offset;
+    m_mouse_buttons_state[static_cast<size_t>(Buttons::Button_Whell)] = true;
 }
 
 bool Input::isAnyKeyPressed() const

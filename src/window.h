@@ -26,7 +26,7 @@ class Window
     glm::ivec2 const    m_size;   // initial size
     std::string         m_title;
 
-    std::unique_ptr<Input>             m_input_ptr;
+    std::unique_ptr<Input> m_input_ptr;
     // material state
     GLuint m_base_map   = 0;
     GLuint m_bump_map   = 0;

@@ -125,21 +125,18 @@ void Window::create()
 
     // input backend
     m_input_ptr = std::make_unique<InputGLFW>(mp_glfw_win);
-    
-	// bind keys
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_F1, std::bind(&Window::key_f1, this), "toggle fulscreen");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_W, std::bind(&Window::moveForward, this, 0.2f),
+
+    // bind keys
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_W, std::bind(&Window::moveForward, this, 0.02f),
                                 "move forward");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_S, std::bind(&Window::moveForward, this, -0.2),
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_S, std::bind(&Window::moveForward, this, -0.02),
                                 "move backward");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_A, std::bind(&Window::moveSideward, this, -0.2f),
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_A, std::bind(&Window::moveSideward, this, -0.02f),
                                 "move left");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_D, std::bind(&Window::moveSideward, this, 0.2),
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_D, std::bind(&Window::moveSideward, this, 0.02),
                                 "move right");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_Z, std::bind(&Window::moveUp, this, 0.2f),
-                                "move up");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_X, std::bind(&Window::moveUp, this, -0.2),
-                                "move down");
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_Z, std::bind(&Window::moveUp, this, 0.02f), "move up");
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_X, std::bind(&Window::moveUp, this, -0.02), "move down");
 }
 
 void Window::fullscreen(bool is_fullscreen)
@@ -183,8 +180,8 @@ bool Window::createDefaultScene(int width, int height)
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
     CameraSystem::SetupProjMatrix(cam, 45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
     // Set cam transform
-    glm::mat4 view    = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.0f, 3.0f));
-    transform.new_mat = glm::rotate(view, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 view    = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 3.0f));
+    transform.new_mat = glm::rotate(view, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     m_reg.add_component<evnt::TransformComponent>(m_camera, transform);
 
     m_scene_sys->addNode(m_camera, m_root);
@@ -369,11 +366,11 @@ void Window::initScene()
 
 void Window::run()
 {
-	m_sys.update();
+    m_sys.update();
 
     do
     {
-		m_input_ptr->update();
+        m_input_ptr->update();
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -454,6 +451,9 @@ void Window::run()
         glfwPollEvents();
 
         m_sys.update();
+
+        if(m_input_ptr->isKeyPressed(KeyboardKey::Key_F1))
+            key_f1();
     }   // Check if the ESC key was pressed or the window was closed
     while(!m_input_ptr->isKeyPressed(KeyboardKey::Key_Escape) && glfwWindowShouldClose(mp_glfw_win) == 0);
 }
@@ -461,6 +461,7 @@ void Window::run()
 void Window::moveForward(float speed)
 {
     auto const & pos = m_reg.get<evnt::SceneComponent>(m_camera);
+    // auto const & cam = m_reg.get<CameraComponent>(m_camera);
 
     glm::vec4 dir     = pos.abs * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
     glm::vec4 new_pos = dir * speed;
@@ -478,7 +479,7 @@ void Window::moveSideward(float speed)
 {
     auto const & pos = m_reg.get<evnt::SceneComponent>(m_camera);
 
-    glm::vec4 right = pos.abs * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+    glm::vec4 right   = pos.abs * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
     glm::vec4 new_pos = right * speed;
 
     glm::mat4 new_trans = glm::translate(glm::mat4(1.0f), glm::vec3(new_pos));

@@ -19,11 +19,12 @@ public:
 
     Input()          = default;
     virtual ~Input() = default;
-	
-	virtual void update(); // call binding functions
+
+    virtual void update();   // call binding functions
 
     void bindKeyFunctor(KeyboardKey key, std::function<void()> func, std::string desc = {});
     void bindButtonFunctor(Buttons button, std::function<void()> func, std::string desc = {});
+    void unbindKeyFunctor(KeyboardKey key);
     // !Note: called by input callback
     void buttonEvent(Buttons button_id, bool press);
     void mousePos(int32_t xpos, int32_t ypos);
@@ -32,13 +33,13 @@ public:
 
     // Keyboard
     KeyboardKey getKeyPressed() const { return m_last_key; }
-    bool isKeyPressed(KeyboardKey key_id) const { return m_keys_states[static_cast<size_t>(key_id)]; }
-    bool isAnyKeyPressed() const;
+    bool        isKeyPressed(KeyboardKey key_id) const { return m_keys_states[static_cast<size_t>(key_id)]; }
+    bool        isAnyKeyPressed() const;
 
     // Mouse
     glm::ivec2 const & getMousePosition() const { return m_mouse_position; }
-    bool getMouseButton(Buttons button_id) const;
-    int32_t getMouseWheel() const { return m_mouse_wheel; }
+    bool               getMouseButton(Buttons button_id) const;
+    int32_t            getMouseWheel() const { return m_mouse_wheel; }
 
     // TODO set mouse pos & hide cursor
 
