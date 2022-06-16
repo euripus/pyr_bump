@@ -1,6 +1,36 @@
 #include "input.h"
 #include <algorithm>
 
+void Input::update()
+{
+	// call keys
+	for(auto & [key, vec] : m_key_bind_map)
+	{
+		if(m_keys_states[static_cast<size_t>(key)])
+		{
+			for(auto & [func, desc] : vec)
+			{
+				func();
+			}
+		}
+	}
+	
+	// call buttons
+	for(auto & [but, vec] : m_mouse_bind_map)
+	{
+		if(m_mouse_buttons_state[static_cast<size_t>(but)])
+		{
+			for(auto & [func, desc] : vec)
+			{
+				func();
+			}
+		}
+	}
+	// clear button state
+	m_mouse_buttons_state[static_cast<size_t>(Buttons::Button_Pos)] = false;
+	m_mouse_buttons_state[static_cast<size_t>(Buttons::Button_Whell)] = false;
+}
+
 void Input::bindKeyFunctor(KeyboardKey key, std::function<void()> func, std::string desc)
 {
     if(auto it = m_key_bind_map.find(key); it != m_key_bind_map.end())
@@ -37,14 +67,6 @@ void Input::keyEvent(KeyboardKey key, bool press)
     {
         m_last_key             = key;
         m_keys_states[key_ind] = true;
-
-        if(auto it = m_key_bind_map.find(key); it != m_key_bind_map.end())
-        {
-            for(auto & [f, s] : it->second)
-            {
-                f();
-            }
-        }
     }
     else
     {
@@ -57,14 +79,6 @@ void Input::buttonEvent(Buttons button_id, bool press)
     if(press)
     {
         m_mouse_buttons_state[static_cast<size_t>(button_id)] = true;
-
-        if(auto it = m_mouse_bind_map.find(button_id); it != m_mouse_bind_map.end())
-        {
-            for(auto & [f, s] : it->second)
-            {
-                f();
-            }
-        }
     }
     else
     {
@@ -75,27 +89,13 @@ void Input::buttonEvent(Buttons button_id, bool press)
 void Input::mousePos(int32_t xpos, int32_t ypos)
 {
     m_mouse_position = glm::ivec2{xpos, ypos};
-
-    if(auto it = m_mouse_bind_map.find(Buttons::Button_Pos); it != m_mouse_bind_map.end())
-    {
-        for(auto & [f, s] : it->second)
-        {
-            f();
-        }
-    }
+    m_mouse_buttons_state[static_cast<size_t>(Buttons::Button_Pos)] = true;
 }
 
 void Input::mouseWhell(int32_t offset)
 {
     m_mouse_wheel = offset;
-
-    if(auto it = m_mouse_bind_map.find(Buttons::Button_Whell); it != m_mouse_bind_map.end())
-    {
-        for(auto & [f, s] : it->second)
-        {
-            f();
-        }
-    }
+	m_mouse_buttons_state[static_cast<size_t>(Buttons::Button_Whell)] = true;
 }
 
 bool Input::isAnyKeyPressed() const

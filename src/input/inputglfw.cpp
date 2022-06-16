@@ -7,7 +7,7 @@ InputGLFW * g_input_ptr{nullptr};
 
 void KeyFuncCallback(GLFWwindow * win, int32_t key, int32_t scancode, int32_t action, int32_t mods)
 {
-    bool pressed = (action == GLFW_PRESS);
+    bool pressed = (action != GLFW_RELEASE);
 
     g_input_ptr->keyEvent(MapKeyCode(key), pressed);
 }
@@ -23,7 +23,7 @@ void MouseButtonCallback(GLFWwindow * win, int32_t button, int32_t action, int32
     else if(button == GLFW_MOUSE_BUTTON_RIGHT)
         button_id = Buttons::Button_1;
 
-    bool pressed = (action == GLFW_PRESS);
+    bool pressed = (action != GLFW_RELEASE);
 
     g_input_ptr->buttonEvent(button_id, pressed);
 }

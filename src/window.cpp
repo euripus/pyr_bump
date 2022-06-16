@@ -125,7 +125,8 @@ void Window::create()
 
     // input backend
     m_input_ptr = std::make_unique<InputGLFW>(mp_glfw_win);
-    // bind keys
+    
+	// bind keys
     m_input_ptr->bindKeyFunctor(KeyboardKey::Key_F1, std::bind(&Window::key_f1, this), "toggle fulscreen");
     m_input_ptr->bindKeyFunctor(KeyboardKey::Key_W, std::bind(&Window::moveForward, this, 0.2f),
                                 "move forward");
@@ -136,9 +137,9 @@ void Window::create()
     m_input_ptr->bindKeyFunctor(KeyboardKey::Key_D, std::bind(&Window::moveSideward, this, 0.2),
                                 "move right");
     m_input_ptr->bindKeyFunctor(KeyboardKey::Key_Z, std::bind(&Window::moveUp, this, 0.2f),
-                                "move left");
+                                "move up");
     m_input_ptr->bindKeyFunctor(KeyboardKey::Key_X, std::bind(&Window::moveUp, this, -0.2),
-                                "move right");
+                                "move down");
 }
 
 void Window::fullscreen(bool is_fullscreen)
@@ -368,8 +369,11 @@ void Window::initScene()
 
 void Window::run()
 {
+	m_sys.update();
+
     do
     {
+		m_input_ptr->update();
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -449,16 +453,6 @@ void Window::run()
         glfwSwapBuffers(mp_glfw_win);
         glfwPollEvents();
 
-        // post render jobs
-        if(!m_post_render_jobs.empty())
-        {
-            for(auto & j : m_post_render_jobs)
-            {
-                j();
-            }
-            m_post_render_jobs.clear();
-        }
-
         m_sys.update();
     }   // Check if the ESC key was pressed or the window was closed
     while(!m_input_ptr->isKeyPressed(KeyboardKey::Key_Escape) && glfwWindowShouldClose(mp_glfw_win) == 0);
@@ -485,7 +479,6 @@ void Window::moveSideward(float speed)
     auto const & pos = m_reg.get<evnt::SceneComponent>(m_camera);
 
     glm::vec4 right = pos.abs * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
-    // glm::vec4 up = pos.abs * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
     glm::vec4 new_pos = right * speed;
 
     glm::mat4 new_trans = glm::translate(glm::mat4(1.0f), glm::vec3(new_pos));
@@ -515,5 +508,5 @@ void Window::moveUp(float speed)
 
 void Window::key_f1()
 {
-    m_post_render_jobs.push_back([this] { fullscreen(!m_is_fullscreen); });
+    fullscreen(!m_is_fullscreen);
 }

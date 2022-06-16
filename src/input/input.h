@@ -19,6 +19,8 @@ public:
 
     Input()          = default;
     virtual ~Input() = default;
+	
+	virtual void update(); // call binding functions
 
     void bindKeyFunctor(KeyboardKey key, std::function<void()> func, std::string desc = {});
     void bindButtonFunctor(Buttons button, std::function<void()> func, std::string desc = {});
@@ -30,9 +32,7 @@ public:
 
     // Keyboard
     KeyboardKey getKeyPressed() const { return m_last_key; }
-
     bool isKeyPressed(KeyboardKey key_id) const { return m_keys_states[static_cast<size_t>(key_id)]; }
-
     bool isAnyKeyPressed() const;
 
     // Mouse

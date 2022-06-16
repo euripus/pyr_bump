@@ -27,7 +27,6 @@ class Window
     std::string         m_title;
 
     std::unique_ptr<Input>             m_input_ptr;
-    std::vector<std::function<void()>> m_post_render_jobs;
     // material state
     GLuint m_base_map   = 0;
     GLuint m_bump_map   = 0;
