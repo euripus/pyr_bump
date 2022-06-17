@@ -27,10 +27,6 @@ class Window
     std::string         m_title;
 
     std::unique_ptr<Input> m_input_ptr;
-    // material state
-    GLuint m_base_map   = 0;
-    GLuint m_bump_map   = 0;
-    GLuint m_program_id = 0;
     // shader constants location
     GLint m_tangent_atr     = 0;
     GLint m_bitangent_atr   = 0;
@@ -47,6 +43,10 @@ class Window
     GLuint  m_bitangentbuffer = 0;
     GLsizei m_indices_size    = 0;
     GLuint  m_elementbuffer   = 0;
+	    // material state
+    GLuint m_base_map   = 0;
+    GLuint m_bump_map   = 0;
+    GLuint m_program_id = 0;
 
     bool createDefaultScene(int width, int height);
 
@@ -55,6 +55,7 @@ public:
     Entity              m_root;
     Entity              m_camera;
     Entity              m_light;
+	Entity m_model;
     evnt::SceneSystem * m_scene_sys;
     // App
     Registry   m_reg;

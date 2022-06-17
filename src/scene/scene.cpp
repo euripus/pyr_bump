@@ -30,7 +30,7 @@ void evnt::SceneSystem::update(Registry & reg, float time_delta)
         if(trans.replase_local_matrix)
             pos.rel = trans.new_mat;
         else
-            pos.rel *= trans.new_mat;
+            pos.rel = trans.new_mat * pos.rel;
 
         updateTransform(ent, true);
     }

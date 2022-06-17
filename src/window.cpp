@@ -193,6 +193,9 @@ bool Window::createDefaultScene(int width, int height)
 
     m_scene_sys->addNode(m_light, m_root);
     // mesh
+	m_model = SceneEntityBuilder::BuildEntity(m_reg, obj_flags);
+
+    m_scene_sys->addNode(m_model, m_root);
 
     return true;
 }

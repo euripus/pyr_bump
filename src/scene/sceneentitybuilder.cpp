@@ -2,6 +2,7 @@
 #include "scene.h"
 #include "camera.h"
 #include "light.h"
+#include "material.h"
 
 Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
 {
@@ -31,6 +32,14 @@ Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
 
         auto light = LightSystem::GetDefaultLightComponent();
         reg.assign<LightComponent>(entity, light);
+    }
+	if(flags[ComponentFlagsBitsPos::material])
+    {
+        if(entity == null_entity_id)
+            entity = reg.create();
+
+        auto mat = MaterialSystem::GetDefaultMaterialComponent();
+        reg.assign<MaterialComponent>(entity, std::move(mat));
     }
 
     return entity;
