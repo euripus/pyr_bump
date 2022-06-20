@@ -1,9 +1,9 @@
-#include "mesh.h"
+#include "meshdata.h"
 #include <fstream>
 #include <sstream>
 #include <algorithm>
 
-bool LoadMesh(std::string const & fname, Mesh & out)
+bool LoadMesh(std::string const & fname, MeshData & out)
 {
     std::ifstream ifile(fname, std::ios::in);
 

@@ -35,14 +35,6 @@ class Window
     GLint m_ambient_col_id  = 0;
     GLint m_specular_col_id = 0;
     GLint m_specular_pow_id = 0;
-    // buffers
-    GLuint  m_vertexbuffer    = 0;
-    GLuint  m_uvbuffer        = 0;
-    GLuint  m_normalbuffer    = 0;
-    GLuint  m_tangentbuffer   = 0;
-    GLuint  m_bitangentbuffer = 0;
-    GLsizei m_indices_size    = 0;
-    GLuint  m_elementbuffer   = 0;
     // material state
     GLuint m_base_map   = 0;
     GLuint m_bump_map   = 0;

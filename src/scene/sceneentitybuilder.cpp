@@ -3,6 +3,7 @@
 #include "camera.h"
 #include "light.h"
 #include "material.h"
+#include "glmesh.h"
 
 Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
 {
@@ -40,6 +41,13 @@ Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
 
         auto mat = MaterialSystem::GetDefaultMaterialComponent();
         reg.assign<MaterialComponent>(entity, std::move(mat));
+    }
+	if(flags[ComponentFlagsBitsPos::obj_flags])
+    {
+        if(entity == null_entity_id)
+            entity = reg.create();
+
+        reg.assign<GlMeshComponent>(entity);
     }
 
     return entity;

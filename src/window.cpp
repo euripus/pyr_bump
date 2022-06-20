@@ -14,10 +14,10 @@
 namespace
 {
 char const * mesh_fname            = "sphere.txt.msh";
-char const * vertex_shader_fname   = "bump2.0.vert";
-char const * fragment_shader_fname = "bump2.0.frag";
 char const * diffuse_tex_fname     = "diffuse.tga";
 char const * bump_tex_fname        = "normal.tga";
+char const * vertex_shader_fname   = "bump2.0.vert";
+char const * fragment_shader_fname = "bump2.0.frag";
 }   // namespace
 
 Window::Window(int width, int height, char const * title) :
@@ -38,15 +38,11 @@ Window::Window(int width, int height, char const * title) :
 
 Window::~Window()
 {
+	auto const & geom = m_reg.get<GlMeshComponent>(m_model);
     // Cleanup VBO and shader
     if(mp_glfw_win)
     {
-        glDeleteBuffers(1, &m_vertexbuffer);
-        glDeleteBuffers(1, &m_normalbuffer);
-        glDeleteBuffers(1, &m_tangentbuffer);
-        glDeleteBuffers(1, &m_bitangentbuffer);
-        glDeleteBuffers(1, &m_uvbuffer);
-        glDeleteBuffers(1, &m_elementbuffer);
+        UnloadFromGL(geom);
         glDeleteTextures(1, &m_base_map);
         glDeleteTextures(1, &m_bump_map);
         glDeleteProgram(m_program_id);
@@ -202,6 +198,9 @@ bool Window::createDefaultScene(int width, int height)
 
 void Window::initScene()
 {
+	auto & geom = m_reg.get<GlMeshComponent>(m_model);
+	auto & mat = m_reg.get<MaterialComponent>(m_model);
+	
     // Load the textures
     {
         tex::ImageData tex_data;
@@ -237,38 +236,8 @@ void Window::initScene()
     }
 
     // Load mesh
-    Mesh msh;
-    if(!LoadMesh(mesh_fname, msh))
+    if(!LoadGlMeshComponent(mesh_fname, geom))
         throw std::runtime_error{"Failed to load mesh"};
-    // Generate buffers
-    glGenBuffers(1, &m_vertexbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, msh.pos.size() * 3 * sizeof(float), msh.pos.data(), GL_STATIC_DRAW);
-
-    glGenBuffers(1, &m_normalbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, m_normalbuffer);
-    glBufferData(GL_ARRAY_BUFFER, msh.normals.size() * 3 * sizeof(float), msh.normals.data(), GL_STATIC_DRAW);
-
-    glGenBuffers(1, &m_tangentbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, m_tangentbuffer);
-    glBufferData(GL_ARRAY_BUFFER, msh.tangent.size() * 3 * sizeof(float), msh.tangent.data(), GL_STATIC_DRAW);
-
-    glGenBuffers(1, &m_bitangentbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, m_bitangentbuffer);
-    glBufferData(GL_ARRAY_BUFFER, msh.bitangent.size() * 3 * sizeof(float), msh.bitangent.data(),
-                 GL_STATIC_DRAW);
-
-    glGenBuffers(1, &m_uvbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, m_uvbuffer);
-    glBufferData(GL_ARRAY_BUFFER, msh.tex.size() * 2 * sizeof(float), msh.tex.data(), GL_STATIC_DRAW);
-
-    // Generate a buffer for the indices as well
-    glGenBuffers(1, &m_elementbuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_elementbuffer);
-    m_indices_size = static_cast<GLsizei>(msh.indicies.size());
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 static_cast<GLsizeiptr>(m_indices_size) * static_cast<GLsizeiptr>(sizeof(unsigned short)),
-                 msh.indicies.data(), GL_STATIC_DRAW);
 
     // Shader load and compiling
     // Read Shaders code from the file
@@ -379,12 +348,13 @@ void Window::run()
 
         auto const & cam   = m_reg.get<CameraComponent>(m_camera);
         auto const & light = m_reg.get<LightComponent>(m_light);
+		auto const & geom = m_reg.get<GlMeshComponent>(m_model);
 
         glMatrixMode(GL_PROJECTION);
         glLoadMatrixf(glm::value_ptr(cam.m_proj_mat));
 
-        glm::mat4 model_view = glm::mat4(1.0f);
-        model_view           = cam.m_view_mat * model_view;
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 model_view = cam.m_view_mat * model;
 
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(glm::value_ptr(model_view));
@@ -403,19 +373,19 @@ void Window::run()
         glEnableVertexAttribArray(m_tangent_atr);
         glEnableVertexAttribArray(m_bitangent_atr);
 
-        glBindBuffer(GL_ARRAY_BUFFER, m_uvbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, geom.m_uvbuffer);
         glTexCoordPointer(2, GL_FLOAT, 0, static_cast<char *>(nullptr));
-        glBindBuffer(GL_ARRAY_BUFFER, m_vertexbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, geom.m_vertexbuffer);
         glVertexPointer(3, GL_FLOAT, 0, static_cast<char *>(nullptr));
-        glBindBuffer(GL_ARRAY_BUFFER, m_normalbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, geom.m_normalbuffer);
         glNormalPointer(GL_FLOAT, 0, static_cast<char *>(nullptr));
-        glBindBuffer(GL_ARRAY_BUFFER, m_tangentbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, geom.m_tangentbuffer);
         glVertexAttribPointer(m_tangent_atr, 3, GL_FLOAT, GL_FALSE, 0, static_cast<char *>(nullptr));
-        glBindBuffer(GL_ARRAY_BUFFER, m_bitangentbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, geom.m_bitangentbuffer);
         glVertexAttribPointer(m_bitangent_atr, 3, GL_FLOAT, GL_FALSE, 0, static_cast<char *>(nullptr));
 
         // Index buffer
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_elementbuffer);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geom.m_elementbuffer);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_base_map);

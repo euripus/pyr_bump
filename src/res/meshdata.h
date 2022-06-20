@@ -1,11 +1,10 @@
-#ifndef MESH_H
-#define MESH_H
+#ifndef MESHDATA_H
+#define MESHDATA_H
 
 #include <glm/glm.hpp>
-#include <string_view>
 #include <vector>
 
-struct Mesh
+struct MeshData
 {
     std::vector<glm::vec3>      pos;
     std::vector<glm::vec3>      normals;
@@ -15,6 +14,6 @@ struct Mesh
     std::vector<unsigned short> indicies;
 };
 
-bool LoadMesh(std::string const & fname, Mesh & out);
+bool LoadMesh(std::string const & fname, MeshData & out);
 
-#endif   // MESH_H
+#endif   // MESHDATA_H
