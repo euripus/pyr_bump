@@ -35,9 +35,10 @@ SOURCES += \
     src/input/inputglfw.cpp \
     src/main.cpp \
     src/res/imagedata.cpp \
-    src/res/mesh.cpp \
+    src/res/meshdata.cpp \
     src/scene/camera.cpp \
     src/scene/frustum.cpp \
+    src/scene/glmesh.cpp \
     src/scene/light.cpp \
     src/scene/material.cpp \
     src/scene/scene.cpp \
@@ -53,11 +54,13 @@ HEADERS += \
     src/input/input.h \
     src/input/inputglfw.h \
     src/input/key_codes.h \
+    src/pyramid_data.h \
     src/res/imagedata.h \
-    src/res/mesh.h \
+    src/res/meshdata.h \
     src/scene/AABB.h \
     src/scene/camera.h \
     src/scene/frustum.h \
+    src/scene/glmesh.h \
     src/scene/light.h \
     src/scene/material.h \
     src/scene/plane.h \

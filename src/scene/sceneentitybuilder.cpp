@@ -34,7 +34,7 @@ Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
         auto light = LightSystem::GetDefaultLightComponent();
         reg.assign<LightComponent>(entity, light);
     }
-	if(flags[ComponentFlagsBitsPos::material])
+    if(flags[ComponentFlagsBitsPos::material])
     {
         if(entity == null_entity_id)
             entity = reg.create();
@@ -42,7 +42,7 @@ Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
         auto mat = MaterialSystem::GetDefaultMaterialComponent();
         reg.assign<MaterialComponent>(entity, std::move(mat));
     }
-	if(flags[ComponentFlagsBitsPos::obj_flags])
+    if(flags[ComponentFlagsBitsPos::mesh])
     {
         if(entity == null_entity_id)
             entity = reg.create();

@@ -7,8 +7,10 @@
 #include <iostream>
 
 #include "res/imagedata.h"
-#include "res/mesh.h"
+#include "res/meshdata.h"
 #include "scene/light.h"
+#include "scene/material.h"
+#include "scene/glmesh.h"
 #include "input/inputglfw.h"
 
 namespace
@@ -38,7 +40,7 @@ Window::Window(int width, int height, char const * title) :
 
 Window::~Window()
 {
-	auto const & geom = m_reg.get<GlMeshComponent>(m_model);
+    auto & geom = m_reg.get<GlMeshComponent>(m_model);
     // Cleanup VBO and shader
     if(mp_glfw_win)
     {
@@ -198,9 +200,9 @@ bool Window::createDefaultScene(int width, int height)
 
 void Window::initScene()
 {
-	auto & geom = m_reg.get<GlMeshComponent>(m_model);
-	auto & mat = m_reg.get<MaterialComponent>(m_model);
-	
+    auto & geom = m_reg.get<GlMeshComponent>(m_model);
+    auto & mat  = m_reg.get<MaterialComponent>(m_model);
+
     // Load the textures
     {
         tex::ImageData tex_data;
@@ -348,12 +350,12 @@ void Window::run()
 
         auto const & cam   = m_reg.get<CameraComponent>(m_camera);
         auto const & light = m_reg.get<LightComponent>(m_light);
-		auto const & geom = m_reg.get<GlMeshComponent>(m_model);
+        auto const & geom  = m_reg.get<GlMeshComponent>(m_model);
 
         glMatrixMode(GL_PROJECTION);
         glLoadMatrixf(glm::value_ptr(cam.m_proj_mat));
 
-        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 model      = glm::mat4(1.0f);
         glm::mat4 model_view = cam.m_view_mat * model;
 
         glMatrixMode(GL_MODELVIEW);
@@ -394,7 +396,7 @@ void Window::run()
 
         // Draw the triangles !
         glDrawElements(GL_TRIANGLES,                    // mode
-                       m_indices_size,                  // count
+                       geom.m_indices_size,             // count
                        GL_UNSIGNED_SHORT,               // type
                        static_cast<void *>(nullptr));   // element array buffer offset
 
