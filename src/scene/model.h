@@ -8,27 +8,28 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "AABB.h"
+#include "sceneentitybuilder.h"
 
 struct ModelComponent
 {
     struct JointNode
     {
-        uint32_t    parent;
-        uint32_t    index;
+        uint32_t    parent = 0;
+        uint32_t    index = 0;
         std::string name;
 
         std::vector<glm::quat> rot;     // absolute transform matrix for animation
-        std::vector<glm::vec3> trans;   // vec.size() == numFrames
+        std::vector<glm::vec3> trans;   // vec.size() == num_frames
     };
 
     struct Mesh
     {
 		struct Weight
 		{
-			uint32_t jointIndex;
-			float    w;
+			uint32_t jointIndex = 0;
+			float    w = 0.0f;
 		};
-		using Weights = std::array<Weight, 4>;
+		using Weights = std::array<Weight, 4>;   // max 4 bones per vertex
 	    
 		//dynamic data
         std::vector<glm::vec3>              pos;
@@ -44,10 +45,22 @@ struct ModelComponent
     };
 
 	std::vector<Mesh>  meshes;
-    std::vector<JointNode> joints;
-    std::vector<AABB>      bboxes;
-    uint32_t               numFrames;
-    float                  frameRate;
+	
+	// animation
+    std::vector<JointNode> skeleton;
+    std::vector<AABB>      bboxes;        // size() == num_frames, one bbox at least
+    uint32_t               num_frames = 0;
+    float                  frame_rate = 0.0f;
+};
+
+class ModelSystem : public ISystem
+{
+public:
+    static ModelComponent GetDefaultModelComponent() { return {}; }
+	static bool LoadModel(std::string const & fname, ModelComponent & out_mdl);
+
+    void        update(Registry & reg, float time_delta);
+    std::string getName() const { return "ModelSystem"; }
 };
 
 
