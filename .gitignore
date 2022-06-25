@@ -7,6 +7,7 @@
 *.user.*
 obj/
 include/
+lib/
 bin/*.tga
 bin/pyr_bump
 bin/pyr_bump_d
