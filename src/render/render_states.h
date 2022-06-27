@@ -1,4 +1,18 @@
+#ifndef RENDER_STATES_H
+#define RENDER_STATES_H
 
+enum class CompareMode
+    {
+        NEVER,
+        LESS,
+        EQUAL,
+        LEQUAL,
+        GREATER,
+        NOTEQUAL,
+        GEQUAL,
+        ALWAYS,
+        QUANTITY
+    };
 
 struct AlphaState
 {
@@ -35,20 +49,7 @@ struct AlphaState
         CONSTANT_ALPHA,
         ONE_MINUS_CONSTANT_ALPHA,
         QUANTITY
-    };
-
-    enum class CompareMode
-    {
-        NEVER,
-        LESS,
-        EQUAL,
-        LEQUAL,
-        GREATER,
-        NOTEQUAL,
-        GEQUAL,
-        ALWAYS,
-        QUANTITY
-    };
+    };    
 
     bool         blend_enabled   = false;
     SrcBlendMode src_blend       = SrcBlendMode::SRC_ALPHA;
@@ -80,19 +81,6 @@ struct CullState
 
 struct DepthState
 {
-    enum class CompareMode
-    {
-        NEVER,
-        LESS,
-        EQUAL,
-        LEQUAL,
-        GREATER,
-        NOTEQUAL,
-        GEQUAL,
-        ALWAYS,
-        QUANTITY
-    };
-
     bool        enabled  = true;
     bool        writable = true;
     CompareMode compare  = CompareMode::LEQUAL;
@@ -129,19 +117,6 @@ struct OffsetState
 
 struct StencilState
 {
-    enum class CompareMode
-    {
-        NEVER,
-        LESS,
-        EQUAL,
-        LEQUAL,
-        GREATER,
-        NOTEQUAL,
-        GEQUAL,
-        ALWAYS,
-        QUANTITY
-    };
-
     enum class OperationType
     {
         KEEP,
@@ -177,64 +152,4 @@ struct WireState
     bool operator==(WireState const & other) { return (enabled == other.enabled); }
 };
 
-struct RenderModel
-{
-    uint32_t m_vertexbuffer  = 0;
-    uint32_t m_uvbuffer      = 0;
-    uint32_t m_normalbuffer  = 0;
-    uint32_t m_elementbuffer = 0;
-
-    int32_t m_indices_size = 0;
-};
-
-// tag structure
-struct BuffersUpdated
-{
-    bool val = true;
-};
-
-class Renderer : public ISystem
-{
-public:
-    enum class MatrixType
-    {
-        PERSPECTIVE,
-        MODELVIEW
-    }
-
-    Renderer(Registry & reg);
-
-    // ModelSystem must be updated before renderer
-    void update(Registry & reg, float time_delta) override;   /// if needed upload new data to GPU
-
-    void setMatrix(MatrixType type, glm::mat4 const & matrix);
-    void loadIdentityMatrix(MatrixType type);
-
-    void createMaterial(MaterialComponent & mat_cmp, entity_id);
-    void bindMaterial(entity_id);
-    void unbindMaterial(entity_id);
-
-    void createModel(ModelComponent & mdl, entity_id);
-    void bindModel(entity_id);
-    void unbindModel(entity_id);
-
-    void lighting(bool disable = false);
-    void setLight(LightComponent & lgh);
-
-    // Access to the current clearing parameters for the color, depth, and
-    // stencil buffers.  The color buffer is the back buffer.
-    void              setClearColor(glm::vec4 const & clear_color);
-    glm::vec4 const & getClearColor() const;
-    void              setClearDepth(float clear_depth);
-    float             getClearDepth() const;
-
-    // Override the global state.  If overridden, this state is used instead
-    // of the VisualPass state during a drawing call.  To undo the override,
-    // pass a null pointer.
-    void setAlphaState(AlphaState const & new_state);
-    void setCullState(CullState const & new_state);
-    void setDepthState(DepthState const & new_state);
-    void setOffsetState(OffsetState const & new_state);
-    void setStencilState(StencilState const & new_state);
-    void setWireState(WireState const & new_state);
-};
+#endif

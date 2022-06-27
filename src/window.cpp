@@ -75,8 +75,8 @@ void Window::create()
 
     glfwWindowHint(GLFW_VISIBLE, GL_TRUE);
     glfwWindowHint(GLFW_SAMPLES, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 
     GLFWwindow * new_window{nullptr};
     if(mp_glfw_win != nullptr)
@@ -120,6 +120,8 @@ void Window::create()
     glDepthFunc(GL_LESS);
 
     glEnable(GL_TEXTURE_2D);
+		
+	glEnable(GL_LIGHTING);
 
     // input backend
     m_input_ptr = std::make_unique<InputGLFW>(mp_glfw_win);
@@ -205,32 +207,15 @@ void Window::initScene()
 
     // Load the textures
     {
-        tex::ImageData tex_data;
-        if(!tex::ReadTGA(diffuse_tex_fname, tex_data))
+        if(!tex::ReadTGA(diffuse_tex_fname, mat.m_diff))
             throw std::runtime_error{"Failed to load texture"};
 
         glGenTextures(1, &m_base_map);
         glBindTexture(GL_TEXTURE_2D, m_base_map);
-        glTexImage2D(GL_TEXTURE_2D, 0, tex_data.type == tex::ImageData::PixelType::pt_rgb ? 3 : 4,
-                     static_cast<GLsizei>(tex_data.width), static_cast<GLsizei>(tex_data.height), 0,
-                     tex_data.type == tex::ImageData::PixelType::pt_rgb ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE,
-                     tex_data.data.get());
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
-    {
-        tex::ImageData tex_data;
-        if(!tex::ReadTGA(bump_tex_fname, tex_data))
-            throw std::runtime_error{"Failed to load texture"};
-
-        glGenTextures(1, &m_bump_map);
-        glBindTexture(GL_TEXTURE_2D, m_bump_map);
-        glTexImage2D(GL_TEXTURE_2D, 0, tex_data.type == tex::ImageData::PixelType::pt_rgb ? 3 : 4,
-                     static_cast<GLsizei>(tex_data.width), static_cast<GLsizei>(tex_data.height), 0,
-                     tex_data.type == tex::ImageData::PixelType::pt_rgb ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE,
-                     tex_data.data.get());
+        glTexImage2D(GL_TEXTURE_2D, 0, mat.m_diff.type == tex::ImageData::PixelType::pt_rgb ? 3 : 4,
+                     static_cast<GLsizei>(mat.m_diff.width), static_cast<GLsizei>(mat.m_diff.height), 0,
+                     mat.m_diff.type == tex::ImageData::PixelType::pt_rgb ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE,
+                     mat.m_diff.data.get());
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -240,102 +225,6 @@ void Window::initScene()
     // Load mesh
     if(!LoadGlMeshComponent(mesh_fname, geom))
         throw std::runtime_error{"Failed to load mesh"};
-
-    // Shader load and compiling
-    // Read Shaders code from the file
-    std::string vertex_shader_code;
-    std::string fragment_shader_code;
-
-    {
-        std::ifstream ifile(vertex_shader_fname, std::ios::in);
-        if(!ifile.is_open())
-            throw std::runtime_error{"Failed to load vertex shader"};
-
-        std::stringstream sstr;
-        sstr << ifile.rdbuf();
-        vertex_shader_code = sstr.str();
-        ifile.close();
-    }
-    {
-        std::ifstream ifile(fragment_shader_fname, std::ios::in);
-        if(!ifile.is_open())
-            throw std::runtime_error{"Failed to load fragment shader"};
-
-        std::stringstream sstr;
-        sstr << ifile.rdbuf();
-        fragment_shader_code = sstr.str();
-        ifile.close();
-    }
-
-    GLint result = GL_FALSE;
-    int   info_log_length{0};
-
-    // Create the shaders
-    GLuint vertex_shader_id   = glCreateShader(GL_VERTEX_SHADER);
-    GLuint fragment_shader_iD = glCreateShader(GL_FRAGMENT_SHADER);
-
-    // Compile Vertex Shader
-    char const * vertex_source_pointer = vertex_shader_code.c_str();
-    glShaderSource(vertex_shader_id, 1, &vertex_source_pointer, nullptr);
-    glCompileShader(vertex_shader_id);
-    // Check Vertex Shader
-    glGetShaderiv(vertex_shader_id, GL_COMPILE_STATUS, &result);
-    glGetShaderiv(vertex_shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
-    if(info_log_length > 0)
-    {
-        std::vector<char> vertex_shader_error_message(static_cast<size_t>(info_log_length + 1));
-        glGetShaderInfoLog(vertex_shader_id, info_log_length, nullptr, vertex_shader_error_message.data());
-        std::cout << vertex_shader_error_message.data() << std::endl;
-    }
-
-    // Compile Fragment Shader
-    char const * fragment_source_pointer = fragment_shader_code.c_str();
-    glShaderSource(fragment_shader_iD, 1, &fragment_source_pointer, nullptr);
-    glCompileShader(fragment_shader_iD);
-    // Check Fragment Shader
-    glGetShaderiv(fragment_shader_iD, GL_COMPILE_STATUS, &result);
-    glGetShaderiv(fragment_shader_iD, GL_INFO_LOG_LENGTH, &info_log_length);
-    if(info_log_length > 0)
-    {
-        std::vector<char> fragment_shader_error_message(static_cast<size_t>(info_log_length + 1));
-        glGetShaderInfoLog(fragment_shader_iD, info_log_length, nullptr,
-                           fragment_shader_error_message.data());
-        std::cout << fragment_shader_error_message.data() << std::endl;
-    }
-
-    // Link the program
-    m_program_id = glCreateProgram();
-    glAttachShader(m_program_id, vertex_shader_id);
-    glAttachShader(m_program_id, fragment_shader_iD);
-    glLinkProgram(m_program_id);
-    // Check the program
-    glGetProgramiv(m_program_id, GL_LINK_STATUS, &result);
-    glGetProgramiv(m_program_id, GL_INFO_LOG_LENGTH, &info_log_length);
-    if(info_log_length > 0)
-    {
-        std::vector<char> program_error_message(static_cast<size_t>(info_log_length + 1));
-        glGetProgramInfoLog(m_program_id, info_log_length, nullptr, program_error_message.data());
-        std::cout << program_error_message.data() << std::endl;
-    }
-
-    glDetachShader(m_program_id, vertex_shader_id);
-    glDetachShader(m_program_id, fragment_shader_iD);
-
-    glDeleteShader(vertex_shader_id);
-    glDeleteShader(fragment_shader_iD);
-
-    m_tangent_atr     = glGetAttribLocation(m_program_id, "rm_tangent");
-    m_bitangent_atr   = glGetAttribLocation(m_program_id, "rm_bitang");
-    m_light_pos_id    = glGetUniformLocation(m_program_id, "light_pos_world");
-    m_cam_pos_id      = glGetUniformLocation(m_program_id, "cam_pos_world");
-    m_ambient_col_id  = glGetUniformLocation(m_program_id, "ambient_col");
-    m_specular_col_id = glGetUniformLocation(m_program_id, "specular_col");
-    m_specular_pow_id = glGetUniformLocation(m_program_id, "specular_pow");
-
-    glUseProgram(m_program_id);
-    glUniform1i(glGetUniformLocation(m_program_id, "base_map"), 0);
-    glUniform1i(glGetUniformLocation(m_program_id, "bump_map"), 1);
-    glUseProgram(0);
 }
 
 void Window::run()
@@ -347,11 +236,20 @@ void Window::run()
         m_input_ptr->update();
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        auto const & cam   = m_reg.get<CameraComponent>(m_camera);
+		
+		auto const & cam   = m_reg.get<CameraComponent>(m_camera);
         auto const & light = m_reg.get<LightComponent>(m_light);
         auto const & geom  = m_reg.get<GlMeshComponent>(m_model);
+		auto const & mat   = m_reg.get<MaterialComponent>(m_model);
+		
+		// set lights		
+		glLightfv(GL_LIGHT0, GL_POSITION, glm::value_ptr(light.position));
+		glLightfv(GL_LIGHT0, GL_AMBIENT, glm::value_ptr(light.ambient));
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, glm::value_ptr(light.diffuse));
+		glLightfv(GL_LIGHT0, GL_SPECULAR, glm::value_ptr(light.specular));
+		glEnable(GL_LIGHT0);
 
+        // set matrices
         glMatrixMode(GL_PROJECTION);
         glLoadMatrixf(glm::value_ptr(cam.m_proj_mat));
 
@@ -360,20 +258,19 @@ void Window::run()
 
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(glm::value_ptr(model_view));
-
-        glUseProgram(m_program_id);
-
-        glUniform3fv(m_light_pos_id, 1, glm::value_ptr(glm::vec3(light.position)));
-        glUniform3fv(m_cam_pos_id, 1, glm::value_ptr(cam.m_abs_pos));
-        glUniform3f(m_ambient_col_id, 0.1f, 0.1f, 0.1f);
-        glUniform3f(m_specular_col_id, 1.0f, 1.0f, 1.0f);
-        glUniform1f(m_specular_pow_id, 25.0f);
-
+		
+		// set material
+		glEnable ( GL_COLOR_MATERIAL );
+        glColorMaterial ( GL_FRONT, GL_AMBIENT_AND_DIFFUSE );
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, glm::value_ptr(mat.m_ambient));
+		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, glm::value_ptr(mat.m_diffuse));
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, glm::value_ptr(mat.m_specular));
+		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, mat.m_shininess);
+        
+        // buffers
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         glEnableClientState(GL_NORMAL_ARRAY);
-        glEnableVertexAttribArray(m_tangent_atr);
-        glEnableVertexAttribArray(m_bitangent_atr);
 
         glBindBuffer(GL_ARRAY_BUFFER, geom.m_uvbuffer);
         glTexCoordPointer(2, GL_FLOAT, 0, static_cast<char *>(nullptr));
@@ -381,45 +278,33 @@ void Window::run()
         glVertexPointer(3, GL_FLOAT, 0, static_cast<char *>(nullptr));
         glBindBuffer(GL_ARRAY_BUFFER, geom.m_normalbuffer);
         glNormalPointer(GL_FLOAT, 0, static_cast<char *>(nullptr));
-        glBindBuffer(GL_ARRAY_BUFFER, geom.m_tangentbuffer);
-        glVertexAttribPointer(m_tangent_atr, 3, GL_FLOAT, GL_FALSE, 0, static_cast<char *>(nullptr));
-        glBindBuffer(GL_ARRAY_BUFFER, geom.m_bitangentbuffer);
-        glVertexAttribPointer(m_bitangent_atr, 3, GL_FLOAT, GL_FALSE, 0, static_cast<char *>(nullptr));
-
+        
         // Index buffer
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geom.m_elementbuffer);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_base_map);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, m_bump_map);
-
+		
+		glBindTexture(GL_TEXTURE_2D, m_base_map);
+        
         // Draw the triangles !
         glDrawElements(GL_TRIANGLES,                    // mode
                        geom.m_indices_size,             // count
                        GL_UNSIGNED_SHORT,               // type
                        static_cast<void *>(nullptr));   // element array buffer offset
 
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, 0);
 
-        glDisableVertexAttribArray(m_bitangent_atr);
-        glDisableVertexAttribArray(m_tangent_atr);
         glDisableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        glUseProgram(0);
-
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+		
+		glDisable(GL_LIGHT0);
 
         // Swap buffers
         glfwSwapBuffers(mp_glfw_win);
