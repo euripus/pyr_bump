@@ -18,7 +18,7 @@ struct LightComponent
     glm::vec4 diffuse;
     glm::vec4 specular;
     glm::vec4 position;
-    glm::vec3 attenuation;
+    glm::vec3 attenuation;   // constant linear quadratic
     glm::vec3 spotDirection;
     float     spotExponent;
     float     spotCosCutoff;

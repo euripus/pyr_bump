@@ -2,6 +2,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <GL/glew.h>
 
+#include "../scene/material.h"
+#include "../scene/light.h"
+
 // Mappings
 GLenum g_gl_compare_mode[static_cast<uint32_t>(CompareMode::QUANTITY)] = {
     GL_NEVER,      // NEVER
@@ -64,7 +67,7 @@ bool Renderer::init()
 
 void Renderer::setMatrix(MatrixType type, glm::mat4 const & matrix)
 {
-    GLenum matrix_type = (type == MatrixType::PROJECTION) ? GL_PROJECTION : GL_MODELVIEW;
+    GLenum const matrix_type = (type == MatrixType::PROJECTION) ? GL_PROJECTION : GL_MODELVIEW;
 
     glMatrixMode(matrix_type);
     glLoadMatrixf(glm::value_ptr(matrix));
@@ -72,10 +75,76 @@ void Renderer::setMatrix(MatrixType type, glm::mat4 const & matrix)
 
 void Renderer::loadIdentityMatrix(MatrixType type)
 {
-    GLenum matrix_type = (type == MatrixType::PROJECTION) ? GL_PROJECTION : GL_MODELVIEW;
+    GLenum const matrix_type = (type == MatrixType::PROJECTION) ? GL_PROJECTION : GL_MODELVIEW;
 
     glMatrixMode(matrix_type);
     glLoadIdentity();
+}
+
+void Renderer::uploadMaterialData(Entity entity_id)
+{
+    auto & mat = m_reg.get<MaterialComponent>(entity_id);
+
+    glGenTextures(1, &mat.m_base_tex_id);
+    glBindTexture(GL_TEXTURE_2D, mat.m_base_tex_id);
+    glTexImage2D(GL_TEXTURE_2D, 0, mat.m_diff.type == tex::ImageData::PixelType::pt_rgb ? 3 : 4,
+                 static_cast<GLsizei>(mat.m_diff.width), static_cast<GLsizei>(mat.m_diff.height), 0,
+                 mat.m_diff.type == tex::ImageData::PixelType::pt_rgb ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE,
+                 mat.m_diff.data.get());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Renderer::bindMaterial(Entity entity_id)
+{
+    auto const & mat = m_reg.get<MaterialComponent>(entity_id);
+
+    glMaterialfv(GL_FRONT, GL_AMBIENT, glm::value_ptr(mat.m_ambient));
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, glm::value_ptr(mat.m_diffuse));
+    glMaterialfv(GL_FRONT, GL_SPECULAR, glm::value_ptr(mat.m_specular));
+    glMaterialf(GL_FRONT, GL_SHININESS, mat.m_shininess);
+}
+
+void Renderer::unloadMaterialData(Entity entity_id)
+{
+    auto const & mat = m_reg.get<MaterialComponent>(entity_id);
+
+    glDeleteTextures(1, &mat.m_base_tex_id);
+}
+
+void Renderer::lighting(bool enable)
+{
+    if(enable)
+        glEnable(GL_LIGHTING);
+    else
+        glDisable(GL_LIGHTING);
+}
+
+void Renderer::bindLight(Entity entity_id, uint32_t light_num)
+{
+    assert(light_num < 8);
+
+    auto const & lgh = m_reg.get<LightComponent>(entity_id);
+
+    GLenum const light_src_num = GL_LIGHT0 + light_num;
+
+    glLightfv(light_src_num, GL_POSITION, glm::value_ptr(lgh.position));
+    glLightfv(light_src_num, GL_AMBIENT, glm::value_ptr(lgh.ambient));
+    glLightfv(light_src_num, GL_DIFFUSE, glm::value_ptr(lgh.diffuse));
+    glLightfv(light_src_num, GL_SPECULAR, glm::value_ptr(lgh.specular));
+    glLightf(light_src_num, GL_CONSTANT_ATTENUATION, lgh.attenuation.x);
+    glLightf(light_src_num, GL_LINEAR_ATTENUATION, lgh.attenuation.y);
+    glLightf(light_src_num, GL_QUADRATIC_ATTENUATION, lgh.attenuation.z);
+    // TODO set light type specific data
+    glEnable(light_src_num);
+}
+
+void Renderer::unbindLight(uint32_t light_num)
+{
+    assert(light_num < 8);
+    glDisable(GL_LIGHT0 + light_num);
 }
 
 void Renderer::clearColorBuffer()

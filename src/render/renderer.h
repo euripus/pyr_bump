@@ -4,6 +4,8 @@
 #include "render_states.h"
 #include "../scene/sceneentitybuilder.h"
 
+// simple openGL 1.5 renderer
+
 struct RenderModel
 {
     uint32_t m_vertexbuffer  = 0;
@@ -29,7 +31,7 @@ public:
         MODELVIEW
     };
 
-    Renderer(Registry & reg);
+    Renderer(Registry & reg) : m_reg(reg) {}
 
     // ModelSystem must be updated before renderer
     void        update(Registry & reg, float time_delta) override;   /// if needed upload new data to GPU
@@ -39,16 +41,17 @@ public:
     void setMatrix(MatrixType type, glm::mat4 const & matrix);
     void loadIdentityMatrix(MatrixType type);
 
-    /*void createMaterial(MaterialComponent & mat_cmp, entity_id);
-    void bindMaterial(entity_id);
-    void unbindMaterial(entity_id);
+    void uploadMaterialData(Entity entity_id);
+    void bindMaterial(Entity entity_id);
+    void unloadMaterialData(Entity entity_id);
 
-    void createModel(ModelComponent & mdl, entity_id);
+    void lighting(bool enable = true);
+    void bindLight(Entity entity_id, uint32_t light_num = 0);
+    void unbindLight(uint32_t light_num = 0);
+
+    /*void createModel(ModelComponent & mdl, entity_id);
     void bindModel(entity_id);
-    void unbindModel(entity_id);
-
-    void lighting(bool disable = false);
-    void setLight(LightComponent & lgh);*/
+    void unbindModel(entity_id);*/
 
     // Access to the current clearing parameters for the color, depth, and
     // stencil buffers.
@@ -97,6 +100,8 @@ private:
     glm::vec4 m_clear_color   = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     float     m_clear_depth   = 1.0f;
     int32_t   m_clear_stencil = 0;
+
+    Registry & m_reg;
 };
 
 #endif

@@ -114,7 +114,9 @@ void Window::create()
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
     // Accept fragment if it closer to the camera than the former one
-    glDepthFunc(GL_LESS);
+    glDepthFunc(GL_LEQUAL);
+
+    glEnable(GL_NORMALIZE);
 
     glEnable(GL_TEXTURE_2D);
 
@@ -247,8 +249,6 @@ void Window::run()
         glEnable(GL_LIGHT0);
 
         // set material
-        glEnable(GL_COLOR_MATERIAL);
-        glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
         glMaterialfv(GL_FRONT, GL_AMBIENT, glm::value_ptr(mat.m_ambient));
         glMaterialfv(GL_FRONT, GL_DIFFUSE, glm::value_ptr(mat.m_diffuse));
         glMaterialfv(GL_FRONT, GL_SPECULAR, glm::value_ptr(mat.m_specular));

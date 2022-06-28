@@ -17,6 +17,9 @@ MaterialComponent MaterialSystem::GetDefaultMaterialComponent()
     mat.m_emission  = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     mat.m_shininess = 0.0f;
 
+    mat.m_base_tex_id = 0;
+    mat.m_diff_tex_id = 0;
+
     mat.m_diff.height = 4;
     mat.m_diff.width  = 4;
     mat.m_diff.type   = tex::ImageData::PixelType::pt_rgba;
