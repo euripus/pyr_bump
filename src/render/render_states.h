@@ -1,18 +1,21 @@
 #ifndef RENDER_STATES_H
 #define RENDER_STATES_H
 
+#include <limits>
+#include <glm/glm.hpp>
+
 enum class CompareMode
-    {
-        NEVER,
-        LESS,
-        EQUAL,
-        LEQUAL,
-        GREATER,
-        NOTEQUAL,
-        GEQUAL,
-        ALWAYS,
-        QUANTITY
-    };
+{
+    NEVER,
+    LESS,
+    EQUAL,
+    LEQUAL,
+    GREATER,
+    NOTEQUAL,
+    GEQUAL,
+    ALWAYS,
+    QUANTITY
+};
 
 struct AlphaState
 {
@@ -49,7 +52,7 @@ struct AlphaState
         CONSTANT_ALPHA,
         ONE_MINUS_CONSTANT_ALPHA,
         QUANTITY
-    };    
+    };
 
     bool         blend_enabled   = false;
     SrcBlendMode src_blend       = SrcBlendMode::SRC_ALPHA;
@@ -130,9 +133,9 @@ struct StencilState
 
     bool          enabled    = false;
     CompareMode   compare    = CompareMode::NEVER;
-    uint32_t      reference  = 0;
-    uint32_t      mask       = max_uint;
-    uint32_t      write_mask = max_uint;
+    int32_t       reference  = 0;
+    uint32_t      mask       = std::numeric_limits<uint32_t>::max();
+    uint32_t      write_mask = std::numeric_limits<uint32_t>::max();
     OperationType on_fail    = OperationType::KEEP;
     OperationType on_z_fail  = OperationType::KEEP;
     OperationType on_z_pass  = OperationType::KEEP;

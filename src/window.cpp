@@ -15,11 +15,8 @@
 
 namespace
 {
-char const * mesh_fname            = "sphere.txt.msh";
-char const * diffuse_tex_fname     = "diffuse.tga";
-char const * bump_tex_fname        = "normal.tga";
-char const * vertex_shader_fname   = "bump2.0.vert";
-char const * fragment_shader_fname = "bump2.0.frag";
+char const * mesh_fname        = "sphere.txt.msh";
+char const * diffuse_tex_fname = "diffuse.tga";
 }   // namespace
 
 Window::Window(int width, int height, char const * title) :
@@ -120,8 +117,8 @@ void Window::create()
     glDepthFunc(GL_LESS);
 
     glEnable(GL_TEXTURE_2D);
-		
-	glEnable(GL_LIGHTING);
+
+    glEnable(GL_LIGHTING);
 
     // input backend
     m_input_ptr = std::make_unique<InputGLFW>(mp_glfw_win);
@@ -214,8 +211,8 @@ void Window::initScene()
         glBindTexture(GL_TEXTURE_2D, m_base_map);
         glTexImage2D(GL_TEXTURE_2D, 0, mat.m_diff.type == tex::ImageData::PixelType::pt_rgb ? 3 : 4,
                      static_cast<GLsizei>(mat.m_diff.width), static_cast<GLsizei>(mat.m_diff.height), 0,
-                     mat.m_diff.type == tex::ImageData::PixelType::pt_rgb ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE,
-                     mat.m_diff.data.get());
+                     mat.m_diff.type == tex::ImageData::PixelType::pt_rgb ? GL_RGB : GL_RGBA,
+                     GL_UNSIGNED_BYTE, mat.m_diff.data.get());
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -236,18 +233,26 @@ void Window::run()
         m_input_ptr->update();
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		auto const & cam   = m_reg.get<CameraComponent>(m_camera);
+
+        auto const & cam   = m_reg.get<CameraComponent>(m_camera);
         auto const & light = m_reg.get<LightComponent>(m_light);
         auto const & geom  = m_reg.get<GlMeshComponent>(m_model);
-		auto const & mat   = m_reg.get<MaterialComponent>(m_model);
-		
-		// set lights		
-		glLightfv(GL_LIGHT0, GL_POSITION, glm::value_ptr(light.position));
-		glLightfv(GL_LIGHT0, GL_AMBIENT, glm::value_ptr(light.ambient));
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, glm::value_ptr(light.diffuse));
-		glLightfv(GL_LIGHT0, GL_SPECULAR, glm::value_ptr(light.specular));
-		glEnable(GL_LIGHT0);
+        auto const & mat   = m_reg.get<MaterialComponent>(m_model);
+
+        // set lights
+        glLightfv(GL_LIGHT0, GL_POSITION, glm::value_ptr(light.position));
+        glLightfv(GL_LIGHT0, GL_AMBIENT, glm::value_ptr(light.ambient));
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, glm::value_ptr(light.diffuse));
+        glLightfv(GL_LIGHT0, GL_SPECULAR, glm::value_ptr(light.specular));
+        glEnable(GL_LIGHT0);
+
+        // set material
+        glEnable(GL_COLOR_MATERIAL);
+        glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+        glMaterialfv(GL_FRONT, GL_AMBIENT, glm::value_ptr(mat.m_ambient));
+        glMaterialfv(GL_FRONT, GL_DIFFUSE, glm::value_ptr(mat.m_diffuse));
+        glMaterialfv(GL_FRONT, GL_SPECULAR, glm::value_ptr(mat.m_specular));
+        glMaterialf(GL_FRONT, GL_SHININESS, mat.m_shininess);
 
         // set matrices
         glMatrixMode(GL_PROJECTION);
@@ -258,15 +263,7 @@ void Window::run()
 
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(glm::value_ptr(model_view));
-		
-		// set material
-		glEnable ( GL_COLOR_MATERIAL );
-        glColorMaterial ( GL_FRONT, GL_AMBIENT_AND_DIFFUSE );
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, glm::value_ptr(mat.m_ambient));
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, glm::value_ptr(mat.m_diffuse));
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, glm::value_ptr(mat.m_specular));
-		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, mat.m_shininess);
-        
+
         // buffers
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -278,12 +275,12 @@ void Window::run()
         glVertexPointer(3, GL_FLOAT, 0, static_cast<char *>(nullptr));
         glBindBuffer(GL_ARRAY_BUFFER, geom.m_normalbuffer);
         glNormalPointer(GL_FLOAT, 0, static_cast<char *>(nullptr));
-        
+
         // Index buffer
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geom.m_elementbuffer);
-		
-		glBindTexture(GL_TEXTURE_2D, m_base_map);
-        
+
+        glBindTexture(GL_TEXTURE_2D, m_base_map);
+
         // Draw the triangles !
         glDrawElements(GL_TRIANGLES,                    // mode
                        geom.m_indices_size,             // count
@@ -303,8 +300,8 @@ void Window::run()
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-		
-		glDisable(GL_LIGHT0);
+
+        glDisable(GL_LIGHT0);
 
         // Swap buffers
         glfwSwapBuffers(mp_glfw_win);

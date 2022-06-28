@@ -34,6 +34,7 @@ SOURCES += \
     src/input/input.cpp \
     src/input/inputglfw.cpp \
     src/main.cpp \
+    src/render/renderer.cpp \
     src/res/imagedata.cpp \
     src/res/meshdata.cpp \
     src/scene/camera.cpp \
@@ -56,6 +57,8 @@ HEADERS += \
     src/input/inputglfw.h \
     src/input/key_codes.h \
     src/pyramid_data.h \
+    src/render/render_states.h \
+    src/render/renderer.h \
     src/res/imagedata.h \
     src/res/meshdata.h \
     src/scene/AABB.h \
