@@ -18,15 +18,14 @@ LightComponent LightSystem::GetDefaultLightComponent(LightType l_type)
     return cmp;
 }
 
-void LightSystem::update(Registry & reg, float time_delta)
+void LightSystem::update(float time_delta)
 {
-    for(auto ent : reg.view<evnt::SceneComponent, LightComponent, evnt::IsTransformed>())
+    for(auto ent : m_reg.view<evnt::SceneComponent, LightComponent, evnt::IsTransformed>())
     {
-        auto & pos = reg.get<evnt::SceneComponent>(ent);
-        auto & lgh = reg.get<LightComponent>(ent);
+        auto & pos = m_reg.get<evnt::SceneComponent>(ent);
+        auto & lgh = m_reg.get<LightComponent>(ent);
 
-        if(lgh.type != LightType::Directional)
-            lgh.position = pos.abs * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        lgh.position = pos.abs * lgh.position;
 
         if(lgh.type == LightType::Spot)
             lgh.spotDirection = glm::vec3(pos.abs * glm::vec4(lgh.spotDirection, 0.0f));

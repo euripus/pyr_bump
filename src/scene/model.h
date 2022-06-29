@@ -53,7 +53,7 @@ struct ModelComponent
     float                   frame_rate = 0.0f;
 };
 
-class ModelSystem : public ISystem
+class ModelSystem //: public ISystem
 {
 public:
     static ModelComponent GetDefaultModelComponent() { return {}; }

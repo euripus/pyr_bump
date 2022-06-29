@@ -25,8 +25,10 @@ public:
                                            float far_plane);
     static void            SetupViewMatrix(CameraComponent & cam, glm::mat4 const & new_trans);
 
+    CameraSystem(Registry & reg) : ISystem(reg) {}
+
     // bool        init() override;
-    void        update(Registry & reg, float time_delta) override;
+    void        update(float time_delta) override;
     std::string getName() const override { return "Camera"; }
 };
 

@@ -20,13 +20,16 @@ struct MaterialComponent
     float     m_shininess;
 };
 
-class MaterialSystem : public ISystem
+class MaterialSystem
 {
 public:
     static MaterialComponent GetDefaultMaterialComponent();
 
-    void        update(Registry & reg, float time_delta) {}
-    std::string getName() const { return "MaterialSystem"; }
+    // void        update(float time_delta) override {}
+    // std::string getName() const override { return "MaterialSystem"; }
+
+    static bool LoadTGA(MaterialComponent & mat, std::string const & base_fname,
+                        std::string const & bump_fname);
 };
 
 #endif /* MATERIAL_H */

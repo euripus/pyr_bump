@@ -56,7 +56,6 @@ HEADERS += \
     src/input/input.h \
     src/input/inputglfw.h \
     src/input/key_codes.h \
-    src/pyramid_data.h \
     src/render/render_states.h \
     src/render/renderer.h \
     src/res/imagedata.h \

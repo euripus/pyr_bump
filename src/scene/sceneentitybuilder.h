@@ -41,10 +41,16 @@ public:
 
 struct ISystem
 {
+    ISystem(Registry & reg) : m_reg(reg) {}
+    virtual ~ISystem() = default;
+
     virtual bool        init() { return true; }
-    virtual void        update(Registry & reg, float time_delta = 1.0f) = 0;
+    virtual void        update(float time_delta = 1.0f) = 0;
     virtual void        postUpdate() {}
     virtual std::string getName() const = 0;
+
+protected:
+    Registry & m_reg;
 };
 
 class SystemsMgr

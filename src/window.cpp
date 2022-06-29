@@ -17,6 +17,7 @@ namespace
 {
 char const * mesh_fname        = "sphere.txt.msh";
 char const * diffuse_tex_fname = "diffuse.tga";
+char const * bump_tex_fname    = "normal.tga";
 }   // namespace
 
 Window::Window(int width, int height, char const * title) :
@@ -155,11 +156,11 @@ bool Window::createDefaultScene(int width, int height)
     m_scene_sys = static_cast<evnt::SceneSystem *>(ptr.get());
     m_sys.addSystem(std::move(ptr));
 
-    ptr = std::make_unique<CameraSystem>();
+    ptr = std::make_unique<CameraSystem>(m_reg);
     // auto * cam_sys = cam_sys_ptr.get()
     m_sys.addSystem(std::move(ptr));
 
-    ptr = std::make_unique<LightSystem>();
+    ptr = std::make_unique<LightSystem>(m_reg);
     m_sys.addSystem(std::move(ptr));
 
     // add nodes
@@ -205,6 +206,11 @@ void Window::initScene()
     auto & mat  = m_reg.get<MaterialComponent>(m_model);
 
     // Load the textures
+    if(!MaterialSystem::LoadTGA(mat, diffuse_tex_fname, bump_tex_fname))
+        throw std::runtime_error{"Failed to load texture"};
+
+    // render.uploadMaterialData(m_model);
+
     {
         if(!tex::ReadTGA(diffuse_tex_fname, mat.m_diff))
             throw std::runtime_error{"Failed to load texture"};
@@ -224,6 +230,9 @@ void Window::initScene()
     // Load mesh
     if(!LoadGlMeshComponent(mesh_fname, geom))
         throw std::runtime_error{"Failed to load mesh"};
+
+    if(!m_sys.initSystems())
+        throw std::runtime_error{"Failed to init systems"};
 }
 
 void Window::run()

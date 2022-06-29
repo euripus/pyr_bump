@@ -4,6 +4,7 @@
 #include "light.h"
 #include "material.h"
 #include "glmesh.h"
+#include "model.h"
 
 Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
 {
@@ -46,8 +47,11 @@ Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
     {
         if(entity == null_entity_id)
             entity = reg.create();
-
+        //
         reg.assign<GlMeshComponent>(entity);
+        //
+        auto mesh = ModelSystem::GetDefaultModelComponent();
+        reg.assign<ModelComponent>(entity, mesh);
     }
 
     return entity;
@@ -73,7 +77,7 @@ void SystemsMgr::update(float time_delta)
 {
     for(auto & sys : m_systems)
     {
-        sys->update(m_reg, time_delta);
+        sys->update(time_delta);
     }
 
     for(auto & sys : m_systems)

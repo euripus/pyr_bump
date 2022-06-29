@@ -12,11 +12,11 @@ evnt::SceneComponent evnt::SceneSystem::GetDefaultSceneComponent()
     return node;
 }
 
-void evnt::SceneSystem::update(Registry & reg, float time_delta)
+void evnt::SceneSystem::update(float time_delta)
 {
     bool in_loop = false;
 
-    for(auto ent : reg.view<SceneComponent, TransformComponent>())
+    for(auto ent : m_reg.view<SceneComponent, TransformComponent>())
     {
         if(!in_loop)
         {
@@ -24,8 +24,8 @@ void evnt::SceneSystem::update(Registry & reg, float time_delta)
             m_transform_updated = true;
         }
 
-        auto & trans = reg.get<TransformComponent>(ent);
-        auto & pos   = reg.get<SceneComponent>(ent);
+        auto & trans = m_reg.get<TransformComponent>(ent);
+        auto & pos   = m_reg.get<SceneComponent>(ent);
 
         if(trans.replase_local_matrix)
             pos.rel = trans.new_mat;
@@ -37,19 +37,13 @@ void evnt::SceneSystem::update(Registry & reg, float time_delta)
 
     // clear all TransformComponent
     if(m_transform_updated)
-        reg.reset<TransformComponent>();
+        m_reg.reset<TransformComponent>();
 }
 
 void evnt::SceneSystem::postUpdate()
 {
     if(m_transform_updated)
     {
-        /*for(auto ent : m_reg.view<SceneComponent, IsTransformed>())
-        {
-            auto & pos = m_reg.get<SceneComponent>(ent);
-
-        }*/
-
         m_reg.reset<IsTransformed>();
         m_transform_updated = false;
     }

@@ -62,6 +62,9 @@ bool Renderer::init()
     commitAllStates();
     clearBuffers();
 
+    glEnable(GL_NORMALIZE);
+    glEnable(GL_TEXTURE_2D);
+
     return true;
 }
 
@@ -126,18 +129,29 @@ void Renderer::bindLight(Entity entity_id, uint32_t light_num)
 {
     assert(light_num < 8);
 
-    auto const & lgh = m_reg.get<LightComponent>(entity_id);
-
+    auto const & lgh           = m_reg.get<LightComponent>(entity_id);
     GLenum const light_src_num = GL_LIGHT0 + light_num;
 
     glLightfv(light_src_num, GL_POSITION, glm::value_ptr(lgh.position));
     glLightfv(light_src_num, GL_AMBIENT, glm::value_ptr(lgh.ambient));
     glLightfv(light_src_num, GL_DIFFUSE, glm::value_ptr(lgh.diffuse));
     glLightfv(light_src_num, GL_SPECULAR, glm::value_ptr(lgh.specular));
-    glLightf(light_src_num, GL_CONSTANT_ATTENUATION, lgh.attenuation.x);
-    glLightf(light_src_num, GL_LINEAR_ATTENUATION, lgh.attenuation.y);
-    glLightf(light_src_num, GL_QUADRATIC_ATTENUATION, lgh.attenuation.z);
-    // TODO set light type specific data
+
+    if(lgh.type == LightType::Point || lgh.type == LightType::Spot)
+    {
+        glLightf(light_src_num, GL_CONSTANT_ATTENUATION, lgh.attenuation.x);
+        glLightf(light_src_num, GL_LINEAR_ATTENUATION, lgh.attenuation.y);
+        glLightf(light_src_num, GL_QUADRATIC_ATTENUATION, lgh.attenuation.z);
+    }
+    if(lgh.type == LightType::Spot)
+    {
+        float angle = glm::degrees(glm::acos(lgh.spotCosCutoff));
+
+        glLightf(light_src_num, GL_SPOT_CUTOFF, angle);
+        glLightfv(light_src_num, GL_SPOT_DIRECTION, glm::value_ptr(lgh.spotDirection));
+        glLightf(light_src_num, GL_SPOT_EXPONENT, lgh.spotExponent);
+    }
+    // Enable light source
     glEnable(light_src_num);
 }
 

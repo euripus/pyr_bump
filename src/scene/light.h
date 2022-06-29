@@ -29,8 +29,10 @@ class LightSystem : public ISystem
 public:
     static LightComponent GetDefaultLightComponent(LightType l_type = LightType::Point);
 
-    void        update(Registry & reg, float time_delta);
-    std::string getName() const { return "LightSystem"; }
+    LightSystem(Registry & reg) : ISystem(reg) {}
+
+    void        update(float time_delta) override;
+    std::string getName() const override { return "LightSystem"; }
 };
 
 #endif /* LIGHT_H */

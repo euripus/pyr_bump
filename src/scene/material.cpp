@@ -34,3 +34,15 @@ MaterialComponent MaterialSystem::GetDefaultMaterialComponent()
 
     return mat;
 }
+
+bool MaterialSystem::LoadTGA(MaterialComponent & mat, std::string const & base_fname,
+                             std::string const & bump_fname)
+{
+    if(!tex::ReadTGA(base_fname, mat.m_diff))
+        return false;
+
+    if(!tex::ReadTGA(bump_fname, mat.m_bump))
+        return false;
+
+    return true;
+}

@@ -39,19 +39,17 @@ class SceneSystem : public ISystem
 public:
     static SceneComponent GetDefaultSceneComponent();
 
-    SceneSystem(Registry & reg) : m_reg(reg) {}
+    SceneSystem(Registry & reg) : ISystem(reg) {}
 
     // ISystem interface
     // bool        init() override;
-    void        update(Registry & reg, float time_delta) override;
+    void        update(float time_delta) override;
     void        postUpdate() override;
     std::string getName() const override { return "Scene positions."; }
 
     void addNode(Entity node_id, Entity parent = null_entity_id);
 
-    Entity     m_root_id;
-    Registry & m_reg;
-
+    Entity m_root_id;
 private:
     bool m_transform_updated = false;
 

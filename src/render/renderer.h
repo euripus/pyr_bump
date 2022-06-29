@@ -31,10 +31,10 @@ public:
         MODELVIEW
     };
 
-    Renderer(Registry & reg) : m_reg(reg) {}
+    Renderer(Registry & reg) : ISystem(reg) {}
 
     // ModelSystem must be updated before renderer
-    void        update(Registry & reg, float time_delta) override;   /// if needed upload new data to GPU
+    void        update(float time_delta) override;   /// if needed upload new data to GPU
     bool        init() override;
     std::string getName() const override { return "Renderer"; }
 
@@ -100,8 +100,6 @@ private:
     glm::vec4 m_clear_color   = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     float     m_clear_depth   = 1.0f;
     int32_t   m_clear_stencil = 0;
-
-    Registry & m_reg;
 };
 
 #endif
