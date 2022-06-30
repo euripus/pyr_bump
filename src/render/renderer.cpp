@@ -4,6 +4,7 @@
 
 #include "../scene/material.h"
 #include "../scene/light.h"
+#include "../scene/model.h"
 
 // Mappings
 GLenum g_gl_compare_mode[static_cast<uint32_t>(CompareMode::QUANTITY)] = {
@@ -159,6 +160,49 @@ void Renderer::unbindLight(uint32_t light_num)
 {
     assert(light_num < 8);
     glDisable(GL_LIGHT0 + light_num);
+}
+
+void Renderer::uploadModel(Entity entity_id)
+{
+    auto const & mdl = m_reg.get<ModelComponent>(entity_id);
+    RenderModel  gl_mdl;
+
+    // Generate buffers
+    for(auto const & msh : mdl.meshes)
+    {
+        RenderModel::mesh cur_msh;
+
+        glGenBuffers(1, &cur_msh.m_vertexbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, cur_msh.m_vertexbuffer);
+        glBufferData(GL_ARRAY_BUFFER, msh.pos.size() * 3 * sizeof(float), msh.pos.data(), GL_DYNAMIC_DRAW);
+
+        glGenBuffers(1, &cur_msh.m_normalbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, cur_msh.m_normalbuffer);
+        glBufferData(GL_ARRAY_BUFFER, msh.normal.size() * 3 * sizeof(float), msh.normal.data(),
+                     GL_DYNAMIC_DRAW);
+
+        glGenBuffers(1, &cur_msh.m_uvbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, cur_msh.m_uvbuffer);
+        glBufferData(GL_ARRAY_BUFFER, msh.tex_coords.size() * 2 * sizeof(float), msh.tex_coords.data(),
+                     GL_STATIC_DRAW);
+
+        // Generate a buffer for the indices as well
+        glGenBuffers(1, &cur_msh.m_elementbuffer);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cur_msh.m_elementbuffer);
+        cur_msh.m_indices_size = static_cast<GLsizei>(msh.indexes.size());
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                     static_cast<GLsizeiptr>(cur_msh.m_indices_size) * sizeof(unsigned short),
+                     msh.indexes.data(), GL_STATIC_DRAW);
+
+        gl_mdl.model.push_back(cur_msh);
+    }
+
+    m_reg.add_component<RenderModel>(entity_id, gl_mdl);
+}
+
+void Renderer::bindModel(Entity entity_id)
+{
+    auto const & mdl = m_reg.get<RenderModel>(entity_id);
 }
 
 void Renderer::clearColorBuffer()

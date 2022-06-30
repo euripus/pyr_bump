@@ -8,12 +8,17 @@
 
 struct RenderModel
 {
-    uint32_t m_vertexbuffer  = 0;
-    uint32_t m_uvbuffer      = 0;
-    uint32_t m_normalbuffer  = 0;
-    uint32_t m_elementbuffer = 0;
+    struct mesh
+    {
+        uint32_t m_vertexbuffer  = 0;
+        uint32_t m_uvbuffer      = 0;
+        uint32_t m_normalbuffer  = 0;
+        uint32_t m_elementbuffer = 0;
 
-    int32_t m_indices_size = 0;
+        int32_t m_indices_size = 0;
+    };
+
+    std::vector<mesh> model;
 };
 
 // tag structure
@@ -49,9 +54,10 @@ public:
     void bindLight(Entity entity_id, uint32_t light_num = 0);
     void unbindLight(uint32_t light_num = 0);
 
-    /*void createModel(ModelComponent & mdl, entity_id);
-    void bindModel(entity_id);
-    void unbindModel(entity_id);*/
+    void uploadModel(Entity entity_id);
+    void bindModel(Entity entity_id);
+    void unbindModel(Entity entity_id);
+    void unloadModel(Entity entity_id);
 
     // Access to the current clearing parameters for the color, depth, and
     // stencil buffers.
