@@ -55,8 +55,7 @@ public:
     void unbindLight(uint32_t light_num = 0);
 
     void uploadModel(Entity entity_id);
-    void bindModel(Entity entity_id);
-    void unbindModel(Entity entity_id);
+    void draw(Entity entity_id);
     void unloadModel(Entity entity_id);
 
     // Access to the current clearing parameters for the color, depth, and

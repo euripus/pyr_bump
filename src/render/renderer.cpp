@@ -109,6 +109,8 @@ void Renderer::bindMaterial(Entity entity_id)
     glMaterialfv(GL_FRONT, GL_DIFFUSE, glm::value_ptr(mat.m_diffuse));
     glMaterialfv(GL_FRONT, GL_SPECULAR, glm::value_ptr(mat.m_specular));
     glMaterialf(GL_FRONT, GL_SHININESS, mat.m_shininess);
+
+    glBindTexture(GL_TEXTURE_2D, mat.m_base_tex_id);
 }
 
 void Renderer::unloadMaterialData(Entity entity_id)
@@ -197,12 +199,52 @@ void Renderer::uploadModel(Entity entity_id)
         gl_mdl.model.push_back(cur_msh);
     }
 
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
     m_reg.add_component<RenderModel>(entity_id, gl_mdl);
 }
 
-void Renderer::bindModel(Entity entity_id)
+void Renderer::draw(Entity entity_id)
 {
     auto const & mdl = m_reg.get<RenderModel>(entity_id);
+
+    for(auto const & msh : mdl.model)
+    {
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glEnableClientState(GL_NORMAL_ARRAY);
+
+        glBindBuffer(GL_ARRAY_BUFFER, msh.m_normalbuffer);
+        glNormalPointer(GL_FLOAT, 0, static_cast<void *>(nullptr));
+        glBindBuffer(GL_ARRAY_BUFFER, msh.m_uvbuffer);
+        glTexCoordPointer(2, GL_FLOAT, 0, static_cast<void *>(nullptr));
+        glBindBuffer(GL_ARRAY_BUFFER, msh.m_vertexbuffer);
+        glVertexPointer(3, GL_FLOAT, 0, static_cast<void *>(nullptr));
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, msh.m_elementbuffer);
+
+        glDrawElements(GL_TRIANGLES, msh.m_indices_size, GL_UNSIGNED_INT, static_cast<void *>(nullptr));
+
+        glDisableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+}
+
+void Renderer::unloadModel(Entity entity_id)
+{
+    auto const & mdl = m_reg.get<RenderModel>(entity_id);
+
+    for(auto const & msh : mdl.model)
+    {
+        glDeleteBuffers(1, &msh.m_vertexbuffer);
+        glDeleteBuffers(1, &msh.m_normalbuffer);
+        glDeleteBuffers(1, &msh.m_uvbuffer);
+        glDeleteBuffers(1, &msh.m_elementbuffer);
+    }
 }
 
 void Renderer::clearColorBuffer()
