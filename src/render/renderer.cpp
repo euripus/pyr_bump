@@ -63,6 +63,8 @@ bool Renderer::init()
     commitAllStates();
     clearBuffers();
 
+    glShadeModel(GL_SMOOTH);
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     glEnable(GL_NORMALIZE);
     glEnable(GL_TEXTURE_2D);
 
@@ -193,7 +195,7 @@ void Renderer::uploadModel(Entity entity_id)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cur_msh.m_elementbuffer);
         cur_msh.m_indices_size = static_cast<GLsizei>(msh.indexes.size());
         glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                     static_cast<GLsizeiptr>(cur_msh.m_indices_size) * sizeof(unsigned short),
+                     static_cast<GLsizeiptr>(cur_msh.m_indices_size) * sizeof(uint32_t),
                      msh.indexes.data(), GL_STATIC_DRAW);
 
         gl_mdl.model.push_back(cur_msh);
@@ -236,6 +238,9 @@ void Renderer::draw(Entity entity_id)
 
 void Renderer::unloadModel(Entity entity_id)
 {
+    if(!m_reg.has<RenderModel>(entity_id))
+        return;
+
     auto const & mdl = m_reg.get<RenderModel>(entity_id);
 
     for(auto const & msh : mdl.model)

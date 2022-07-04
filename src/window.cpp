@@ -1,14 +1,13 @@
 #include "window.h"
-#include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <stdexcept>
 
 #include "render/renderer.h"
 #include "res/imagedata.h"
-#include "res/meshdata.h"
 #include "scene/light.h"
 #include "scene/material.h"
 #include "input/inputglfw.h"
+#include "src/scene/model.h"
 
 namespace
 {
@@ -37,9 +36,9 @@ Window::~Window()
 {
     // Cleanup VBO and shader
     if(mp_glfw_win)
-    {	
-		m_render->unloadModel(m_model);
-		m_render->unloadMaterialData(m_model);
+    {
+        m_render->unloadModel(m_model);
+        m_render->unloadMaterialData(m_model);
     }
 
     // Close OpenGL window and terminate GLFW
@@ -71,15 +70,9 @@ void Window::create()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 
     GLFWwindow * new_window{nullptr};
+    new_window = glfwCreateWindow(cam.m_vp_size.x, cam.m_vp_size.y, "", mon, mp_glfw_win);
     if(mp_glfw_win != nullptr)
-    {
-        new_window = glfwCreateWindow(cam.m_vp_size.x, cam.m_vp_size.y, "", mon, mp_glfw_win);
         glfwDestroyWindow(mp_glfw_win);
-    }
-    else
-    {
-        new_window = glfwCreateWindow(cam.m_vp_size.x, cam.m_vp_size.y, "", mon, nullptr);
-    }
 
     mp_glfw_win = new_window;
     if(mp_glfw_win == nullptr)
@@ -90,21 +83,21 @@ void Window::create()
     glfwMakeContextCurrent(mp_glfw_win);
     glfwSetWindowTitle(mp_glfw_win, m_title.c_str());
 
-	// Initialize GLEW
+    // Initialize GLEW
     if(glewInit() != GLEW_OK)
     {
         throw std::runtime_error{"Failed to initialize GLEW"};
     }
 
-	m_render->setViewport(cam.m_vp_pos.x, cam.m_vp_pos.y, cam.m_vp_size.x, cam.m_vp_size.y);
+    m_render->setViewport(cam.m_vp_pos.x, cam.m_vp_pos.y, cam.m_vp_size.x, cam.m_vp_size.y);
     CameraSystem::SetupProjMatrix(
         cam, 45.0f, static_cast<float>(cam.m_vp_size.x) / static_cast<float>(cam.m_vp_size.y), 0.1f, 100.0f);
 
     // Ensure we can capture the escape key being pressed below
-    glfwSetInputMode(mp_glfw_win, GLFW_STICKY_KEYS, GL_TRUE);  
-	
-	m_render->init();
-	m_render->setClearColor(glm::vec4(0.0f, 0.0f, 0.4f, 0.0f));
+    glfwSetInputMode(mp_glfw_win, GLFW_STICKY_KEYS, GL_TRUE);
+
+    m_render->init();
+    m_render->setClearColor(glm::vec4(0.0f, 0.0f, 0.4f, 0.0f));
 
     // input backend
     m_input_ptr = std::make_unique<InputGLFW>(mp_glfw_win);
@@ -200,8 +193,8 @@ void Window::initScene()
     // Load mesh
     if(!ModelSystem::LoadModel(mesh_fname, geom))
         throw std::runtime_error{"Failed to load mesh"};
-	
-	m_render->uploadModel(m_model);
+
+    m_render->uploadModel(m_model);
 
     if(!m_sys.initSystems())
         throw std::runtime_error{"Failed to init systems"};
@@ -215,31 +208,33 @@ void Window::run()
     {
         m_input_ptr->update();
         // Clear the screen
-		m_render->clearBuffers();
+        m_render->clearBuffers();
 
-        auto const & cam   = m_reg.get<CameraComponent>(m_camera);
+        auto const & cam = m_reg.get<CameraComponent>(m_camera);
 
         // set lights
-		m_render->bindLight(m_light);
+        m_render->lighting();
+        m_render->bindLight(m_light);
 
         // set material
-		m_render->bindMaterial(m_model);
+        m_render->bindMaterial(m_model);
 
         // set matrices
-		m_render->setMatrix(Renderer::MatrixType::PROJECTION, cam.m_proj_mat);
+        m_render->setMatrix(Renderer::MatrixType::PROJECTION, cam.m_proj_mat);
 
         glm::mat4 model      = glm::mat4(1.0f);
         glm::mat4 model_view = cam.m_view_mat * model;
 
-		m_render->setMatrix(Renderer::MatrixType::MODELVIEW, model_view);
+        m_render->setMatrix(Renderer::MatrixType::MODELVIEW, model_view);
 
         m_render->draw(m_model);
 
-        //glBindTexture(GL_TEXTURE_2D, 0);
-		m_render->unbindLight();
+        // glBindTexture(GL_TEXTURE_2D, 0);
+        m_render->unbindLight();
+        m_render->lighting(false);
 
-		m_render->loadIdentityMatrix(Renderer::MatrixType::PROJECTION);
-		m_render->loadIdentityMatrix(Renderer::MatrixType::MODELVIEW);
+        m_render->loadIdentityMatrix(Renderer::MatrixType::PROJECTION);
+        m_render->loadIdentityMatrix(Renderer::MatrixType::MODELVIEW);
 
         // Swap buffers
         glfwSwapBuffers(mp_glfw_win);
@@ -256,7 +251,6 @@ void Window::run()
 void Window::moveForward(float speed)
 {
     auto const & pos = m_reg.get<evnt::SceneComponent>(m_camera);
-    // auto const & cam = m_reg.get<CameraComponent>(m_camera);
 
     glm::vec4 dir     = pos.abs * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
     glm::vec4 new_pos = dir * speed;

@@ -3,7 +3,6 @@
 #include "camera.h"
 #include "light.h"
 #include "material.h"
-#include "glmesh.h"
 #include "model.h"
 
 Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)

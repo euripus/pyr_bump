@@ -36,7 +36,6 @@ SOURCES += \
     src/main.cpp \
     src/render/renderer.cpp \
     src/res/imagedata.cpp \
-    src/res/meshdata.cpp \
     src/scene/camera.cpp \
     src/scene/frustum.cpp \
     src/scene/light.cpp \
@@ -58,7 +57,6 @@ HEADERS += \
     src/render/render_states.h \
     src/render/renderer.h \
     src/res/imagedata.h \
-    src/res/meshdata.h \
     src/scene/AABB.h \
     src/scene/camera.h \
     src/scene/frustum.h \

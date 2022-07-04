@@ -39,7 +39,7 @@ public:
     Renderer(Registry & reg) : ISystem(reg) {}
 
     // ModelSystem must be updated before renderer
-    void        update(float time_delta) override;   /// if needed upload new data to GPU
+    void        update(float time_delta) override {}   /// if needed upload new data to GPU
     bool        init() override;
     std::string getName() const override { return "Renderer"; }
 
@@ -92,7 +92,7 @@ private:
     void commitOffsetState();
     void commitStencilState();
     void commitWireState();
-	void commitAllStates();
+    void commitAllStates();
 
     // states
     AlphaState   m_alpha;

@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 
+#include <GL/glew.h>
 // Include GLFW
 #include <GLFW/glfw3.h>
 // Include GLM
@@ -36,7 +37,7 @@ public:
     Entity              m_light;
     Entity              m_model;
     evnt::SceneSystem * m_scene_sys;
-	Renderer * m_render;
+    Renderer *          m_render;
     // App
     Registry   m_reg;
     SystemsMgr m_sys;
