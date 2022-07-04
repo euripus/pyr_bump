@@ -92,7 +92,7 @@ private:
     void commitOffsetState();
     void commitStencilState();
     void commitWireState();
-    void commitAllStates();
+	void commitAllStates();
 
     // states
     AlphaState   m_alpha;

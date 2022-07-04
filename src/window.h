@@ -4,18 +4,17 @@
 #include <memory>
 #include <string>
 
-// Include GLEW
-#include <GL/glew.h>
 // Include GLFW
 #include <GLFW/glfw3.h>
 // Include GLM
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "scene/sceneentitybuilder.h"
 #include "input/input.h"
 #include "scene/scene.h"
 #include "scene/camera.h"
+
+class Renderer;
 
 class Window
 {
@@ -27,18 +26,6 @@ class Window
     std::string         m_title;
 
     std::unique_ptr<Input> m_input_ptr;
-    // shader constants location
-    GLint m_tangent_atr     = 0;
-    GLint m_bitangent_atr   = 0;
-    GLint m_light_pos_id    = 0;
-    GLint m_cam_pos_id      = 0;
-    GLint m_ambient_col_id  = 0;
-    GLint m_specular_col_id = 0;
-    GLint m_specular_pow_id = 0;
-    // material state
-    GLuint m_base_map   = 0;
-    GLuint m_bump_map   = 0;
-    GLuint m_program_id = 0;
 
     bool createDefaultScene(int width, int height);
 
@@ -49,6 +36,7 @@ public:
     Entity              m_light;
     Entity              m_model;
     evnt::SceneSystem * m_scene_sys;
+	Renderer * m_render;
     // App
     Registry   m_reg;
     SystemsMgr m_sys;

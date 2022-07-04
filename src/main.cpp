@@ -6,7 +6,7 @@ int main(void)
 {
     try
     {
-        Window w{800, 600, "Sample"};
+        Window w{800, 600, "Entity test"};
         w.create();
         w.initScene();
         w.run();

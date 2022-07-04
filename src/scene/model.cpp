@@ -125,3 +125,89 @@ bool ModelSystem::LoadModel(std::string const & fname, ModelComponent & out_mdl)
 
     return true;
 }
+
+bool           ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
+{
+	std::ifstream in(fname, std::ios::in);
+    if(!in)
+    {
+        std::cerr << "Cannot open: " << fname << std::endl;
+        return false;
+    }
+	
+	std::string line;
+    ModelComponent::JointTransform * cur_frame = nullptr;
+    uint32_t     jnt_ind = 0;
+    uint32_t     num_bones = 0;
+    while(std::getline(in, line))
+    {
+		if(line.substr(0, 5) == "bones")
+        {
+            std::istringstream s(line.substr(5));
+            s >> num_bones;
+        }
+        else if(line.substr(0, 6) == "frames")
+        {
+            uint32_t num_frames;
+            std::istringstream s(line.substr(6));
+            s >> num_frames;
+            
+            out_mdl.frames.resize(num_frames);
+            for(auto & jnt : out_mdl.frames)
+            {
+                jnt.rot.resize(num_bones);
+                jnt.trans.resize(num_bones);
+            }
+        }
+        else if(line.substr(0, 9) == "framerate")
+        {
+            float framerate;
+            std::istringstream s(line.substr(9));
+            s >> framerate;
+            
+            out_mdl.frame_rate = framerate;
+        }
+        else if(line.substr(0, 5) == "frame")
+        {
+            uint32_t frame;
+            std::istringstream s(line.substr(5));
+            s >> frame;
+            
+            cur_frame = &out_mdl.frames[frame];
+            jnt_ind = 0;
+        }
+        else if(line.substr(0, 4) == "bbox")
+        {
+            std::istringstream s(line.substr(4));
+            float mnx(0), mny(0), mnz(0), mxx(0), mxy(0), mxz(0);
+            s >> mnx >> mny >> mnz >> mxx >> mxy >> mxz;
+            
+            cur_frame->bbox = AABB(mnx, mny, mnz, mxx, mxy, mxz);
+        }
+        else if(line.substr(0, 3) == "jtr")
+        {
+            std::istringstream s(line.substr(3));
+            float qtx(0), qty(0), qtz(0), qtw(0), 
+                  tr_x(0), tr_y(0), tr_z(0);
+            s >> qtx >> qty >> qtz >> qtw;
+            s >> tr_x >> tr_y >> tr_z;
+            
+            cur_frame->rot[jnt_ind] = glm::quat(qtw, qtx, qty, qtz);
+            cur_frame->trans[jnt_ind] = glm::vec3(tr_x, tr_y, tr_z);
+            jnt_ind++;
+        }
+		else if(line.substr(0, 3) == "jnt")
+        {
+            std::istringstream s(line.substr(3));
+            uint32_t jnt_id(0), jnt_parent(0);
+			std::string name;
+            s >> jnt_id >> jnt_parent >> name;
+			
+			ModelComponent::JointNode jnt{jnt_id, jnt_parent, name};
+			out_mdl.joints.push_back(jnt);
+        }
+	}
+	in.close();
+	
+	return true;
+}

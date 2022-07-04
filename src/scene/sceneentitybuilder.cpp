@@ -47,11 +47,9 @@ Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
     {
         if(entity == null_entity_id)
             entity = reg.create();
-        //
-        reg.assign<GlMeshComponent>(entity);
-        //
-        auto mesh = ModelSystem::GetDefaultModelComponent();
-        reg.assign<ModelComponent>(entity, mesh);
+
+        auto mdl = ModelSystem::GetDefaultModelComponent();
+        reg.assign<ModelComponent>(entity, mdl);
     }
 
     return entity;

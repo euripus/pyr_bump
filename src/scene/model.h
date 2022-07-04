@@ -42,14 +42,19 @@ struct ModelComponent
         uint32_t    parent = 0;
         uint32_t    index  = 0;
         std::string name;
+	};
+	
+	struct JointTransform
+	{
+		AABB     bbox;
 
         std::vector<glm::quat> rot;     // absolute transform matrix for animation
         std::vector<glm::vec3> trans;   // vec.size() == num_frames
     };
 
-    std::vector<JointNode>  skeleton;
-    std::vector<evnt::AABB> bboxes;   // size() == num_frames
-    uint32_t                num_frames = 0;
+	std::vector<JointNode>       joints;
+    std::vector<JointTransform>  frames;
+
     float                   frame_rate = 0.0f;
 
     evnt::AABB base_bbox;
@@ -60,9 +65,7 @@ class ModelSystem   //: public ISystem
 public:
     static ModelComponent GetDefaultModelComponent() { return {}; }
     static bool           LoadModel(std::string const & fname, ModelComponent & out_mdl);
-
-    void        update(Registry & reg, float time_delta);
-    std::string getName() const { return "ModelSystem"; }
+	static bool           LoadAnim(std::string const & fname, ModelComponent & out_mdl);
 };
 
 #endif

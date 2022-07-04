@@ -39,7 +39,6 @@ SOURCES += \
     src/res/meshdata.cpp \
     src/scene/camera.cpp \
     src/scene/frustum.cpp \
-    src/scene/glmesh.cpp \
     src/scene/light.cpp \
 	src/scene/model.cpp \
     src/scene/material.cpp \
@@ -63,7 +62,6 @@ HEADERS += \
     src/scene/AABB.h \
     src/scene/camera.h \
     src/scene/frustum.h \
-    src/scene/glmesh.h \
     src/scene/light.h \
     src/scene/material.h \
 	src/scene/model.h \
