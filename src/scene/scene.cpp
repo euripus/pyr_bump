@@ -44,7 +44,7 @@ void evnt::SceneSystem::postUpdate()
 {
     if(m_transform_updated)
     {
-        m_reg.reset<IsTransformed>();
+        m_reg.reset<evnt::IsTransformed>();
         m_transform_updated = false;
     }
 }
