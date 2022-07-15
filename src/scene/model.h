@@ -36,7 +36,7 @@ struct JointNode
 {
 	uint32_t    index  = 0;
 	std::string name;
-	Entity      model_id;
+	// Entity      model_id;
 };
 
 struct JointsTransform
@@ -64,11 +64,10 @@ struct CurrentAnimSequence
 };
 
 // Model consist of next sequence of components:
-// 		[scene] [material] [model] [current_anim_sequence] [cur_frame]
+// 		[scene] [material] [model] [current_anim_sequence]
 struct ModelComponent
 {
     std::vector<Mesh>         meshes;
-	Entity                    root_bone = null_entity_id;
 	std::vector<Entity>       bone_id_to_entity;
 	std::vector<AnimSequence> animations;
 	
