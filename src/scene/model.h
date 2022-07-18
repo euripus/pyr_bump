@@ -32,11 +32,10 @@ struct Mesh
     evnt::AABB bbox;
 };
 
-struct JointNode
+struct JointComponent
 {
     uint32_t    index = 0;
     std::string name;
-    // Entity      model_id;
 };
 
 struct JointsTransform
@@ -74,6 +73,9 @@ struct ModelComponent
     evnt::AABB base_bbox;
 };
 
+// tag structure for render.update()
+struct VertexDataChanged {};
+
 // Joint consist of
 // 		[scene] [joint_node]
 //		joint.scene.matrix_rel = cur_anim_sequence[joint_node.idx].matrix
@@ -81,11 +83,10 @@ struct ModelComponent
 class JointSystem : public ISystem
 {
     // must be called before scene.update()
-    // 		cur_frame = getFrameInAnimSequence()
-    // 		transform_bones(cur_frame)
+	void        update(float time_delta = 1.0f);
 };
 
-class ModelSystem : public ISystem
+class MeshSystem : public ISystem
 {
 public:
     static ModelComponent GetDefaultModelComponent() { return {}; }
@@ -93,17 +94,9 @@ public:
     static bool           LoadAnim(std::string const & fname, ModelComponent & out_mdl);
 
     bool init() { return true; }
-    // must be called after scene.update()
-    // for(msh : meshes)
-    // 		for(vtx : msh)
-    //  		mat4 n_mat;
-    //			for(ws : we)
-    //				joint = getJoint(ws.joint_index)
-    //				mat = mat * ws.w(model_inv * joint.abs)
-    //			new_vtx = mat * vtx
     void        update(float time_delta = 1.0f);
     void        postUpdate();   // clear CurrentFrame
-    std::string getName() const;
+    std::string getName() const { return "MeshSystem"; }
 
     CurrentFrame getFrameInAnimSequence(Entity model_id, float time);
 };
