@@ -34,7 +34,7 @@ struct Mesh
 
 struct JointComponent
 {
-    uint32_t    index = 0;
+    int32_t    index = 0; // -1 for root
     std::string name;
 };
 

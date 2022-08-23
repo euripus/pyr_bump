@@ -104,6 +104,38 @@ bool ModelSystem::LoadModel(std::string const & fname, ModelComponent & out_mdl)
             s >> w.jointIndex >> w.w;
             cur_mesh->weights.push_back(w);
         }
+		else if(line.substr(0, 4) == "bones")
+        {
+            std::istringstream           s(line.substr(4));
+            uint32_t num;
+
+            s >> num;
+            out_mdl.bone_id_to_entity.clear();
+			out_mdl.bone_id_to_entity.resize(num);
+        }
+		else if(line.substr(0, 3) == "jnt")
+        {
+            std::istringstream           s(line.substr(3));
+            int32_t bone_id{}, parent_id{};
+			std::string bone_name;
+
+            s >> bone_id >> parent_id >> bone_name;
+			
+			assert(bone_id>0);
+			assert(bone_id>parent_id);
+			
+			auto joint_entity   = SceneEntityBuilder::BuildEntity(m_reg, joint_flags);
+            
+			auto & jc = m_reg.get<JointComponent>(joint_entity);
+			jc.index = bone_id;
+			jc.name = bone_name;
+			
+			out_mdl.bone_id_to_entity[bone_id-1] = joint_entity;
+			auto parent_entity = out_mdl.bone_id_to_entity[parent_id-1];
+			
+			SceneSystem sys;
+			sys.addNode(joint_entity, parent_entity);
+        }
     }
     in.close();
 
@@ -133,6 +165,7 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
 
     std::string                      line;
     ModelComponent::JointTransform * cur_frame = nullptr;
+	AnimSequence anm_sequence;
     uint32_t                         jnt_ind   = 0;
     uint32_t                         num_bones = 0;
     while(std::getline(in, line))
@@ -148,8 +181,8 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
             std::istringstream s(line.substr(6));
             s >> num_frames;
 
-            out_mdl.frames.resize(num_frames);
-            for(auto & jnt : out_mdl.frames)
+            anm_sequence.frames.resize(num_frames);
+            for(auto & jnt : anm_sequence.frames)
             {
                 jnt.rot.resize(num_bones);
                 jnt.trans.resize(num_bones);
@@ -161,7 +194,7 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
             std::istringstream s(line.substr(9));
             s >> framerate;
 
-            out_mdl.frame_rate = framerate;
+            anm_sequence.frame_rate = framerate;
         }
         else if(line.substr(0, 5) == "frame")
         {
@@ -169,7 +202,7 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
             std::istringstream s(line.substr(5));
             s >> frame;
 
-            cur_frame = &out_mdl.frames[frame];
+            cur_frame = &anm_sequence.frames[frame];
             jnt_ind   = 0;
         }
         else if(line.substr(0, 4) == "bbox")
@@ -205,10 +238,12 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
     in.close();
 
     // check data correctness
-    for(auto const & frm : out_mdl.frames)
+    for(auto const & frm : anm_sequence.frames)
     {
-        if(out_mdl.joints.size() != frm.rot.size() || out_mdl.joints.size() != frm.trans.size())
+        if(out_mdl.bone_id_to_entity.size() != frm.rot.size() || out_mdl.bone_id_to_entity.size() != frm.trans.size())
             return false;
     }
+	
+	out_mdl.animations.push_back(std::move(anm_sequence));
     return true;
 }
