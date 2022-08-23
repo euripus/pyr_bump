@@ -23,16 +23,16 @@ struct ComponentFlagsBitsPos
     static int const cam      = 1;
     static int const light    = 2;
     static int const material = 3;
-    static int const mesh     = 4;
-	static int const joint    = 5;
+    static int const model    = 4;
+    static int const joint    = 5;
 };
 
 using build_flags = std::bitset<6>;
 
-constexpr build_flags pos_flags = 0b000001;     // pos
-constexpr build_flags cam_flags = 0b000011;     // pos + cam
+constexpr build_flags pos_flags   = 0b000001;   // pos
+constexpr build_flags cam_flags   = 0b000011;   // pos + cam
 constexpr build_flags light_flags = 0b000101;   // pos + light
-constexpr build_flags obj_flags = 0b011001;     // pos + material + model
+constexpr build_flags obj_flags   = 0b011001;   // pos + material + model
 constexpr build_flags joint_flags = 0b100001;   // pos + joint
 
 class SceneEntityBuilder
@@ -50,6 +50,8 @@ struct ISystem
     virtual void        update(float time_delta = 1.0f) = 0;
     virtual void        postUpdate() {}
     virtual std::string getName() const = 0;
+
+    Registry & getRegistry() const { return m_reg; }
 
 protected:
     Registry & m_reg;

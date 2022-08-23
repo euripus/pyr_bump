@@ -1,8 +1,9 @@
-#include "model.h"
 #include <fstream>
 #include <sstream>
 
-bool ModelSystem::LoadModel(std::string const & fname, ModelComponent & out_mdl)
+#include "model.h"
+
+bool ModelSystem::LoadModel(std::string const & fname, evnt::SceneSystem & sys, ModelComponent & out_mdl)
 {
     if(!out_mdl.meshes.empty())
         return false;   // out model not empty
@@ -11,8 +12,8 @@ bool ModelSystem::LoadModel(std::string const & fname, ModelComponent & out_mdl)
     if(!in)
         return false;
 
-    std::string            line;
-    ModelComponent::Mesh * cur_mesh = nullptr;
+    std::string line;
+    Mesh *      cur_mesh = nullptr;
     while(std::getline(in, line))
     {
         if(line.substr(0, 6) == "meshes")
@@ -99,42 +100,41 @@ bool ModelSystem::LoadModel(std::string const & fname, ModelComponent & out_mdl)
         }
         else if(line.substr(0, 3) == "wgh")
         {
-            std::istringstream           s(line.substr(3));
-            ModelComponent::Mesh::Weight w;
+            std::istringstream s(line.substr(3));
+            Mesh::Weight       w;
             s >> w.jointIndex >> w.w;
             cur_mesh->weights.push_back(w);
         }
-		else if(line.substr(0, 4) == "bones")
+        else if(line.substr(0, 4) == "bones")
         {
-            std::istringstream           s(line.substr(4));
-            uint32_t num;
+            std::istringstream s(line.substr(4));
+            uint32_t           num;
 
             s >> num;
             out_mdl.bone_id_to_entity.clear();
-			out_mdl.bone_id_to_entity.resize(num);
+            out_mdl.bone_id_to_entity.resize(num);
         }
-		else if(line.substr(0, 3) == "jnt")
+        else if(line.substr(0, 3) == "jnt")
         {
-            std::istringstream           s(line.substr(3));
-            int32_t bone_id{}, parent_id{};
-			std::string bone_name;
+            std::istringstream s(line.substr(3));
+            int32_t            bone_id{}, parent_id{};
+            std::string        bone_name;
 
             s >> bone_id >> parent_id >> bone_name;
-			
-			assert(bone_id>0);
-			assert(bone_id>parent_id);
-			
-			auto joint_entity   = SceneEntityBuilder::BuildEntity(m_reg, joint_flags);
-            
-			auto & jc = m_reg.get<JointComponent>(joint_entity);
-			jc.index = bone_id;
-			jc.name = bone_name;
-			
-			out_mdl.bone_id_to_entity[bone_id-1] = joint_entity;
-			auto parent_entity = out_mdl.bone_id_to_entity[parent_id-1];
-			
-			SceneSystem sys;
-			sys.addNode(joint_entity, parent_entity);
+
+            assert(bone_id > 0);
+            assert(bone_id > parent_id);
+
+            auto joint_entity = SceneEntityBuilder::BuildEntity(sys.getRegistry(), joint_flags);
+
+            auto & jc = sys.getRegistry().get<JointComponent>(joint_entity);
+            jc.index  = bone_id;
+            jc.name   = bone_name;
+
+            out_mdl.bone_id_to_entity[bone_id - 1] = joint_entity;
+            auto parent_entity                     = out_mdl.bone_id_to_entity[parent_id - 1];
+
+            sys.addNode(joint_entity, parent_entity);
         }
     }
     in.close();
@@ -163,11 +163,11 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
     if(!in)
         return false;
 
-    std::string                      line;
-    ModelComponent::JointTransform * cur_frame = nullptr;
-	AnimSequence anm_sequence;
-    uint32_t                         jnt_ind   = 0;
-    uint32_t                         num_bones = 0;
+    std::string       line;
+    JointsTransform * cur_frame = nullptr;
+    AnimSequence      anm_sequence;
+    uint32_t          jnt_ind   = 0;
+    uint32_t          num_bones = 0;
     while(std::getline(in, line))
     {
         if(line.substr(0, 5) == "bones")
@@ -224,26 +224,17 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
             cur_frame->trans[jnt_ind] = glm::vec3(tr_x, tr_y, tr_z);
             jnt_ind++;
         }
-        else if(line.substr(0, 3) == "jnt")
-        {
-            std::istringstream s(line.substr(3));
-            uint32_t           jnt_id(0), jnt_parent(0);
-            std::string        name;
-            s >> jnt_id >> jnt_parent >> name;
-
-            ModelComponent::JointNode jnt{jnt_id, jnt_parent, name};
-            out_mdl.joints.push_back(jnt);
-        }
     }
     in.close();
 
     // check data correctness
     for(auto const & frm : anm_sequence.frames)
     {
-        if(out_mdl.bone_id_to_entity.size() != frm.rot.size() || out_mdl.bone_id_to_entity.size() != frm.trans.size())
+        if(out_mdl.bone_id_to_entity.size() != frm.rot.size()
+           || out_mdl.bone_id_to_entity.size() != frm.trans.size())
             return false;
     }
-	
-	out_mdl.animations.push_back(std::move(anm_sequence));
+
+    out_mdl.animations.push_back(std::move(anm_sequence));
     return true;
 }

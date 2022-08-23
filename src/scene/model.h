@@ -8,6 +8,7 @@
 
 #include "AABB.h"
 #include "sceneentitybuilder.h"
+#include "scene.h"
 
 struct Mesh
 {
@@ -34,7 +35,7 @@ struct Mesh
 
 struct JointComponent
 {
-    int32_t    index = 0; // -1 for root
+    int32_t     index = 0;   // -1 for root
     std::string name;
 };
 
@@ -74,7 +75,8 @@ struct ModelComponent
 };
 
 // tag structure for render.update()
-struct VertexDataChanged {};
+struct VertexDataChanged
+{};
 
 // Joint consist of
 // 		[scene] [joint_node]
@@ -83,17 +85,17 @@ struct VertexDataChanged {};
 class JointSystem : public ISystem
 {
     // must be called before scene.update()
-	void        update(float time_delta = 1.0f);
+    void update(float time_delta = 1.0f);
 };
 
-class MeshSystem : public ISystem
+class ModelSystem : public ISystem
 {
 public:
     static ModelComponent GetDefaultModelComponent() { return {}; }
-    static bool           LoadModel(std::string const & fname, ModelComponent & out_mdl);
-    static bool           LoadAnim(std::string const & fname, ModelComponent & out_mdl);
+    static bool LoadModel(std::string const & fname, evnt::SceneSystem & sys, ModelComponent & out_mdl);
+    static bool LoadAnim(std::string const & fname, ModelComponent & out_mdl);
 
-    bool init() { return true; }
+    bool        init() { return true; }
     void        update(float time_delta = 1.0f);
     void        postUpdate();   // clear CurrentFrame
     std::string getName() const { return "MeshSystem"; }

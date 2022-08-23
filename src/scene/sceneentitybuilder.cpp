@@ -42,13 +42,20 @@ Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
         auto mat = MaterialSystem::GetDefaultMaterialComponent();
         reg.assign<MaterialComponent>(entity, std::move(mat));
     }
-    if(flags[ComponentFlagsBitsPos::mesh])
+    if(flags[ComponentFlagsBitsPos::model])
     {
         if(entity == null_entity_id)
             entity = reg.create();
 
         auto mdl = ModelSystem::GetDefaultModelComponent();
         reg.assign<ModelComponent>(entity, mdl);
+    }
+    if(flags[ComponentFlagsBitsPos::joint])
+    {
+        if(entity == null_entity_id)
+            entity = reg.create();
+
+        reg.assign<JointComponent>(entity);
     }
 
     return entity;
