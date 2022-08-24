@@ -3,7 +3,8 @@
 
 #include "model.h"
 
-bool ModelSystem::LoadModel(std::string const & fname, ModelComponent & out_mdl, std::vector<ParsedJoint> & joints)
+bool ModelSystem::LoadModel(std::string const & fname, ModelComponent & out_mdl,
+                            std::vector<ParsedJoint> & joints)
 {
     if(!out_mdl.meshes.empty())
         return false;   // out model not empty
@@ -103,12 +104,12 @@ bool ModelSystem::LoadModel(std::string const & fname, ModelComponent & out_mdl,
             std::istringstream s(line.substr(3));
             Mesh::Weight       w;
             s >> w.jointIndex >> w.w;
-			w.jointIndex--;
+            w.jointIndex--;
             cur_mesh->weights.push_back(w);
         }
-        else if(line.substr(0, 4) == "bones")
+        else if(line.substr(0, 5) == "bones")
         {
-            std::istringstream s(line.substr(4));
+            std::istringstream s(line.substr(5));
             uint32_t           num;
 
             s >> num;
@@ -120,19 +121,19 @@ bool ModelSystem::LoadModel(std::string const & fname, ModelComponent & out_mdl,
             std::istringstream s(line.substr(3));
             int32_t            bone_id{}, parent_id{};
             std::string        bone_name;
-			ParsedJoint        joint;
+            ParsedJoint        joint;
 
             s >> bone_id >> parent_id >> bone_name;
 
             assert(bone_id > 0);
             assert(bone_id > parent_id);
-			
-			joint.index = --bone_id;
-			joint.parent = --parent_id;
-            joint.name = bone_name;
-			
-			joints.push_back(std::move(joint));
-		}			
+
+            joint.index  = --bone_id;
+            joint.parent = --parent_id;
+            joint.name   = bone_name;
+
+            joints.push_back(std::move(joint));
+        }
     }
     in.close();
 
@@ -225,12 +226,12 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
     in.close();
 
     // check data correctness
-    for(auto const & frm : anm_sequence.frames)
+    /*for(auto const & frm : anm_sequence.frames)
     {
         if(out_mdl.bone_id_to_entity.size() != frm.rot.size()
            || out_mdl.bone_id_to_entity.size() != frm.trans.size())
             return false;
-    }
+    }*/
 
     out_mdl.animations.push_back(std::move(anm_sequence));
     return true;

@@ -3,7 +3,6 @@
 #include <stdexcept>
 
 #include "render/renderer.h"
-#include "res/imagedata.h"
 #include "scene/light.h"
 #include "scene/material.h"
 #include "input/inputglfw.h"
@@ -11,8 +10,8 @@
 
 namespace
 {
-char const * mesh_fname        = "sphere.txt.msh";
-char const * anim_fname        = "sphere.txt.anm";
+char const * mesh_fname        = "test.txt.msh";
+char const * anim_fname        = "test.txt.anm";
 char const * diffuse_tex_fname = "diffuse.tga";
 char const * bump_tex_fname    = "normal.tga";
 }   // namespace
@@ -172,20 +171,18 @@ bool Window::createDefaultScene(int width, int height)
     m_reg.add_component<evnt::TransformComponent>(m_light, transform);
 
     m_scene_sys->addNode(m_light, m_root);
-    
+
     return true;
 }
 
 void Window::initScene()
 {
-	
-	
-	// mesh
+    // mesh
     m_model = SceneEntityBuilder::BuildEntity(m_reg, obj_flags);
-    
+
     auto & geom = m_reg.get<ModelComponent>(m_model);
     auto & mat  = m_reg.get<MaterialComponent>(m_model);
-	auto & scn  = m_reg.get<SceneComponent>(m_model);
+    auto & scn  = m_reg.get<evnt::SceneComponent>(m_model);
 
     // Load the textures
     if(!MaterialSystem::LoadTGA(mat, diffuse_tex_fname, bump_tex_fname))
@@ -194,40 +191,40 @@ void Window::initScene()
     m_render->uploadMaterialData(m_model);
 
     // Load mesh
-	std::vector<ParsedJoint> joints;
+    std::vector<ParsedJoint> joints;
     if(!ModelSystem::LoadModel(mesh_fname, geom, joints))
         throw std::runtime_error{"Failed to load mesh"};
-	
-	// set AABB
-	scn.bbox = geom.base_bbox;
-	
-	//if we have skeleton
-	if(!joints.empty())
-	{
-		if(ModelSystem::LoadAnim(anim_fname, geom))
-		{
-			// add joints to the scene
-			for(auto & jnt : joints)
-			{
-				auto joint_ent = SceneEntityBuilder::BuildEntity(m_reg, joint_flags);
-				auto & jnt_cmp  = m_reg.get<JointComponent>(joint_ent);
 
-				geom.bone_id_to_entity[jnt.index] = joint_ent;
-				Entity parent_ent = m_model;
-				if(jnt.parent != -1)
-					parent_ent = geom.bone_id_to_entity[jnt.parent];
+    // set AABB
+    scn.bbox = geom.base_bbox;
 
-				jnt_cmp.index = jnt.index;
-				jnt_cmp.name = jnt.name;
+    // if we have skeleton
+    if(!joints.empty())
+    {
+        if(ModelSystem::LoadAnim(anim_fname, geom))
+        {
+            // add joints to the scene
+            for(auto & jnt : joints)
+            {
+                auto   joint_ent = SceneEntityBuilder::BuildEntity(m_reg, joint_flags);
+                auto & jnt_cmp   = m_reg.get<JointComponent>(joint_ent);
 
-				m_scene_sys->addNode(joint_ent, parent_ent);
-			}
-		}
-	}
+                geom.bone_id_to_entity[jnt.index] = joint_ent;
+                Entity parent_ent                 = m_model;
+                if(jnt.parent != -1)
+                    parent_ent = geom.bone_id_to_entity[jnt.parent];
+
+                jnt_cmp.index = jnt.index;
+                jnt_cmp.name  = jnt.name;
+
+                m_scene_sys->addNode(joint_ent, parent_ent);
+            }
+        }
+    }
 
     m_render->uploadModel(m_model);
-	
-	m_scene_sys->addNode(m_model, m_root);
+
+    m_scene_sys->addNode(m_model, m_root);
 
     if(!m_sys.initSystems())
         throw std::runtime_error{"Failed to init systems"};

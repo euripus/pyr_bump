@@ -62,14 +62,12 @@ struct CurrentAnimSequence
     uint32_t id = 0;
 };
 
-
 struct ParsedJoint
 {
-	int32_t  index = 0;
-	int32_t  parent = 0;
-	std::string name;
+    int32_t     index  = 0;
+    int32_t     parent = 0;
+    std::string name;
 };
-
 
 // Model consist of next sequence of components:
 // 		[scene] [material] [model] [current_anim_sequence]
@@ -100,8 +98,9 @@ class ModelSystem : public ISystem
 {
 public:
     static ModelComponent GetDefaultModelComponent() { return {}; }
-    static bool LoadModel(std::string const & fname, ModelComponent & out_mdl, std::vector<ParsedJoint> & joints);
-    static bool LoadAnim(std::string const & fname, ModelComponent & out_mdl);
+    static bool           LoadModel(std::string const & fname, ModelComponent & out_mdl,
+                                    std::vector<ParsedJoint> & joints);
+    static bool           LoadAnim(std::string const & fname, ModelComponent & out_mdl);
 
     bool        init() { return true; }
     void        update(float time_delta = 1.0f);
