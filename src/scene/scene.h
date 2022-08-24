@@ -49,7 +49,6 @@ public:
 
     void addNode(Entity node_id, Entity parent = null_entity_id);
 
-    Entity m_root_id;
 private:
     bool m_transform_updated = false;
 

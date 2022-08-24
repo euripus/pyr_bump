@@ -55,7 +55,6 @@ void evnt::SceneSystem::addNode(Entity node_id, Entity parent)
 
     if(parent == null_entity_id)
     {
-        m_root_id = node_id;
         updateBound(node);
     }
     else

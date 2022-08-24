@@ -3,7 +3,7 @@
 
 #include "model.h"
 
-bool ModelSystem::LoadModel(std::string const & fname, evnt::SceneSystem & sys, ModelComponent & out_mdl)
+bool ModelSystem::LoadModel(std::string const & fname, ModelComponent & out_mdl, std::vector<ParsedJoint> & joints)
 {
     if(!out_mdl.meshes.empty())
         return false;   // out model not empty
@@ -103,6 +103,7 @@ bool ModelSystem::LoadModel(std::string const & fname, evnt::SceneSystem & sys, 
             std::istringstream s(line.substr(3));
             Mesh::Weight       w;
             s >> w.jointIndex >> w.w;
+			w.jointIndex--;
             cur_mesh->weights.push_back(w);
         }
         else if(line.substr(0, 4) == "bones")
@@ -112,30 +113,26 @@ bool ModelSystem::LoadModel(std::string const & fname, evnt::SceneSystem & sys, 
 
             s >> num;
             out_mdl.bone_id_to_entity.clear();
-            out_mdl.bone_id_to_entity.resize(num);
+            out_mdl.bone_id_to_entity.resize(num, null_entity_id);
         }
         else if(line.substr(0, 3) == "jnt")
         {
             std::istringstream s(line.substr(3));
             int32_t            bone_id{}, parent_id{};
             std::string        bone_name;
+			ParsedJoint        joint;
 
             s >> bone_id >> parent_id >> bone_name;
 
             assert(bone_id > 0);
             assert(bone_id > parent_id);
-
-            auto joint_entity = SceneEntityBuilder::BuildEntity(sys.getRegistry(), joint_flags);
-
-            auto & jc = sys.getRegistry().get<JointComponent>(joint_entity);
-            jc.index  = bone_id;
-            jc.name   = bone_name;
-
-            out_mdl.bone_id_to_entity[bone_id - 1] = joint_entity;
-            auto parent_entity                     = out_mdl.bone_id_to_entity[parent_id - 1];
-
-            sys.addNode(joint_entity, parent_entity);
-        }
+			
+			joint.index = --bone_id;
+			joint.parent = --parent_id;
+            joint.name = bone_name;
+			
+			joints.push_back(std::move(joint));
+		}			
     }
     in.close();
 
