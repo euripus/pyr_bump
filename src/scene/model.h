@@ -69,7 +69,7 @@ struct ParsedJoint
 struct ModelComponent
 {
     std::vector<Mesh>         meshes;
-    std::vector<Entity>       bone_id_to_entity;  // skel
+    std::vector<Entity>       bone_id_to_entity;   // skel
     std::vector<AnimSequence> animations;
 
     evnt::AABB base_bbox;
@@ -85,12 +85,12 @@ struct VertexDataChanged
 class JointSystem : public ISystem
 {
     // must be called before scene.update()
-    void update(float time_delta = 1.0f);
+    void update(float time_delta = 1.0f) override;
 
-private:	
-	JointsTransform getCurrentFrame(double time, AnimSequence const & seq) const;
-	void updateModelJoints(ModelComponent const & mdl, JointsTransform const & frame) const;
-	void updateMdlBbox(Entity mdl, JointsTransform const & frame) const;
+private:
+    JointsTransform getCurrentFrame(double time, AnimSequence const & seq) const;
+    void            updateModelJoints(ModelComponent const & mdl, JointsTransform const & frame) const;
+    void            updateMdlBbox(Entity mdl, JointsTransform const & frame) const;
 };
 
 class ModelSystem : public ISystem

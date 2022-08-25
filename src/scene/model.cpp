@@ -1,74 +1,74 @@
 #include <fstream>
 #include <sstream>
 
+#include "scene.h"
 #include "model.h"
 
-void JointSystem::update(float time_delta);
+void JointSystem::update(float time_delta)
 {
-	for(auto ent : m_reg.view<ModelComponent, CurrentAnimSequence>())
+    for(auto ent : m_reg.view<ModelComponent, CurrentAnimSequence>())
     {
-		auto const & seq   = m_reg.get<CurrentAnimSequence>(ent);
-	    auto const & mdl   = m_reg.get<ModelComponent>(ent);
-		
-		auto const & cur_animation = mdl.animations[seq.id];
-		// double control_ime = controller.GetControlTime(time));
-		auto frame = getCurrentFrame(time_delta, cur_animation);
-		updateModelJoints(mdl, frame);
-		updateMdlBbox(ent, frame);
-	}
+        auto const & seq = m_reg.get<CurrentAnimSequence>(ent);
+        auto const & mdl = m_reg.get<ModelComponent>(ent);
+
+        auto const & cur_animation = mdl.animations[seq.id];
+        // double control_ime = controller.GetControlTime(time));
+        auto frame = getCurrentFrame(time_delta, cur_animation);
+        updateModelJoints(mdl, frame);
+        updateMdlBbox(ent, frame);
+    }
 }
 
 JointsTransform JointSystem::getCurrentFrame(double time, AnimSequence const & seq) const
 {
-	float    frame_delta(0.0f);
-    uint32_t prev_frame = 0;
-    uint32_t next_frame = 0;
-	JointsTransform cur_frame;
-	
-	// double control_ime = controller.GetControlTime(time));
-	prev_frame = glm::floor(time * seq.frame_rate);
-	next_frame = prev_frame + 1;
-	if(next_frame == seq.frames.size() + 1)
-		next_frame = 0;
-	
-	frame_delta = time * seq.frame_rate - prev_frame;
-	cur_frame.bbox = {glm::mix(seq.frames[prevFrame].bbox.min(), seq.frames[nextFrame].bbox.min(), frameDelta),
-					  glm::mix(seq.frames[prevFrame].bbox.max(), seq.frames[nextFrame].bbox.max(), frameDelta)};
-	for(unsigned int i = 0; i < seq.frames[0].rot.size(); i++)
-	{
-		cur_frame.rot.push_back(glm::normalize(glm::slerp(seq.frames[prevFrame].rot[i],
-												   seq.frames[nextFrame].rot[i],
-												   frameDelta)));
-		cur_frame.trans.push_back(glm::mix(seq.frames[prevFrame].trans[i],
-									seq.frames[nextFrame].trans[i],
-									frameDelta));
-	}
+    float           frame_delta(0.0f);
+    uint32_t        prev_frame = 0;
+    uint32_t        next_frame = 0;
+    JointsTransform cur_frame;
 
-	return cur_frame;
+    // double control_ime = controller.GetControlTime(time));
+    prev_frame = glm::floor(time * seq.frame_rate);
+    next_frame = prev_frame + 1;
+    if(next_frame == seq.frames.size() + 1)
+        next_frame = 0;
+
+    frame_delta    = time * seq.frame_rate - prev_frame;
+    cur_frame.bbox = {
+        glm::mix(seq.frames[prev_frame].bbox.min(), seq.frames[next_frame].bbox.min(), frame_delta),
+        glm::mix(seq.frames[prev_frame].bbox.max(), seq.frames[next_frame].bbox.max(), frame_delta)};
+    for(unsigned int i = 0; i < seq.frames[0].rot.size(); i++)
+    {
+        cur_frame.rot.push_back(glm::normalize(
+            glm::slerp(seq.frames[prev_frame].rot[i], seq.frames[next_frame].rot[i], frame_delta)));
+        cur_frame.trans.push_back(
+            glm::mix(seq.frames[prev_frame].trans[i], seq.frames[next_frame].trans[i], frame_delta));
+    }
+
+    return cur_frame;
 }
 
 void JointSystem::updateModelJoints(ModelComponent const & mdl, JointsTransform const & frame) const
 {
-	for(uint32_t i = 0; i < frame.rot.size(); ++i)
-	{
-		auto joint_ent = mdl.bone_id_to_entity[i];
-		glm::mat4 mt = glm::mat4_cast(frame.rot[i]);
-		mt = glm::column(mt, 3, glm::vec4(frame.trans[i], 1.0f));
+    for(uint32_t i = 0; i < frame.rot.size(); ++i)
+    {
+        auto      joint_ent = mdl.bone_id_to_entity[i];
+        glm::mat4 mt        = glm::mat4_cast(frame.rot[i]);
+        mt                  = glm::column(mt, 3, glm::vec4(frame.trans[i], 1.0f));
 
-		evnt::TransformComponent transform{};
-		transform.replase_local_matrix = true;
-		transform.new_mat = mt;
-		m_reg.add_component<evnt::TransformComponent>(joint_ent, transform);
-	}
+        evnt::TransformComponent transform{};
+        transform.replase_local_matrix = true;
+        transform.new_mat              = mt;
+        m_reg.add_component<evnt::TransformComponent>(joint_ent, transform);
+    }
 }
 
 void JointSystem::updateMdlBbox(Entity ent, JointsTransform const & frame) const
 {
-	auto & pos   = m_reg.get<SceneComponent>(ent);
-	auto & mdl   = m_reg.get<ModelComponent>(ent);
-	
-	pos.bbox = frame.bbox;
-	mdl.bbox = frame.bbox;
+    auto & pos = m_reg.get<evnt::SceneComponent>(ent);
+    auto & mdl = m_reg.get<ModelComponent>(ent);
+
+    pos.bbox      = frame.bbox;
+    mdl.base_bbox = frame.bbox;
 }
 
 bool ModelSystem::LoadModel(std::string const & fname, ModelComponent & out_mdl,

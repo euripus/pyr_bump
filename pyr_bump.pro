@@ -43,6 +43,7 @@ SOURCES += \
     src/scene/material.cpp \
     src/scene/scene.cpp \
     src/scene/sceneentitybuilder.cpp \
+    src/utils/controller.cpp \
     src/window.cpp
 
 HEADERS += \
@@ -66,6 +67,7 @@ HEADERS += \
     src/scene/plane.h \
     src/scene/scene.h \
     src/scene/sceneentitybuilder.h \
+    src/utils/controller.h \
     src/window.h
 
 DISTFILES += \

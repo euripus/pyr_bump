@@ -219,7 +219,7 @@ void Window::initScene()
 
                 m_scene_sys->addNode(joint_ent, parent_ent);
             }
-			m_reg.add<CurrentAnimSequence>(m_model);
+            m_reg.assign<CurrentAnimSequence>(m_model);
         }
     }
 
@@ -241,8 +241,8 @@ void Window::run()
         // Clear the screen
         m_render->clearBuffers();
 
-        auto const & cam = m_reg.get<CameraComponent>(m_camera);
-		auto const & mdl_pos = m_reg.get<evnt::SceneComponent>(m_model);
+        auto const & cam     = m_reg.get<CameraComponent>(m_camera);
+        auto const & mdl_pos = m_reg.get<evnt::SceneComponent>(m_model);
 
         // set lights
         m_render->lighting();
