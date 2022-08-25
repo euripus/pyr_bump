@@ -52,11 +52,6 @@ struct AnimSequence
     float                        frame_rate = 0.0f;
 };
 
-struct CurrentFrame
-{
-    JointsTransform frame;
-};
-
 struct CurrentAnimSequence
 {
     uint32_t id = 0;
@@ -74,7 +69,7 @@ struct ParsedJoint
 struct ModelComponent
 {
     std::vector<Mesh>         meshes;
-    std::vector<Entity>       bone_id_to_entity;
+    std::vector<Entity>       bone_id_to_entity;  // skel
     std::vector<AnimSequence> animations;
 
     evnt::AABB base_bbox;
@@ -87,11 +82,15 @@ struct VertexDataChanged
 // Joint consist of
 // 		[scene] [joint_node]
 //		joint.scene.matrix_rel = cur_anim_sequence[joint_node.idx].matrix
-
 class JointSystem : public ISystem
 {
     // must be called before scene.update()
     void update(float time_delta = 1.0f);
+
+private:	
+	JointsTransform getCurrentFrame(double time, AnimSequence const & seq) const;
+	void updateModelJoints(ModelComponent const & mdl, JointsTransform const & frame) const;
+	void updateMdlBbox(Entity mdl, JointsTransform const & frame) const;
 };
 
 class ModelSystem : public ISystem
@@ -105,9 +104,7 @@ public:
     bool        init() { return true; }
     void        update(float time_delta = 1.0f);
     void        postUpdate();   // clear CurrentFrame
-    std::string getName() const { return "MeshSystem"; }
-
-    CurrentFrame getFrameInAnimSequence(Entity model_id, float time);
+    std::string getName() const { return "ModelSystem"; }
 };
 
 #endif

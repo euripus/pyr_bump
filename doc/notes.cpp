@@ -1,7 +1,7 @@
 
 
-update_joints(float time)
-	for(e : reg.view<Model, Joint>())
+/*update_joints(float time)
+	for(e : reg.view<Model, CurrentAnimSequence>())
 		cur_anim = reg.get<CurrentAnimSequence>().id
 		as = mdl.animations[cur_anim]
 		frame = getCurFrame(time, as)
@@ -17,7 +17,7 @@ update_model_joints(mdl, frame)
 		TransformComponent trans;
 		trans.replase_local_matrix = true;
 		trans.rel = mat
-		reg.add<TransformComponent>(ent, mat)
+		reg.add<TransformComponent>(ent, mat)*/
 
 // .....
 update_meshes
@@ -30,5 +30,7 @@ update_meshes
 					mat = mat * ws.w(model_inv * jnt_pos.abs)
 				new_vtx = mat * vtx
 
-Model : [pos] [material] [meshes] [root_joint] [cur_anim_sequence]
+Model : [pos] [material] [model] [cur_anim_sequence]
 Joint : [pos] [joint_node]
+
+update joints => update scene => update meshes
