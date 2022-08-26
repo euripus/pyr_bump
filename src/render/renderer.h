@@ -21,12 +21,6 @@ struct RenderModel
     std::vector<mesh> model;
 };
 
-// tag structure
-struct BuffersUpdated
-{
-    bool val = true;
-};
-
 class Renderer : public ISystem
 {
 public:
@@ -39,7 +33,7 @@ public:
     Renderer(Registry & reg) : ISystem(reg) {}
 
     // ModelSystem must be updated before renderer
-    void        update(float time_delta) override {}   /// if needed upload new data to GPU
+    void        update(float time_delta) override;   /// if needed upload new data to GPU
     bool        init() override;
     std::string getName() const override { return "Renderer"; }
 
