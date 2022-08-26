@@ -39,7 +39,7 @@ SOURCES += \
     src/scene/camera.cpp \
     src/scene/frustum.cpp \
     src/scene/light.cpp \
-	src/scene/model.cpp \
+    src/scene/model.cpp \
     src/scene/material.cpp \
     src/scene/scene.cpp \
     src/scene/sceneentitybuilder.cpp \
@@ -63,7 +63,7 @@ HEADERS += \
     src/scene/frustum.h \
     src/scene/light.h \
     src/scene/material.h \
-	src/scene/model.h \
+    src/scene/model.h \
     src/scene/plane.h \
     src/scene/scene.h \
     src/scene/sceneentitybuilder.h \

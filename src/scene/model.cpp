@@ -36,7 +36,7 @@ JointsTransform JointSystem::getCurrentFrame(double time, AnimSequence const & s
     cur_frame.bbox = {
         glm::mix(seq.frames[prev_frame].bbox.min(), seq.frames[next_frame].bbox.min(), frame_delta),
         glm::mix(seq.frames[prev_frame].bbox.max(), seq.frames[next_frame].bbox.max(), frame_delta)};
-    for(unsigned int i = 0; i < seq.frames[0].rot.size(); i++)
+    for(uint32_t i = 0; i < seq.frames[0].rot.size(); i++)
     {
         cur_frame.rot.push_back(glm::normalize(
             glm::slerp(seq.frames[prev_frame].rot[i], seq.frames[next_frame].rot[i], frame_delta)));
@@ -71,7 +71,7 @@ void JointSystem::updateMdlBbox(Entity ent, JointsTransform const & frame) const
     mdl.base_bbox = frame.bbox;
 }
 
-bool ModelSystem::LoadModel(std::string const & fname, ModelComponent & out_mdl,
+bool ModelSystem::LoadMesh(std::string const & fname, ModelComponent & out_mdl,
                             std::vector<ParsedJoint> & joints)
 {
     if(!out_mdl.meshes.empty())
@@ -171,8 +171,8 @@ bool ModelSystem::LoadModel(std::string const & fname, ModelComponent & out_mdl,
         {
             std::istringstream s(line.substr(3));
             Mesh::Weight       w;
-            s >> w.jointIndex >> w.w;
-            w.jointIndex--;
+            s >> w.joint_index >> w.w;
+            w.joint_index--;
             cur_mesh->weights.push_back(w);
         }
         else if(line.substr(0, 5) == "bones")
@@ -183,6 +183,14 @@ bool ModelSystem::LoadModel(std::string const & fname, ModelComponent & out_mdl,
             s >> num;
             out_mdl.bone_id_to_entity.clear();
             out_mdl.bone_id_to_entity.resize(num, null_entity_id);
+        }
+		else if(line.substr(0, 8) == "material")
+        {
+            std::istringstream s(line.substr(8));
+            std::string        name;
+
+            s >> name;
+            out_mdl.material_name = name;
         }
         else if(line.substr(0, 3) == "jnt")
         {
@@ -303,4 +311,101 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
 
     out_mdl.animations.push_back(std::move(anm_sequence));
     return true;
+}
+
+void ModelSystem::update(float time_delta)
+{
+	// update positions for animated meshes
+	for(auto ent : m_reg.view<ModelComponent, CurrentAnimSequence>())
+    {
+		auto & geom = m_reg.get<ModelComponent>(ent);
+		auto const & scn = m_reg.get<evnt::SceneComponent>(ent);
+		
+		glm::mat4 inverted_model = glm::inverse(scn.abs);
+		
+		for(auto & msh : geom.meshes)
+		{
+			msh.frame_pos.clear();
+			msh.frame_normal.clear();
+			msh.frame_tangent.clear();
+			msh.frame_bitangent.clear();
+			
+			for(uint32_t n = 0; n < msh.pos.size(); ++n)
+            {
+				glm::mat4 vert_mat(0.0f);
+				for(uint32_t j = msh.weight_indxs[n].first; j < msh.weight_indxs[n].second; ++j)
+				{
+					auto joint_ent = geom.bone_id_to_entity[msh.weights[j].joint_index];
+					auto const & joint_scn = m_reg.get<evnt::SceneComponent>(joint_ent);
+					
+					vert_mat += inverted_model * joint_scn.abs * msh.weights[j].w;
+				}
+				
+				glm::mat3 norm_mat = glm::mat3(vert_mat)
+				glm::vec4 n_pos = vert_mat * glm::vec4(msh.pos[n], 1.0);
+                glm::vec3 n_norm =  norm_mat * msh.normal[n];
+				glm::vec3 n_tang =  norm_mat * msh.tangent[n];
+				glm::vec3 n_bitan =  norm_mat * msh.bitangent[n];
+				
+				msh.frame_pos.push_back(glm::vec3(n_pos));
+				msh.frame_normal.push_back(n_norm);
+				msh.frame_tangent.push_back(n_tang);
+				msh.frame_bitangent.push_back(n_bitan);
+			}
+		}
+		
+		m_reg.assign<VertexDataChanged>(model_ent);
+	}
+}
+
+void ModelSystem::postUpdate() 
+{
+	m_reg.reset<VertexDataChanged>();
+}
+
+Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const & fname, std::string const & anim_fname) const
+{
+	model_ent = SceneEntityBuilder::BuildEntity(m_reg, obj_flags);
+
+    auto & geom = m_reg.get<ModelComponent>(model_ent);
+    auto & mat  = m_reg.get<MaterialComponent>(model_ent);
+    auto & scn  = m_reg.get<evnt::SceneComponent>(model_ent);
+
+    // Load the textures
+    if(!MaterialSystem::LoadTGA(mat, geom.material_name, {}))
+        throw std::runtime_error{"Failed to load texture"};
+
+    // Load mesh
+    std::vector<ParsedJoint> joints;
+    if(!ModelSystem::LoadMesh(fname, geom, joints))
+        throw std::runtime_error{"Failed to load mesh"};
+
+    // set AABB
+    scn.bbox = geom.base_bbox;
+
+    // if we have skeleton
+    if(!joints.empty())
+    {
+		// and animation
+        if(ModelSystem::LoadAnim(anim_fname, geom))
+        {
+            // add joints to the scene
+            for(auto & jnt : joints)
+            {
+                auto   joint_ent = SceneEntityBuilder::BuildEntity(m_reg, joint_flags);
+                auto & jnt_cmp   = m_reg.get<JointComponent>(joint_ent);
+
+                geom.bone_id_to_entity[jnt.index] = joint_ent;
+                Entity parent_ent                 = model_ent;
+                if(jnt.parent != -1)
+                    parent_ent = geom.bone_id_to_entity[jnt.parent];
+
+                jnt_cmp.index = jnt.index;
+                jnt_cmp.name  = jnt.name;
+
+                scene_sys.addNode(joint_ent, parent_ent);
+            }
+            m_reg.assign<CurrentAnimSequence>(model_ent);
+        }
+    }
 }

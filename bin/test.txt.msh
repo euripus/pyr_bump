@@ -4,7 +4,7 @@ mesh 0
 vertices 104
 weights 154
 bbox -1 -1 -1 4.5623 4.6926 1
-material Material
+material diffuse.tga
 vtx -1 1 -1
 vtx 0.5244 2.6829 -0.5244
 vtx 1 1 -1
