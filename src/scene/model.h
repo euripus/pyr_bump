@@ -8,13 +8,14 @@
 
 #include "AABB.h"
 #include "sceneentitybuilder.h"
+#include "src/scene/scene.h"
 
 struct Mesh
 {
     struct Weight
     {
         uint32_t joint_index = 0;
-        float    w          = 0.0f;
+        float    w           = 0.0f;
     };
 
     // dynamic data initial
@@ -22,8 +23,8 @@ struct Mesh
     std::vector<glm::vec3> normal;
     std::vector<glm::vec3> tangent;
     std::vector<glm::vec3> bitangent;
-	// dynamic data transformed
-	std::vector<glm::vec3> frame_pos;
+    // dynamic data transformed
+    std::vector<glm::vec3> frame_pos;
     std::vector<glm::vec3> frame_normal;
     std::vector<glm::vec3> frame_tangent;
     std::vector<glm::vec3> frame_bitangent;
@@ -78,7 +79,7 @@ struct ModelComponent
     std::vector<Mesh>         meshes;
     std::vector<Entity>       bone_id_to_entity;   // skel
     std::vector<AnimSequence> animations;
-	std::string material_name;
+    std::string               material_name;
 
     evnt::AABB base_bbox;
 };
@@ -93,8 +94,8 @@ struct VertexDataChanged
 class JointSystem : public ISystem
 {
     // must be called before scene.update()
-    void update(float time_delta = 1.0f) override;
-	std::string getName() const override { return "JointSystem"; }
+    void        update(float time_delta = 1.0f) override;
+    std::string getName() const override { return "JointSystem"; }
 
 private:
     JointsTransform getCurrentFrame(double time, AnimSequence const & seq) const;
@@ -107,15 +108,16 @@ class ModelSystem : public ISystem
 public:
     static ModelComponent GetDefaultModelComponent() { return {}; }
     static bool           LoadMesh(std::string const & fname, ModelComponent & out_mdl,
-                                    std::vector<ParsedJoint> & joints);
+                                   std::vector<ParsedJoint> & joints);
     static bool           LoadAnim(std::string const & fname, ModelComponent & out_mdl);
 
-    //bool        init() override { return true; }
+    // bool        init() override { return true; }
     void        update(float time_delta = 1.0f) override;
     void        postUpdate() override;   // clear tag structures
     std::string getName() const override { return "ModelSystem"; }
-	
-	Entity loadModel(evnt::SceneSystem & scene_sys, std::string const & fname, std::string const & anim_fname = {}) const;
+
+    Entity loadModel(evnt::SceneSystem & scene_sys, std::string const & fname,
+                     std::string const & anim_fname = {}) const;
 };
 
 #endif

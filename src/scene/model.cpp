@@ -2,6 +2,7 @@
 #include <sstream>
 
 #include "scene.h"
+#include "material.h"
 #include "model.h"
 
 void JointSystem::update(float time_delta)
@@ -72,7 +73,7 @@ void JointSystem::updateMdlBbox(Entity ent, JointsTransform const & frame) const
 }
 
 bool ModelSystem::LoadMesh(std::string const & fname, ModelComponent & out_mdl,
-                            std::vector<ParsedJoint> & joints)
+                           std::vector<ParsedJoint> & joints)
 {
     if(!out_mdl.meshes.empty())
         return false;   // out model not empty
@@ -184,7 +185,7 @@ bool ModelSystem::LoadMesh(std::string const & fname, ModelComponent & out_mdl,
             out_mdl.bone_id_to_entity.clear();
             out_mdl.bone_id_to_entity.resize(num, null_entity_id);
         }
-		else if(line.substr(0, 8) == "material")
+        else if(line.substr(0, 8) == "material")
         {
             std::istringstream s(line.substr(8));
             std::string        name;
@@ -315,57 +316,58 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
 
 void ModelSystem::update(float time_delta)
 {
-	// update positions for animated meshes
-	for(auto ent : m_reg.view<ModelComponent, CurrentAnimSequence>())
+    // update positions for animated meshes
+    for(auto ent : m_reg.view<ModelComponent, CurrentAnimSequence>())
     {
-		auto & geom = m_reg.get<ModelComponent>(ent);
-		auto const & scn = m_reg.get<evnt::SceneComponent>(ent);
-		
-		glm::mat4 inverted_model = glm::inverse(scn.abs);
-		
-		for(auto & msh : geom.meshes)
-		{
-			msh.frame_pos.clear();
-			msh.frame_normal.clear();
-			msh.frame_tangent.clear();
-			msh.frame_bitangent.clear();
-			
-			for(uint32_t n = 0; n < msh.pos.size(); ++n)
+        auto &       geom = m_reg.get<ModelComponent>(ent);
+        auto const & scn  = m_reg.get<evnt::SceneComponent>(ent);
+
+        glm::mat4 inverted_model = glm::inverse(scn.abs);
+
+        for(auto & msh : geom.meshes)
+        {
+            msh.frame_pos.clear();
+            msh.frame_normal.clear();
+            msh.frame_tangent.clear();
+            msh.frame_bitangent.clear();
+
+            for(uint32_t n = 0; n < msh.pos.size(); ++n)
             {
-				glm::mat4 vert_mat(0.0f);
-				for(uint32_t j = msh.weight_indxs[n].first; j < msh.weight_indxs[n].second; ++j)
-				{
-					auto joint_ent = geom.bone_id_to_entity[msh.weights[j].joint_index];
-					auto const & joint_scn = m_reg.get<evnt::SceneComponent>(joint_ent);
-					
-					vert_mat += inverted_model * joint_scn.abs * msh.weights[j].w;
-				}
-				
-				glm::mat3 norm_mat = glm::mat3(vert_mat)
-				glm::vec4 n_pos = vert_mat * glm::vec4(msh.pos[n], 1.0);
-                glm::vec3 n_norm =  norm_mat * msh.normal[n];
-				glm::vec3 n_tang =  norm_mat * msh.tangent[n];
-				glm::vec3 n_bitan =  norm_mat * msh.bitangent[n];
-				
-				msh.frame_pos.push_back(glm::vec3(n_pos));
-				msh.frame_normal.push_back(n_norm);
-				msh.frame_tangent.push_back(n_tang);
-				msh.frame_bitangent.push_back(n_bitan);
-			}
-		}
-		
-		m_reg.assign<VertexDataChanged>(model_ent);
-	}
+                glm::mat4 vert_mat(0.0f);
+                for(uint32_t j = msh.weight_indxs[n].first; j < msh.weight_indxs[n].second; ++j)
+                {
+                    auto         joint_ent = geom.bone_id_to_entity[msh.weights[j].joint_index];
+                    auto const & joint_scn = m_reg.get<evnt::SceneComponent>(joint_ent);
+
+                    vert_mat += inverted_model * joint_scn.abs * msh.weights[j].w;
+                }
+
+                glm::mat3 norm_mat = glm::mat3(vert_mat);
+                glm::vec4 n_pos    = vert_mat * glm::vec4(msh.pos[n], 1.0);
+                glm::vec3 n_norm   = norm_mat * msh.normal[n];
+                glm::vec3 n_tang   = norm_mat * msh.tangent[n];
+                glm::vec3 n_bitan  = norm_mat * msh.bitangent[n];
+
+                msh.frame_pos.push_back(glm::vec3(n_pos));
+                msh.frame_normal.push_back(n_norm);
+                msh.frame_tangent.push_back(n_tang);
+                msh.frame_bitangent.push_back(n_bitan);
+            }
+        }
+
+        m_reg.assign<VertexDataChanged>(ent);
+    }
 }
 
-void ModelSystem::postUpdate() 
+void ModelSystem::postUpdate()
 {
-	m_reg.reset<VertexDataChanged>();
+    m_reg.reset<VertexDataChanged>();
 }
 
-Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const & fname, std::string const & anim_fname) const
+Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const & fname,
+                              std::string const & anim_fname) const
 {
-	model_ent = SceneEntityBuilder::BuildEntity(m_reg, obj_flags);
+    auto model_ent = SceneEntityBuilder::BuildEntity(m_reg, obj_flags);
 
     auto & geom = m_reg.get<ModelComponent>(model_ent);
     auto & mat  = m_reg.get<MaterialComponent>(model_ent);
@@ -386,7 +388,7 @@ Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const &
     // if we have skeleton
     if(!joints.empty())
     {
-		// and animation
+        // and animation
         if(ModelSystem::LoadAnim(anim_fname, geom))
         {
             // add joints to the scene
@@ -408,4 +410,6 @@ Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const &
             m_reg.assign<CurrentAnimSequence>(model_ent);
         }
     }
+
+    return model_ent;
 }

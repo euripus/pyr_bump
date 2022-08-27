@@ -60,22 +60,24 @@ GLenum g_gl_stencil_operation[static_cast<uint32_t>(StencilState::OperationType:
 
 void Renderer::update(float time_delta)
 {
-	for(auto ent : m_reg.view<ModelComponent, RenderModel, VertexDataChanged>())
+    for(auto ent : m_reg.view<ModelComponent, RenderModel, VertexDataChanged>())
     {
-		auto const & geom = m_reg.get<ModelComponent>(ent);
-		auto const & gl_mdl = m_reg.get<ModelComponent>(RenderModel);
-		
-		for(uint32_t i = 0; i < geom.meshes.size(); ++i)
-		{
-			auto const & msh = geom.meshes[i];
-			
-			glBindBuffer(GL_ARRAY_BUFFER_ARB, gl_mdl.model[i].m_vertexbuffer);
-            glBufferSubData(GL_ARRAY_BUFFER_ARB, 0, msh.frame_pos.size() * 3 * sizeof(float), &msh.frame_pos[0]);
-			
-			glBindBuffer(GL_ARRAY_BUFFER_ARB, gl_mdl.model[i].m_normalbuffer);
-            glBufferSubData(GL_ARRAY_BUFFER_ARB, 0, msh.frame_normal.size() * 3 * sizeof(float), &msh.frame_normal[0]);
-		}
-	}
+        auto const & geom   = m_reg.get<ModelComponent>(ent);
+        auto const & gl_mdl = m_reg.get<RenderModel>(ent);
+
+        for(uint32_t i = 0; i < geom.meshes.size(); ++i)
+        {
+            auto const & msh = geom.meshes[i];
+
+            glBindBuffer(GL_ARRAY_BUFFER_ARB, gl_mdl.model[i].m_vertexbuffer);
+            glBufferSubData(GL_ARRAY_BUFFER_ARB, 0, msh.frame_pos.size() * 3 * sizeof(float),
+                            &msh.frame_pos[0]);
+
+            glBindBuffer(GL_ARRAY_BUFFER_ARB, gl_mdl.model[i].m_normalbuffer);
+            glBufferSubData(GL_ARRAY_BUFFER_ARB, 0, msh.frame_normal.size() * 3 * sizeof(float),
+                            &msh.frame_normal[0]);
+        }
+    }
 }
 
 bool Renderer::init()
@@ -215,8 +217,8 @@ void Renderer::uploadModel(Entity entity_id)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cur_msh.m_elementbuffer);
         cur_msh.m_indices_size = static_cast<GLsizei>(msh.indexes.size());
         glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                     static_cast<GLsizeiptr>(cur_msh.m_indices_size) * sizeof(uint32_t),
-                     msh.indexes.data(), GL_STATIC_DRAW);
+                     static_cast<GLsizeiptr>(cur_msh.m_indices_size) * sizeof(uint32_t), msh.indexes.data(),
+                     GL_STATIC_DRAW);
 
         gl_mdl.model.push_back(cur_msh);
     }

@@ -192,7 +192,7 @@ void Window::initScene()
 
     // Load mesh
     std::vector<ParsedJoint> joints;
-    if(!ModelSystem::LoadModel(mesh_fname, geom, joints))
+    if(!ModelSystem::LoadMesh(mesh_fname, geom, joints))
         throw std::runtime_error{"Failed to load mesh"};
 
     // set AABB
