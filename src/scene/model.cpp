@@ -28,9 +28,9 @@ JointsTransform JointSystem::getCurrentFrame(double time, AnimSequence const & s
     JointsTransform cur_frame;
 
     // double control_ime = controller.GetControlTime(time));
-    prev_frame = glm::floor(time * seq.frame_rate);
+    prev_frame = 4;//glm::floor(time * seq.frame_rate);
     next_frame = prev_frame + 1;
-    if(next_frame == seq.frames.size() + 1)
+    if(next_frame == seq.frames.size())
         next_frame = 0;
 
     frame_delta    = time * seq.frame_rate - prev_frame;
@@ -355,7 +355,7 @@ void ModelSystem::update(float time_delta)
             }
         }
 
-        m_reg.assign<VertexDataChanged>(ent);
+        m_reg.add_component<VertexDataChanged>(ent);
     }
 }
 
@@ -373,14 +373,14 @@ Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const &
     auto & mat  = m_reg.get<MaterialComponent>(model_ent);
     auto & scn  = m_reg.get<evnt::SceneComponent>(model_ent);
 
-    // Load the textures
-    if(!MaterialSystem::LoadTGA(mat, geom.material_name, {}))
-        throw std::runtime_error{"Failed to load texture"};
-
     // Load mesh
     std::vector<ParsedJoint> joints;
     if(!ModelSystem::LoadMesh(fname, geom, joints))
         throw std::runtime_error{"Failed to load mesh"};
+
+    // Load the textures
+    if(!MaterialSystem::LoadTGA(mat, geom.material_name, {}))
+        throw std::runtime_error{"Failed to load texture"};
 
     // set AABB
     scn.bbox = geom.base_bbox;

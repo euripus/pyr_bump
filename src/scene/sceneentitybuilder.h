@@ -59,12 +59,12 @@ protected:
 
 class SystemsMgr
 {
-    std::vector<std::unique_ptr<ISystem>> m_systems;
+    std::vector<std::shared_ptr<ISystem>> m_systems;
     Registry &                            m_reg;
 public:
     SystemsMgr(Registry & reg) : m_reg(reg) {}
 
-    void addSystem(std::unique_ptr<ISystem> sys_ptr);
+    void addSystem(std::shared_ptr<ISystem> sys_ptr);
 
     bool initSystems();
     void update(float time_delta = 1.0f);

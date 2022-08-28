@@ -86,13 +86,18 @@ struct ModelComponent
 
 // tag structure for render.update()
 struct VertexDataChanged
-{};
+{
+    bool val = true;
+};
 
 // Joint consist of
 //      [scene] [joint_component]
 //      joint.scene.matrix_rel = cur_anim_sequence[joint_node.idx].matrix
 class JointSystem : public ISystem
 {
+public:
+    JointSystem(Registry & reg) : ISystem(reg) {}
+
     // must be called before scene.update()
     void        update(float time_delta = 1.0f) override;
     std::string getName() const override { return "JointSystem"; }
@@ -111,6 +116,7 @@ public:
                                    std::vector<ParsedJoint> & joints);
     static bool           LoadAnim(std::string const & fname, ModelComponent & out_mdl);
 
+    ModelSystem(Registry & reg) : ISystem(reg) {}
     // bool        init() override { return true; }
     void        update(float time_delta = 1.0f) override;
     void        postUpdate() override;   // clear tag structures

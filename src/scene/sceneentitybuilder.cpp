@@ -61,9 +61,9 @@ Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
     return entity;
 }
 
-void SystemsMgr::addSystem(std::unique_ptr<ISystem> sys_ptr)
+void SystemsMgr::addSystem(std::shared_ptr<ISystem> sys_ptr)
 {
-    m_systems.push_back(std::move(sys_ptr));
+    m_systems.push_back(sys_ptr);
 }
 
 bool SystemsMgr::initSystems()

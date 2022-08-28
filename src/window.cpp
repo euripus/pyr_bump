@@ -2,11 +2,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <stdexcept>
 
+#include "scene/camera.h"
 #include "render/renderer.h"
 #include "scene/light.h"
-#include "scene/material.h"
+//#include "scene/material.h"
 #include "input/inputglfw.h"
-#include "src/scene/model.h"
 
 namespace
 {
@@ -127,20 +127,28 @@ void Window::fullscreen(bool is_fullscreen)
 bool Window::createDefaultScene(int width, int height)
 {
     // create systems
-    std::unique_ptr<ISystem> ptr;
-    ptr         = std::make_unique<evnt::SceneSystem>(m_reg);
-    m_scene_sys = static_cast<evnt::SceneSystem *>(ptr.get());
-    m_sys.addSystem(std::move(ptr));
+    m_scene_sys = std::make_shared<evnt::SceneSystem>(m_reg);
+    m_sys.addSystem(m_scene_sys);
 
-    ptr      = std::make_unique<Renderer>(m_reg);
+    std::shared_ptr<ISystem> ptr;
+    ptr      = std::make_shared<Renderer>(m_reg);
     m_render = static_cast<Renderer *>(ptr.get());
     m_sys.addSystem(std::move(ptr));
 
-    ptr = std::make_unique<CameraSystem>(m_reg);
+    ptr = std::make_shared<CameraSystem>(m_reg);
     m_sys.addSystem(std::move(ptr));
 
-    ptr = std::make_unique<LightSystem>(m_reg);
+    ptr = std::make_shared<LightSystem>(m_reg);
     m_sys.addSystem(std::move(ptr));
+
+    ptr = std::make_shared<JointSystem>(m_reg);
+    m_sys.addSystem(std::move(ptr));
+
+    // update joints transform matrices
+    m_sys.addSystem(m_scene_sys);
+
+    m_model_sys = std::make_shared<ModelSystem>(m_reg);
+    m_sys.addSystem(m_model_sys);
 
     // add nodes
     evnt::TransformComponent transform{};
@@ -177,58 +185,16 @@ bool Window::createDefaultScene(int width, int height)
 
 void Window::initScene()
 {
+    if(!m_sys.initSystems())
+        throw std::runtime_error{"Failed to init systems"};
+
     // mesh
-    m_model = SceneEntityBuilder::BuildEntity(m_reg, obj_flags);
-
-    auto & geom = m_reg.get<ModelComponent>(m_model);
-    auto & mat  = m_reg.get<MaterialComponent>(m_model);
-    auto & scn  = m_reg.get<evnt::SceneComponent>(m_model);
-
-    // Load the textures
-    if(!MaterialSystem::LoadTGA(mat, diffuse_tex_fname, bump_tex_fname))
-        throw std::runtime_error{"Failed to load texture"};
+    m_model = m_model_sys->loadModel(*m_scene_sys.get(), mesh_fname, anim_fname);
 
     m_render->uploadMaterialData(m_model);
-
-    // Load mesh
-    std::vector<ParsedJoint> joints;
-    if(!ModelSystem::LoadMesh(mesh_fname, geom, joints))
-        throw std::runtime_error{"Failed to load mesh"};
-
-    // set AABB
-    scn.bbox = geom.base_bbox;
-
-    // if we have skeleton
-    if(!joints.empty())
-    {
-        if(ModelSystem::LoadAnim(anim_fname, geom))
-        {
-            // add joints to the scene
-            for(auto & jnt : joints)
-            {
-                auto   joint_ent = SceneEntityBuilder::BuildEntity(m_reg, joint_flags);
-                auto & jnt_cmp   = m_reg.get<JointComponent>(joint_ent);
-
-                geom.bone_id_to_entity[jnt.index] = joint_ent;
-                Entity parent_ent                 = m_model;
-                if(jnt.parent != -1)
-                    parent_ent = geom.bone_id_to_entity[jnt.parent];
-
-                jnt_cmp.index = jnt.index;
-                jnt_cmp.name  = jnt.name;
-
-                m_scene_sys->addNode(joint_ent, parent_ent);
-            }
-            m_reg.assign<CurrentAnimSequence>(m_model);
-        }
-    }
-
     m_render->uploadModel(m_model);
 
     m_scene_sys->addNode(m_model, m_root);
-
-    if(!m_sys.initSystems())
-        throw std::runtime_error{"Failed to init systems"};
 }
 
 void Window::run()
