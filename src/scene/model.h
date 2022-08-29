@@ -9,6 +9,7 @@
 #include "AABB.h"
 #include "sceneentitybuilder.h"
 #include "src/scene/scene.h"
+#include "src/utils/controller.h"
 
 struct Mesh
 {
@@ -56,6 +57,7 @@ struct AnimSequence
 {
     std::vector<JointsTransform> frames;
     float                        frame_rate = 0.0f;
+	Controller controller;
 };
 
 struct CurrentAnimSequence
@@ -99,7 +101,7 @@ public:
     JointSystem(Registry & reg) : ISystem(reg) {}
 
     // must be called before scene.update()
-    void        update(float time_delta = 1.0f) override;
+    void        update(double time = 1.0) override;
     std::string getName() const override { return "JointSystem"; }
 
 private:
@@ -118,7 +120,7 @@ public:
 
     ModelSystem(Registry & reg) : ISystem(reg) {}
     // bool        init() override { return true; }
-    void        update(float time_delta = 1.0f) override;
+    void        update(double time = 1.0) override;
     void        postUpdate() override;   // clear tag structures
     std::string getName() const override { return "ModelSystem"; }
 

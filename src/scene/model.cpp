@@ -5,7 +5,7 @@
 #include "material.h"
 #include "model.h"
 
-void JointSystem::update(float time_delta)
+void JointSystem::update(double time)
 {
     for(auto ent : m_reg.view<ModelComponent, CurrentAnimSequence>())
     {
@@ -13,8 +13,8 @@ void JointSystem::update(float time_delta)
         auto const & mdl = m_reg.get<ModelComponent>(ent);
 
         auto const & cur_animation = mdl.animations[seq.id];
-        // double control_ime = controller.GetControlTime(time));
-        auto frame = getCurrentFrame(time_delta, cur_animation);
+
+        auto frame = getCurrentFrame(time, cur_animation);
         updateModelJoints(mdl, frame);
         updateMdlBbox(ent, frame);
     }
@@ -27,8 +27,8 @@ JointsTransform JointSystem::getCurrentFrame(double time, AnimSequence const & s
     uint32_t        next_frame = 0;
     JointsTransform cur_frame;
 
-    // double control_ime = controller.GetControlTime(time));
-    prev_frame = 4;//glm::floor(time * seq.frame_rate);
+    double control_time = controller.getControlTime(time));
+    prev_frame = glm::floor(control_time * seq.frame_rate);
     next_frame = prev_frame + 1;
     if(next_frame == seq.frames.size())
         next_frame = 0;
@@ -301,6 +301,9 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
         }
     }
     in.close();
+	
+	anm_sequence.controller = Controller(RepeatType::RT_WRAP, 0.0,
+                             anm_sequence.frames.size()/anm_sequence.frame_rate);
 
     // check data correctness
     for(auto const & frm : anm_sequence.frames)
@@ -314,7 +317,7 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
     return true;
 }
 
-void ModelSystem::update(float time_delta)
+void ModelSystem::update(double time)
 {
     // update positions for animated meshes
     for(auto ent : m_reg.view<ModelComponent, CurrentAnimSequence>())

@@ -17,7 +17,7 @@ char const * bump_tex_fname    = "normal.tga";
 }   // namespace
 
 Window::Window(int width, int height, char const * title) :
-    m_size{width, height}, m_title{title}, m_scene_sys{nullptr}, m_reg{}, m_sys{m_reg}
+    m_size{width, height}, m_title{title}, m_reg{}, m_sys{}
 {
     // Create scene
     if(!createDefaultScene(width, height))
@@ -133,16 +133,16 @@ bool Window::createDefaultScene(int width, int height)
     std::shared_ptr<ISystem> ptr;
     ptr      = std::make_shared<Renderer>(m_reg);
     m_render = static_cast<Renderer *>(ptr.get());
-    m_sys.addSystem(std::move(ptr));
+    m_sys.addSystem(ptr);
 
     ptr = std::make_shared<CameraSystem>(m_reg);
-    m_sys.addSystem(std::move(ptr));
+    m_sys.addSystem(ptr);
 
     ptr = std::make_shared<LightSystem>(m_reg);
-    m_sys.addSystem(std::move(ptr));
+    m_sys.addSystem(ptr);
 
     ptr = std::make_shared<JointSystem>(m_reg);
-    m_sys.addSystem(std::move(ptr));
+    m_sys.addSystem(ptr);
 
     // update joints transform matrices
     m_sys.addSystem(m_scene_sys);

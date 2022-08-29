@@ -77,11 +77,11 @@ bool SystemsMgr::initSystems()
     return true;
 }
 
-void SystemsMgr::update(float time_delta)
+void SystemsMgr::update(double time)
 {
     for(auto & sys : m_systems)
     {
-        sys->update(time_delta);
+        sys->update(time);
     }
 
     for(auto & sys : m_systems)
