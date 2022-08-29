@@ -18,7 +18,7 @@ LightComponent LightSystem::GetDefaultLightComponent(LightType l_type)
     return cmp;
 }
 
-void LightSystem::update(float time_delta)
+void LightSystem::update(double time)
 {
     for(auto ent : m_reg.view<evnt::SceneComponent, LightComponent, evnt::IsTransformed>())
     {

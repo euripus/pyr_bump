@@ -12,7 +12,7 @@ evnt::SceneComponent evnt::SceneSystem::GetDefaultSceneComponent()
     return node;
 }
 
-void evnt::SceneSystem::update(float time_delta)
+void evnt::SceneSystem::update(double time)
 {
     bool in_loop = false;
 

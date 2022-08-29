@@ -28,7 +28,7 @@ public:
     CameraSystem(Registry & reg) : ISystem(reg) {}
 
     // bool        init() override;
-    void        update(float time_delta) override;
+    void        update(double time) override;
     std::string getName() const override { return "Camera"; }
 };
 

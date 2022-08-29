@@ -58,7 +58,7 @@ GLenum g_gl_stencil_operation[static_cast<uint32_t>(StencilState::OperationType:
     GL_INVERT     // INVERT
 };
 
-void Renderer::update(float time_delta)
+void Renderer::update(double time)
 {
     for(auto ent : m_reg.view<ModelComponent, RenderModel, VertexDataChanged>())
     {

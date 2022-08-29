@@ -20,7 +20,7 @@ CameraComponent CameraSystem::GetDefaultCamComponent()
     return new_cam;
 }
 
-void CameraSystem::update(float time_delta)
+void CameraSystem::update(double time)
 {
     for(auto ent : m_reg.view<evnt::SceneComponent, CameraComponent, evnt::IsTransformed>())
     {

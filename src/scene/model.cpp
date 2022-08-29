@@ -27,13 +27,13 @@ JointsTransform JointSystem::getCurrentFrame(double time, AnimSequence const & s
     uint32_t        next_frame = 0;
     JointsTransform cur_frame;
 
-    double control_time = controller.getControlTime(time));
-    prev_frame = glm::floor(control_time * seq.frame_rate);
-    next_frame = prev_frame + 1;
+    double control_time = seq.controller.getControlTime(time);
+    prev_frame          = static_cast<uint32_t>(glm::floor(control_time * seq.frame_rate));
+    next_frame          = prev_frame + 1;
     if(next_frame == seq.frames.size())
         next_frame = 0;
 
-    frame_delta    = time * seq.frame_rate - prev_frame;
+    frame_delta    = control_time * seq.frame_rate - prev_frame;
     cur_frame.bbox = {
         glm::mix(seq.frames[prev_frame].bbox.min(), seq.frames[next_frame].bbox.min(), frame_delta),
         glm::mix(seq.frames[prev_frame].bbox.max(), seq.frames[next_frame].bbox.max(), frame_delta)};
@@ -301,9 +301,10 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
         }
     }
     in.close();
-	
-	anm_sequence.controller = Controller(RepeatType::RT_WRAP, 0.0,
-                             anm_sequence.frames.size()/anm_sequence.frame_rate);
+
+    anm_sequence.controller =
+        Controller(Controller::RepeatType::RT_WRAP, 0.0,
+                   static_cast<double>(anm_sequence.frames.size()) / anm_sequence.frame_rate);
 
     // check data correctness
     for(auto const & frm : anm_sequence.frames)

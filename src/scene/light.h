@@ -31,7 +31,7 @@ public:
 
     LightSystem(Registry & reg) : ISystem(reg) {}
 
-    void        update(float time_delta) override;
+    void        update(double time) override;
     std::string getName() const override { return "LightSystem"; }
 };
 

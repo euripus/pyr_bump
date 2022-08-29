@@ -57,7 +57,7 @@ struct AnimSequence
 {
     std::vector<JointsTransform> frames;
     float                        frame_rate = 0.0f;
-	Controller controller;
+    Controller                   controller;
 };
 
 struct CurrentAnimSequence
@@ -75,7 +75,7 @@ struct ParsedJoint
 // Model consist of next sequence of components:
 //      [scene] [material] [model] [current_anim_sequence] - animated
 //      [scene] [material] [model]                         - static
-//      update joints => update scene => update models
+//      update joints => update scene => update models => render upload
 struct ModelComponent
 {
     std::vector<Mesh>         meshes;
@@ -88,9 +88,7 @@ struct ModelComponent
 
 // tag structure for render.update()
 struct VertexDataChanged
-{
-    bool val = true;
-};
+{};
 
 // Joint consist of
 //      [scene] [joint_component]

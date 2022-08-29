@@ -30,9 +30,7 @@ struct TransformComponent
 
 // tag type
 struct IsTransformed
-{
-    bool val = true;
-};
+{};
 
 class SceneSystem : public ISystem
 {
@@ -43,7 +41,7 @@ public:
 
     // ISystem interface
     // bool        init() override;
-    void        update(float time_delta) override;
+    void        update(double time) override;
     void        postUpdate() override;
     std::string getName() const override { return "Scene positions."; }
 

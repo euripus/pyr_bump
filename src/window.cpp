@@ -131,10 +131,6 @@ bool Window::createDefaultScene(int width, int height)
     m_sys.addSystem(m_scene_sys);
 
     std::shared_ptr<ISystem> ptr;
-    ptr      = std::make_shared<Renderer>(m_reg);
-    m_render = static_cast<Renderer *>(ptr.get());
-    m_sys.addSystem(ptr);
-
     ptr = std::make_shared<CameraSystem>(m_reg);
     m_sys.addSystem(ptr);
 
@@ -149,6 +145,10 @@ bool Window::createDefaultScene(int width, int height)
 
     m_model_sys = std::make_shared<ModelSystem>(m_reg);
     m_sys.addSystem(m_model_sys);
+
+    m_render = std::make_shared<Renderer>(m_reg);
+    //m_render = static_cast<Renderer *>(ptr.get());
+    m_sys.addSystem(m_render);
 
     // add nodes
     evnt::TransformComponent transform{};
