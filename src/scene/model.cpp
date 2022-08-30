@@ -1,5 +1,6 @@
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 #include "scene.h"
 #include "material.h"
@@ -23,8 +24,8 @@ void JointSystem::update(double time)
 JointsTransform JointSystem::getCurrentFrame(double time, AnimSequence const & seq) const
 {
     float           frame_delta = 0.0f;
-    uint32_t        prev_frame = 0;
-    uint32_t        next_frame = 0;
+    uint32_t        prev_frame  = 0;
+    uint32_t        next_frame  = 0;
     JointsTransform cur_frame;
 
     double control_time = seq.controller.getControlTime(time);
@@ -33,7 +34,7 @@ JointsTransform JointSystem::getCurrentFrame(double time, AnimSequence const & s
     if(next_frame == seq.frames.size())
         next_frame = 0;
 
-    frame_delta    = control_time * seq.frame_rate - prev_frame;
+    frame_delta    = static_cast<float>(control_time * seq.frame_rate - prev_frame);
     cur_frame.bbox = {
         glm::mix(seq.frames[prev_frame].bbox.min(), seq.frames[next_frame].bbox.min(), frame_delta),
         glm::mix(seq.frames[prev_frame].bbox.max(), seq.frames[next_frame].bbox.max(), frame_delta)};
@@ -55,23 +56,28 @@ void JointSystem::updateModelJoints(ModelComponent const & mdl, JointsTransform 
         auto      joint_ent = mdl.bone_id_to_entity[i];
         glm::mat4 mt        = glm::mat4_cast(frame.rot[i]);
         mt                  = glm::column(mt, 3, glm::vec4(frame.trans[i], 1.0f));
-		
-		// test block
-		auto const & jnt_scn = m_reg.get<evnt::SceneComponent>(joint_ent);
-		uint32_t j = 0
-		for(; j < mdl.bone_id_to_entity.size(); ++j)   // find_if
-		{
-			if(jnt_scn.parent == mdl.bone_id_to_entity[j])
-				break;
-		}
-		
-		glm::mat4 parent    = glm::mat4_cast(frame.rot[j]);
-        parent              = glm::column(parent, 3, glm::vec4(frame.trans[j], 1.0f))			
-		glm::mat4 parent_inv = glm::inverse(parent);
+
+        // test block
+        auto const & jnt_scn    = m_reg.get<evnt::SceneComponent>(joint_ent);
+        glm::mat4    parent_inv = glm::mat4(1.0f);
+
+        uint32_t j = 0;
+        for(; j < mdl.bone_id_to_entity.size(); ++j)
+        {
+            if(jnt_scn.parent == mdl.bone_id_to_entity[j])
+                break;
+        }
+
+        if(j < mdl.bone_id_to_entity.size())
+        {
+            glm::mat4 parent = glm::mat4_cast(frame.rot[j]);
+            parent           = glm::column(parent, 3, glm::vec4(frame.trans[j], 1.0f));
+            parent_inv       = glm::inverse(parent);
+        }
 
         evnt::TransformComponent transform{};
         transform.replase_local_matrix = false;
-        transform.new_mat              = parent_inv * mt;   /// !!!! parent trans from anm file
+        transform.new_mat              = parent_inv * mt;
         m_reg.add_component<evnt::TransformComponent>(joint_ent, transform);
     }
 }
