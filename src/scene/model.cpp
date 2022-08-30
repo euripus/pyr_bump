@@ -22,7 +22,7 @@ void JointSystem::update(double time)
 
 JointsTransform JointSystem::getCurrentFrame(double time, AnimSequence const & seq) const
 {
-    float           frame_delta(0.0f);
+    float           frame_delta = 0.0f;
     uint32_t        prev_frame = 0;
     uint32_t        next_frame = 0;
     JointsTransform cur_frame;
@@ -50,15 +50,28 @@ JointsTransform JointSystem::getCurrentFrame(double time, AnimSequence const & s
 
 void JointSystem::updateModelJoints(ModelComponent const & mdl, JointsTransform const & frame) const
 {
-    for(uint32_t i = 0; i < frame.rot.size(); ++i)
+    for(uint32_t i = 0; i < mdl.bone_id_to_entity.size(); ++i)
     {
         auto      joint_ent = mdl.bone_id_to_entity[i];
         glm::mat4 mt        = glm::mat4_cast(frame.rot[i]);
         mt                  = glm::column(mt, 3, glm::vec4(frame.trans[i], 1.0f));
+		
+		// test block
+		auto const & jnt_scn = m_reg.get<evnt::SceneComponent>(joint_ent);
+		uint32_t j = 0
+		for(; j < mdl.bone_id_to_entity.size(); ++j)   // find_if
+		{
+			if(jnt_scn.parent == mdl.bone_id_to_entity[j])
+				break;
+		}
+		
+		glm::mat4 parent    = glm::mat4_cast(frame.rot[j]);
+        parent              = glm::column(parent, 3, glm::vec4(frame.trans[j], 1.0f))			
+		glm::mat4 parent_inv = glm::inverse(parent);
 
         evnt::TransformComponent transform{};
-        transform.replase_local_matrix = true;
-        transform.new_mat              = mt;
+        transform.replase_local_matrix = false;
+        transform.new_mat              = parent_inv * mt;   /// !!!! parent trans from anm file
         m_reg.add_component<evnt::TransformComponent>(joint_ent, transform);
     }
 }

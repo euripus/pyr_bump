@@ -127,15 +127,15 @@ void Window::fullscreen(bool is_fullscreen)
 bool Window::createDefaultScene(int width, int height)
 {
     // create systems
-    m_scene_sys = std::make_shared<evnt::SceneSystem>(m_reg);
-    m_sys.addSystem(m_scene_sys);
-
     std::shared_ptr<ISystem> ptr;
     ptr = std::make_shared<CameraSystem>(m_reg);
     m_sys.addSystem(ptr);
 
     ptr = std::make_shared<LightSystem>(m_reg);
     m_sys.addSystem(ptr);
+	
+	m_scene_sys = std::make_shared<evnt::SceneSystem>(m_reg);
+    m_sys.addSystem(m_scene_sys);
 
     ptr = std::make_shared<JointSystem>(m_reg);
     m_sys.addSystem(ptr);
@@ -147,7 +147,6 @@ bool Window::createDefaultScene(int width, int height)
     m_sys.addSystem(m_model_sys);
 
     m_render = std::make_shared<Renderer>(m_reg);
-    //m_render = static_cast<Renderer *>(ptr.get());
     m_sys.addSystem(m_render);
 
     // add nodes
