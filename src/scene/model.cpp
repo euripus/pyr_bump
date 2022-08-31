@@ -21,29 +21,30 @@ void JointSystem::update(double time)
     }
 }
 
-JointsTransform JointSystem::getCurrentFrame(double time, AnimSequence const & seq) const
+JointsTransform JointSystem::getCurrentFrame(double time, AnimSequence const & frame_seq) const
 {
     float           frame_delta = 0.0f;
     uint32_t        last_frame  = 0;
     uint32_t        next_frame  = 0;
     JointsTransform cur_frame;
 
-    double control_time = seq.controller.getControlTime(time);
-    last_frame          = static_cast<uint32_t>(glm::floor(control_time * seq.frame_rate));
+    double control_time = frame_seq.controller.getControlTime(time);
+    last_frame          = static_cast<uint32_t>(glm::floor(control_time * frame_seq.frame_rate));
     next_frame          = last_frame + 1;
-    if(next_frame == seq.frames.size())
+    if(next_frame == frame_seq.frames.size())
         next_frame = 0;
 
-    frame_delta    = static_cast<float>(control_time * seq.frame_rate - last_frame);
-    cur_frame.bbox = {
-        glm::mix(seq.frames[last_frame].bbox.min(), seq.frames[next_frame].bbox.min(), frame_delta),
-        glm::mix(seq.frames[last_frame].bbox.max(), seq.frames[next_frame].bbox.max(), frame_delta)};
-    for(uint32_t i = 0; i < seq.frames[0].rot.size(); i++)
+    frame_delta    = static_cast<float>(control_time * frame_seq.frame_rate - last_frame);
+    cur_frame.bbox = {glm::mix(frame_seq.frames[last_frame].bbox.min(),
+                               frame_seq.frames[next_frame].bbox.min(), frame_delta),
+                      glm::mix(frame_seq.frames[last_frame].bbox.max(),
+                               frame_seq.frames[next_frame].bbox.max(), frame_delta)};
+    for(uint32_t i = 0; i < frame_seq.frames[0].rot.size(); i++)
     {
-        cur_frame.rot.push_back(glm::normalize(
-            glm::slerp(seq.frames[last_frame].rot[i], seq.frames[next_frame].rot[i], frame_delta)));
-        cur_frame.trans.push_back(
-            glm::mix(seq.frames[last_frame].trans[i], seq.frames[next_frame].trans[i], frame_delta));
+        cur_frame.rot.push_back(glm::normalize(glm::slerp(frame_seq.frames[last_frame].rot[i],
+                                                          frame_seq.frames[next_frame].rot[i], frame_delta)));
+        cur_frame.trans.push_back(glm::mix(frame_seq.frames[last_frame].trans[i],
+                                           frame_seq.frames[next_frame].trans[i], frame_delta));
     }
 
     return cur_frame;
@@ -64,13 +65,13 @@ void JointSystem::updateModelJoints(ModelComponent const & mdl, JointsTransform 
         for(uint32_t j = 0; j < mdl.bone_id_to_entity.size(); ++j)
         {
             if(jnt_scn.parent == mdl.bone_id_to_entity[j])
-			{
-				// if we found parent joint get inverse transform
-				glm::mat4 parent = glm::mat4_cast(frame.rot[j]);
-				parent           = glm::column(parent, 3, glm::vec4(frame.trans[j], 1.0f));
-				parent_inv       = glm::inverse(parent);
+            {
+                // if we found parent joint get inverse transform
+                glm::mat4 parent = glm::mat4_cast(frame.rot[j]);
+                parent           = glm::column(parent, 3, glm::vec4(frame.trans[j], 1.0f));
+                parent_inv       = glm::inverse(parent);
                 break;
-			}
+            }
         }
 
         evnt::TransformComponent transform{};
@@ -360,7 +361,7 @@ void ModelSystem::update(double time)
                     auto         joint_ent = geom.bone_id_to_entity[msh.weights[j].joint_index];
                     auto const & joint_scn = m_reg.get<evnt::SceneComponent>(joint_ent);
 
-                    vert_mat += inverted_model * joint_scn.abs * msh.weights[j].w;
+                    vert_mat += joint_scn.abs * inverted_model * msh.weights[j].w;
                 }
 
                 glm::mat3 norm_mat = glm::mat3(vert_mat);
