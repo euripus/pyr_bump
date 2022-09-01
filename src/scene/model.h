@@ -104,7 +104,7 @@ public:
 
 private:
     JointsTransform getCurrentFrame(double time, AnimSequence const & seq) const;
-    void            updateModelJoints(ModelComponent const & mdl, JointsTransform const & frame) const;
+    void            updateModelJoints(Entity mdl, JointsTransform const & frame) const;
     void            updateMdlBbox(Entity mdl, JointsTransform const & frame) const;
 };
 

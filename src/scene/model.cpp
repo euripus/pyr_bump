@@ -29,12 +29,12 @@ JointsTransform JointSystem::getCurrentFrame(double time, AnimSequence const & f
     JointsTransform cur_frame;
 
     double control_time = frame_seq.controller.getControlTime(time);
-    last_frame          = static_cast<uint32_t>(glm::floor(control_time * frame_seq.frame_rate));
+    //last_frame          = static_cast<uint32_t>(glm::floor(control_time * frame_seq.frame_rate));
     next_frame          = last_frame + 1;
     if(next_frame == frame_seq.frames.size())
         next_frame = 0;
 
-    frame_delta    = static_cast<float>(control_time * frame_seq.frame_rate - last_frame);
+    frame_delta    = 0.0f;// static_cast<float>(control_time * frame_seq.frame_rate - last_frame);
     cur_frame.bbox = {glm::mix(frame_seq.frames[last_frame].bbox.min(),
                                frame_seq.frames[next_frame].bbox.min(), frame_delta),
                       glm::mix(frame_seq.frames[last_frame].bbox.max(),
@@ -50,17 +50,20 @@ JointsTransform JointSystem::getCurrentFrame(double time, AnimSequence const & f
     return cur_frame;
 }
 
-void JointSystem::updateModelJoints(ModelComponent const & mdl, JointsTransform const & frame) const
+void JointSystem::updateModelJoints(Entity mdl, JointsTransform const & frame) const
 {
+	auto const & mdl = m_reg.get<ModelComponent>(ent);
+	auto const & scn = m_reg.get<evnt::SceneComponent>(ent);
+
     for(uint32_t i = 0; i < mdl.bone_id_to_entity.size(); ++i)
     {
         auto      joint_ent = mdl.bone_id_to_entity[i];
         glm::mat4 mt        = glm::mat4_cast(frame.rot[i]);
         mt                  = glm::column(mt, 3, glm::vec4(frame.trans[i], 1.0f));
 
-        // test block
+        // test block. TODO replace in anm file - relative matrices
         auto const & jnt_scn    = m_reg.get<evnt::SceneComponent>(joint_ent);
-        glm::mat4    parent_inv = glm::mat4(1.0f);
+        glm::mat4    parent_inv = glm::inverse(scn.abs);
 
         for(uint32_t j = 0; j < mdl.bone_id_to_entity.size(); ++j)
         {
@@ -418,6 +421,7 @@ Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const &
             {
                 auto   joint_ent = SceneEntityBuilder::BuildEntity(m_reg, joint_flags);
                 auto & jnt_cmp   = m_reg.get<JointComponent>(joint_ent);
+				auto & jnt_scn   = m_reg.get<evnt::SceneComponent>(joint_ent);
 
                 geom.bone_id_to_entity[jnt.index] = joint_ent;
                 Entity parent_ent                 = model_ent;
