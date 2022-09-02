@@ -133,7 +133,7 @@
         </source>
         <source id="Armature_ArmatureAction_middle_pose_matrix-output">
           <float_array id="Armature_ArmatureAction_middle_pose_matrix-output-array" count="80">0.9701985 0.1833089 -0.1584699 0 0.2120353 -0.3256998 0.9213906 0 0.1172855 -0.927533 -0.3548614 -3.392035 0 0 0 1 0.9410275 0.2717913 -0.2014864 0 0.307484 -0.4385972 0.8444442 0 0.1411412 -0.8565991 -0.4963035 -3.392035 0 0 0 1 0.9896531 0.1013798 -0.1015324 0 0.1201299 -0.1985175 0.9727073 0 0.07845692 -0.9748399 -0.2086422 -3.392035 0 0 0 1 0.9959119 0.06132101 -0.06632704 0 0.07367507 -0.126581 0.9892164 0 0.052264 -0.9900591 -0.1305814 -3.392035 0 0 0 1 0.9999058 0.008752897 -0.01057528 0 0.01074465 -0.01953463 0.9997514 0 0.008544138 -0.9997709 -0.01962683 -3.392035 0 0 0 1</float_array>
-          <technique_common>
+          <technique_common>   <!-- local bone transformation matrix for each frame -->
             <accessor source="#Armature_ArmatureAction_middle_pose_matrix-output-array" count="5" stride="16">
               <param name="TRANSFORM" type="float4x4"/>
             </accessor>
@@ -193,7 +193,7 @@
       <node id="Armature" name="Armature" type="NODE">
         <matrix sid="transform">1 0 0 0 0 0 1 0 0 -1 0 0 0 0 0 1</matrix>
         <node id="Armature_base" name="base" sid="base" type="JOINT">
-          <matrix sid="transform">1 0 0 0 0 0 -1 0 0 1 0 0 0 0 0 1</matrix>
+          <matrix sid="transform">1 0 0 0 0 0 -1 0 0 1 0 0 0 0 0 1</matrix>                         <!-- local bone transformation matrix -->
           <node id="Armature_middle" name="middle" sid="middle" type="JOINT">
             <matrix sid="transform">1 0 0 0 0 1 0 3.392035 0 0 1 0 0 0 0 1</matrix>
             <node id="Armature_up" name="up" sid="up" type="JOINT">
