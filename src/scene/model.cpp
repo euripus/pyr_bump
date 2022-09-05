@@ -16,7 +16,7 @@ void JointSystem::update(double time)
         auto const & cur_animation = mdl.animations[seq.id];
 
         auto frame = getCurrentFrame(time, cur_animation);
-        updateModelJoints(mdl, frame);
+        updateModelJoints(ent, frame);
         updateMdlBbox(ent, frame);
     }
 }
@@ -29,12 +29,12 @@ JointsTransform JointSystem::getCurrentFrame(double time, AnimSequence const & f
     JointsTransform cur_frame;
 
     double control_time = frame_seq.controller.getControlTime(time);
-    //last_frame          = static_cast<uint32_t>(glm::floor(control_time * frame_seq.frame_rate));
-    next_frame          = last_frame + 1;
+    // last_frame          = static_cast<uint32_t>(glm::floor(control_time * frame_seq.frame_rate));
+    next_frame = last_frame + 1;
     if(next_frame == frame_seq.frames.size())
         next_frame = 0;
 
-    frame_delta    = 0.0f;// static_cast<float>(control_time * frame_seq.frame_rate - last_frame);
+    frame_delta    = 0.0f;   // static_cast<float>(control_time * frame_seq.frame_rate - last_frame);
     cur_frame.bbox = {glm::mix(frame_seq.frames[last_frame].bbox.min(),
                                frame_seq.frames[next_frame].bbox.min(), frame_delta),
                       glm::mix(frame_seq.frames[last_frame].bbox.max(),
@@ -50,36 +50,21 @@ JointsTransform JointSystem::getCurrentFrame(double time, AnimSequence const & f
     return cur_frame;
 }
 
-void JointSystem::updateModelJoints(Entity mdl, JointsTransform const & frame) const
+void JointSystem::updateModelJoints(Entity ent, JointsTransform const & frame) const
 {
-	auto const & mdl = m_reg.get<ModelComponent>(ent);
-	auto const & scn = m_reg.get<evnt::SceneComponent>(ent);
+    auto const & mdl = m_reg.get<ModelComponent>(ent);
 
     for(uint32_t i = 0; i < mdl.bone_id_to_entity.size(); ++i)
     {
-        auto      joint_ent = mdl.bone_id_to_entity[i];
-        glm::mat4 mt        = glm::mat4_cast(frame.rot[i]);
-        mt                  = glm::column(mt, 3, glm::vec4(frame.trans[i], 1.0f));
+        auto         joint_ent = mdl.bone_id_to_entity[i];
+        auto const & jnt_cmp   = m_reg.get<JointComponent>(joint_ent);
 
-        // test block. TODO replace in anm file - relative matrices
-        auto const & jnt_scn    = m_reg.get<evnt::SceneComponent>(joint_ent);
-        glm::mat4    parent_inv = glm::inverse(scn.abs);
-
-        for(uint32_t j = 0; j < mdl.bone_id_to_entity.size(); ++j)
-        {
-            if(jnt_scn.parent == mdl.bone_id_to_entity[j])
-            {
-                // if we found parent joint get inverse transform
-                glm::mat4 parent = glm::mat4_cast(frame.rot[j]);
-                parent           = glm::column(parent, 3, glm::vec4(frame.trans[j], 1.0f));
-                parent_inv       = glm::inverse(parent);
-                break;
-            }
-        }
+        glm::mat4 mt = glm::mat4_cast(frame.rot[i]);
+        mt           = glm::column(mt, 3, glm::vec4(frame.trans[i], 1.0f));
 
         evnt::TransformComponent transform{};
         transform.replase_local_matrix = false;
-        transform.new_mat              = mt * parent_inv;
+        transform.new_mat              = mt * jnt_cmp.inv_bind;
         m_reg.add_component<evnt::TransformComponent>(joint_ent, transform);
     }
 }
@@ -219,9 +204,10 @@ bool ModelSystem::LoadMesh(std::string const & fname, ModelComponent & out_mdl,
             std::istringstream s(line.substr(3));
             int32_t            bone_id{}, parent_id{};
             std::string        bone_name;
+            float              qtx(0), qty(0), qtz(0), qtw(0), tr_x(0), tr_y(0), tr_z(0);
             ParsedJoint        joint;
 
-            s >> bone_id >> parent_id >> bone_name;
+            s >> bone_id >> parent_id >> bone_name >> qtx >> qty >> qtz >> qtw >> tr_x >> tr_y >> tr_z;
 
             assert(bone_id > 0);
             assert(bone_id > parent_id);
@@ -229,6 +215,13 @@ bool ModelSystem::LoadMesh(std::string const & fname, ModelComponent & out_mdl,
             joint.index  = --bone_id;
             joint.parent = --parent_id;
             joint.name   = bone_name;
+
+            auto rot   = glm::quat(qtw, qtx, qty, qtz);
+            auto trans = glm::vec3(tr_x, tr_y, tr_z);
+
+            glm::mat4 mt   = glm::mat4_cast(rot);
+            mt             = glm::column(mt, 3, glm::vec4(trans, 1.0f));
+            joint.inv_bind = mt;
 
             joints.push_back(std::move(joint));
         }
@@ -421,15 +414,15 @@ Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const &
             {
                 auto   joint_ent = SceneEntityBuilder::BuildEntity(m_reg, joint_flags);
                 auto & jnt_cmp   = m_reg.get<JointComponent>(joint_ent);
-				auto & jnt_scn   = m_reg.get<evnt::SceneComponent>(joint_ent);
 
                 geom.bone_id_to_entity[jnt.index] = joint_ent;
                 Entity parent_ent                 = model_ent;
                 if(jnt.parent != -1)
                     parent_ent = geom.bone_id_to_entity[jnt.parent];
 
-                jnt_cmp.index = jnt.index;
-                jnt_cmp.name  = jnt.name;
+                jnt_cmp.index    = jnt.index;
+                jnt_cmp.name     = jnt.name;
+                jnt_cmp.inv_bind = jnt.inv_bind;
 
                 scene_sys.addNode(joint_ent, parent_ent);
             }

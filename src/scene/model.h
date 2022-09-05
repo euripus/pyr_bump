@@ -43,6 +43,7 @@ struct JointComponent
 {
     int32_t     index = 0;   // -1 for root
     std::string name;
+    glm::mat4   inv_bind;
 };
 
 struct JointsTransform
@@ -70,6 +71,7 @@ struct ParsedJoint
     int32_t     index  = 0;
     int32_t     parent = 0;
     std::string name;
+    glm::mat4   inv_bind;
 };
 
 // Model consist of next sequence of components:

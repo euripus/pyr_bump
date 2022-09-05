@@ -635,7 +635,7 @@ wgh 2 0.0017
 wgh 3 0.9983
 
 bones 3
-jnt 1 0 base
-jnt 2 1 middle
-jnt 3 2 up
+jnt 1 0 base 1 0 0 0 0 0 0
+jnt 2 1 middle 1 0 0 0 0 0 3.392
+jnt 3 2 up 1 0 0 0 0 0 6.3331
 
