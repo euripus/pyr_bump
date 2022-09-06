@@ -22,7 +22,7 @@ meshes
         wgh        <>               # jnt_ind  weight               # weights vector    (optional)
 bones                                                               # Skeleton. One     (optional)
                                                                     # per mesh
-    jnt            <>               # jnt_ind  prnt_jnt_ind jnt_name
+    jnt            <>               # jnt_ind  prnt_jnt_ind jnt_name q.x q.y q.z q.w tr.x tr.y. tr.z invariant bind matrices
 
 
 .txt.anm
@@ -32,5 +32,5 @@ frames
 framerate
     frame
     bbox                            # min.x min.y min.z max.x max.y max.z
-    jtr            <>               # q.x q.y q.z q.w tr.x tr.y. tr.z
+    jtr            <>               # q.x q.y q.z q.w tr.x tr.y. tr.z                   relative matrices
 
