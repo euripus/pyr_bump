@@ -32,10 +32,10 @@ void evnt::SceneSystem::update(double time)
         else
             pos.rel = trans.new_mat * pos.rel;
 
-        //updateTransform(ent, true);
+        // updateTransform(ent, true);
     }
-	
-	for(auto ent : m_reg.view<SceneComponent, TransformComponent>())
+
+    for(auto ent : m_reg.view<SceneComponent, TransformComponent>())
     {
         updateTransform(ent, true);
     }

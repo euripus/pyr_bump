@@ -56,8 +56,8 @@ void JointSystem::updateModelJoints(Entity ent, JointsTransform const & frame) c
 
     for(uint32_t i = 0; i < mdl.bone_id_to_entity.size(); ++i)
     {
-        auto         joint_ent = mdl.bone_id_to_entity[i];
-        //auto const & jnt_cmp   = m_reg.get<JointComponent>(joint_ent);
+        auto joint_ent = mdl.bone_id_to_entity[i];
+        // auto const & jnt_cmp   = m_reg.get<JointComponent>(joint_ent);
 
         glm::mat4 mt = glm::mat4_cast(frame.rot[i]);
         mt           = glm::column(mt, 3, glm::vec4(frame.trans[i], 1.0f));
@@ -356,7 +356,7 @@ void ModelSystem::update(double time)
                 {
                     auto         joint_ent = geom.bone_id_to_entity[msh.weights[j].joint_index];
                     auto const & joint_scn = m_reg.get<evnt::SceneComponent>(joint_ent);
-					auto const & jont_cmp = m_reg.get<JointComponent>(joint_ent);
+                    auto const & jont_cmp  = m_reg.get<JointComponent>(joint_ent);
 
                     vert_mat += joint_scn.abs * inverted_model * jont_cmp.inv_bind * msh.weights[j].w;
                 }
