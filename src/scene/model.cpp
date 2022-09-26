@@ -1,6 +1,9 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+// glm::to_string
+#include <glm/gtx/string_cast.hpp>
+#include <iostream>
 
 #include "scene.h"
 #include "material.h"
@@ -115,7 +118,7 @@ bool ModelSystem::LoadMesh(std::string const & fname, ModelComponent & out_mdl,
             s >> mnx >> mny >> mnz >> mxx >> mxy >> mxz;
             cur_mesh->bbox = evnt::AABB(mnx, mny, mnz, mxx, mxy, mxz);
         }
-        else if(line.substr(0, 3) == "vtx")
+        else if(line.substr(0, 3) == "vps")
         {
             std::istringstream s(line.substr(3));
             glm::vec3          v;
@@ -358,14 +361,21 @@ void ModelSystem::update(double time)
                     auto const & joint_scn = m_reg.get<evnt::SceneComponent>(joint_ent);
                     auto const & jont_cmp  = m_reg.get<JointComponent>(joint_ent);
 
-                    vert_mat += joint_scn.abs * inverted_model * jont_cmp.inv_bind * msh.weights[j].w;
-                }
+                    vert_mat += (joint_scn.abs * inverted_model) * jont_cmp.inv_bind * msh.weights[j].w;
 
+                    //std::cout << glm::to_string(joint_scn.abs) << std::endl;
+                    //std::cout << glm::to_string(jont_cmp.inv_bind) << std::endl;
+                    //std::cout << glm::to_string(vert_mat) << std::endl << std::endl;
+                }
+                // vert_mat           = vert_mat * inverted_model;
                 glm::mat3 norm_mat = glm::mat3(vert_mat);
-                glm::vec4 n_pos    = vert_mat * glm::vec4(msh.pos[n], 1.0);
-                glm::vec3 n_norm   = norm_mat * msh.normal[n];
-                glm::vec3 n_tang   = norm_mat * msh.tangent[n];
-                glm::vec3 n_bitan  = norm_mat * msh.bitangent[n];
+
+                // std::cout << glm::to_string(vert_mat) << std::endl;
+
+                glm::vec4 n_pos   = vert_mat * glm::vec4(msh.pos[n], 1.0);
+                glm::vec3 n_norm  = norm_mat * msh.normal[n];
+                glm::vec3 n_tang  = norm_mat * msh.tangent[n];
+                glm::vec3 n_bitan = norm_mat * msh.bitangent[n];
 
                 msh.frame_pos.push_back(glm::vec3(n_pos));
                 msh.frame_normal.push_back(n_norm);
@@ -373,7 +383,7 @@ void ModelSystem::update(double time)
                 msh.frame_bitangent.push_back(n_bitan);
             }
         }
-
+        // mark for render for update buffers data
         m_reg.add_component<VertexDataChanged>(ent);
     }
 }

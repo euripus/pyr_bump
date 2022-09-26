@@ -127,6 +127,7 @@ void Window::fullscreen(bool is_fullscreen)
 bool Window::createDefaultScene(int width, int height)
 {
     // create systems
+    // input update
     m_scene_sys = std::make_shared<evnt::SceneSystem>(m_reg);
     m_sys.addSystem(m_scene_sys);
 
