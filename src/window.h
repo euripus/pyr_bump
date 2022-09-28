@@ -56,9 +56,12 @@ public:
     void fullscreen(bool is_fullscreen);
     void run();
 
+    // camera move
     void moveForward(float speed);
     void moveSideward(float speed);
     void moveUp(float speed);
+    // object move
+    void objMoveUp(float speed);
 
     // keys
     void key_f1();

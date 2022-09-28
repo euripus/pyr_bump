@@ -2,8 +2,8 @@
 #include <sstream>
 #include <algorithm>
 // glm::to_string
-#include <glm/gtx/string_cast.hpp>
-#include <iostream>
+//#include <glm/gtx/string_cast.hpp>
+//#include <iostream>
 
 #include "scene.h"
 #include "material.h"
@@ -32,12 +32,12 @@ JointsTransform JointSystem::getCurrentFrame(double time, AnimSequence const & f
     JointsTransform cur_frame;
 
     double control_time = frame_seq.controller.getControlTime(time);
-    // last_frame          = static_cast<uint32_t>(glm::floor(control_time * frame_seq.frame_rate));
-    next_frame = last_frame + 1;
+    last_frame          = static_cast<uint32_t>(glm::floor(control_time * frame_seq.frame_rate));
+    next_frame          = last_frame + 1;
     if(next_frame == frame_seq.frames.size())
         next_frame = 0;
 
-    frame_delta    = 0.0f;   // static_cast<float>(control_time * frame_seq.frame_rate - last_frame);
+    frame_delta    = static_cast<float>(control_time * frame_seq.frame_rate - last_frame);
     cur_frame.bbox = {glm::mix(frame_seq.frames[last_frame].bbox.min(),
                                frame_seq.frames[next_frame].bbox.min(), frame_delta),
                       glm::mix(frame_seq.frames[last_frame].bbox.max(),
@@ -60,7 +60,6 @@ void JointSystem::updateModelJoints(Entity ent, JointsTransform const & frame) c
     for(uint32_t i = 0; i < mdl.bone_id_to_entity.size(); ++i)
     {
         auto joint_ent = mdl.bone_id_to_entity[i];
-        // auto const & jnt_cmp   = m_reg.get<JointComponent>(joint_ent);
 
         glm::mat4 mt = glm::mat4_cast(frame.rot[i]);
         mt           = glm::column(mt, 3, glm::vec4(frame.trans[i], 1.0f));
@@ -362,15 +361,8 @@ void ModelSystem::update(double time)
                     auto const & jont_cmp  = m_reg.get<JointComponent>(joint_ent);
 
                     vert_mat += (joint_scn.abs * inverted_model) * jont_cmp.inv_bind * msh.weights[j].w;
-
-                    //std::cout << glm::to_string(joint_scn.abs) << std::endl;
-                    //std::cout << glm::to_string(jont_cmp.inv_bind) << std::endl;
-                    //std::cout << glm::to_string(vert_mat) << std::endl << std::endl;
                 }
-                // vert_mat           = vert_mat * inverted_model;
                 glm::mat3 norm_mat = glm::mat3(vert_mat);
-
-                // std::cout << glm::to_string(vert_mat) << std::endl;
 
                 glm::vec4 n_pos   = vert_mat * glm::vec4(msh.pos[n], 1.0);
                 glm::vec3 n_norm  = norm_mat * msh.normal[n];

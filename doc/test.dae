@@ -3,10 +3,10 @@
   <asset>
     <contributor>
       <author>Blender User</author>
-      <authoring_tool>Blender 3.3.0 commit date:2022-09-06, commit time:15:39, hash:0759f671ce1f</authoring_tool>
+      <authoring_tool>Blender 3.1.0 commit date:2022-03-08, commit time:18:16, hash:c77597cd0e15</authoring_tool>
     </contributor>
-    <created>2022-09-18T15:03:54</created>
-    <modified>2022-09-18T15:03:54</modified>
+    <created>2022-09-18T13:23:23</created>
+    <modified>2022-09-18T13:23:23</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -31,7 +31,7 @@
   </library_effects>
   <library_images/>
   <library_materials>
-    <material id="Material-material" name="Material">
+    <material id="Material-material" name="diffuse.tga">
       <instance_effect url="#Material-effect"/>
     </material>
   </library_materials>
@@ -92,7 +92,7 @@
           </technique_common>
         </source>
         <source id="Armature_Cube-skin-bind_poses">
-          <float_array id="Armature_Cube-skin-bind_poses-array" count="32">1 0 0 0 0 1.19209e-7 1 0 0 -1 0 0 0 0 0 1 1 0 0 0 0 1.19209e-7 1 -3.764565 0 -1 0 0 0 0 0 1</float_array>
+          <float_array id="Armature_Cube-skin-bind_poses-array" count="32">1 0 0 0 0 0 1 0 0 -1 0 0 0 0 0 1 1 0 0 0 0 0 1 -3.764565 0 -1 0 0 0 0 0 1</float_array>
           <technique_common>
             <accessor source="#Armature_Cube-skin-bind_poses-array" count="2" stride="16">
               <param name="TRANSFORM" type="float4x4"/>
@@ -161,9 +161,9 @@
       <node id="Armature" name="Armature" type="NODE">
         <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
         <node id="Armature_base" name="base" sid="base" type="JOINT">
-          <matrix sid="transform">1 0 0 0 0 0 -0.9999999 0 0 0.9999999 1.19209e-7 0 0 0 0 1</matrix>
+          <matrix sid="transform">1 0 0 0 0 0 -1 0 0 1 0 0 0 0 0 1</matrix>
           <node id="Armature_up" name="up" sid="up" type="JOINT">
-            <matrix sid="transform">1 0 0 0 0 0.9999999 0 3.764565 0 0 0.9999999 0 0 0 0 1</matrix>
+            <matrix sid="transform">1 0 0 0 0 1 0 3.764565 0 0 1 0 0 0 0 1</matrix>
             <extra>
               <technique profile="blender">
                 <connect sid="connect" type="bool">1</connect>
