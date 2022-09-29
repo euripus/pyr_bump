@@ -139,6 +139,9 @@ void Renderer::bindMaterial(Entity entity_id)
 
 void Renderer::unloadMaterialData(Entity entity_id)
 {
+    if(!m_reg.has<MaterialComponent>(entity_id))
+        return;
+
     auto const & mat = m_reg.get<MaterialComponent>(entity_id);
 
     glDeleteTextures(1, &mat.m_base_tex_id);
