@@ -3,10 +3,10 @@
   <asset>
     <contributor>
       <author>Blender User</author>
-      <authoring_tool>Blender 3.1.0 commit date:2022-03-08, commit time:18:16, hash:c77597cd0e15</authoring_tool>
+      <authoring_tool>Blender 3.3.0 commit date:2022-09-06, commit time:15:39, hash:0759f671ce1f</authoring_tool>
     </contributor>
-    <created>2022-09-18T13:23:23</created>
-    <modified>2022-09-18T13:23:23</modified>
+    <created>2022-09-30T03:41:35</created>
+    <modified>2022-09-30T03:41:35</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -31,7 +31,7 @@
   </library_effects>
   <library_images/>
   <library_materials>
-    <material id="Material-material" name="diffuse.tga">
+    <material id="Material-material" name="uv.tga">
       <instance_effect url="#Material-effect"/>
     </material>
   </library_materials>
@@ -49,7 +49,7 @@
           </technique_common>
         </source>
         <source id="Cube_002-mesh-normals">
-          <float_array id="Cube_002-mesh-normals-array" count="24">-1 0 0 0 1 0 1 0 0 0 -1 0 0 0 -1 0 0 1 0 -1 -5.28694e-7 0 1 2.64347e-7</float_array>
+          <float_array id="Cube_002-mesh-normals-array" count="24">-1 0 0 0 1 0 1 0 0 0 -1 0 0 0 -1 0 0 1 0 -1 0 0 1 0</float_array>
           <technique_common>
             <accessor source="#Cube_002-mesh-normals-array" count="8" stride="3">
               <param name="X" type="float"/>
@@ -122,37 +122,37 @@
   </library_controllers>
   <library_animations>
     <animation id="action_container-Armature" name="Armature">
-      <animation id="Armature_ArmatureAction_001_up_pose_matrix" name="Armature">
-        <source id="Armature_ArmatureAction_001_up_pose_matrix-input">
-          <float_array id="Armature_ArmatureAction_001_up_pose_matrix-input-array" count="6">0 0.04166662 0.08333331 0.125 0.1666666 0.2083333</float_array>
+      <animation id="Armature_ArmatureAction_up_pose_matrix" name="Armature">
+        <source id="Armature_ArmatureAction_up_pose_matrix-input">
+          <float_array id="Armature_ArmatureAction_up_pose_matrix-input-array" count="6">0 0.04166662 0.08333331 0.125 0.1666666 0.2083333</float_array>
           <technique_common>
-            <accessor source="#Armature_ArmatureAction_001_up_pose_matrix-input-array" count="6" stride="1">
+            <accessor source="#Armature_ArmatureAction_up_pose_matrix-input-array" count="6" stride="1">
               <param name="TIME" type="float"/>
             </accessor>
           </technique_common>
         </source>
-        <source id="Armature_ArmatureAction_001_up_pose_matrix-output">
-          <float_array id="Armature_ArmatureAction_001_up_pose_matrix-output-array" count="96">1 0 0 0 0 0.9999999 0 3.764565 0 0 0.9999999 0 0 0 0 1 0.9336503 0.3581858 5.32845e-8 0 -0.3581858 0.9336503 -1.0225e-7 3.764565 -8.63736e-8 7.63802e-8 0.9999999 0 0 0 0 1 0.4516272 0.8922067 3.58654e-8 0 -0.8922067 0.4516272 -3.37865e-7 3.764565 -3.17643e-7 1.2059e-7 0.9999999 0 0 0 0 1 0.9834695 0.1810738 6.37283e-8 0 -0.1810738 0.9834694 -7.80782e-8 3.764565 -7.68127e-8 6.5248e-8 0.9999999 0 0 0 0 1 0.9997964 -0.02017806 3.61879e-8 0 0.02017806 0.9997963 -2.01869e-8 3.764565 -3.57732e-8 2.0913e-8 0.9999999 0 0 0 0 1 0.9997964 -0.02017806 3.61879e-8 0 0.02017806 0.9997963 -2.01869e-8 3.764565 -3.57732e-8 2.0913e-8 0.9999999 0 0 0 0 1</float_array>
+        <source id="Armature_ArmatureAction_up_pose_matrix-output">
+          <float_array id="Armature_ArmatureAction_up_pose_matrix-output-array" count="96">1 0 0 0 0 0.9999999 0 3.764565 0 0 0.9999999 0 0 0 0 1 0.9336503 0.3581858 5.32845e-8 0 -0.3581858 0.9336503 -1.0225e-7 3.764565 -8.63736e-8 7.63802e-8 0.9999999 0 0 0 0 1 0.4516272 0.8922067 3.58654e-8 0 -0.8922067 0.4516272 -3.37865e-7 3.764565 -3.17643e-7 1.2059e-7 0.9999999 0 0 0 0 1 0.9834695 0.1810738 6.37283e-8 0 -0.1810738 0.9834694 -7.80782e-8 3.764565 -7.68127e-8 6.5248e-8 0.9999999 0 0 0 0 1 0.9997964 -0.02017806 3.61879e-8 0 0.02017806 0.9997963 -2.01869e-8 3.764565 -3.57732e-8 2.0913e-8 0.9999999 0 0 0 0 1 0.9997964 -0.02017806 3.61879e-8 0 0.02017806 0.9997963 -2.01869e-8 3.764565 -3.57732e-8 2.0913e-8 0.9999999 0 0 0 0 1</float_array>
           <technique_common>
-            <accessor source="#Armature_ArmatureAction_001_up_pose_matrix-output-array" count="6" stride="16">
+            <accessor source="#Armature_ArmatureAction_up_pose_matrix-output-array" count="6" stride="16">
               <param name="TRANSFORM" type="float4x4"/>
             </accessor>
           </technique_common>
         </source>
-        <source id="Armature_ArmatureAction_001_up_pose_matrix-interpolation">
-          <Name_array id="Armature_ArmatureAction_001_up_pose_matrix-interpolation-array" count="6">LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR</Name_array>
+        <source id="Armature_ArmatureAction_up_pose_matrix-interpolation">
+          <Name_array id="Armature_ArmatureAction_up_pose_matrix-interpolation-array" count="6">LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR</Name_array>
           <technique_common>
-            <accessor source="#Armature_ArmatureAction_001_up_pose_matrix-interpolation-array" count="6" stride="1">
+            <accessor source="#Armature_ArmatureAction_up_pose_matrix-interpolation-array" count="6" stride="1">
               <param name="INTERPOLATION" type="name"/>
             </accessor>
           </technique_common>
         </source>
-        <sampler id="Armature_ArmatureAction_001_up_pose_matrix-sampler">
-          <input semantic="INPUT" source="#Armature_ArmatureAction_001_up_pose_matrix-input"/>
-          <input semantic="OUTPUT" source="#Armature_ArmatureAction_001_up_pose_matrix-output"/>
-          <input semantic="INTERPOLATION" source="#Armature_ArmatureAction_001_up_pose_matrix-interpolation"/>
+        <sampler id="Armature_ArmatureAction_up_pose_matrix-sampler">
+          <input semantic="INPUT" source="#Armature_ArmatureAction_up_pose_matrix-input"/>
+          <input semantic="OUTPUT" source="#Armature_ArmatureAction_up_pose_matrix-output"/>
+          <input semantic="INTERPOLATION" source="#Armature_ArmatureAction_up_pose_matrix-interpolation"/>
         </sampler>
-        <channel source="#Armature_ArmatureAction_001_up_pose_matrix-sampler" target="Armature_up/transform"/>
+        <channel source="#Armature_ArmatureAction_up_pose_matrix-sampler" target="Armature_up/transform"/>
       </animation>
     </animation>
   </library_animations>

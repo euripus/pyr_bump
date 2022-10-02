@@ -22,10 +22,10 @@ void LightSystem::update(double time)
 {
     for(auto ent : m_reg.view<evnt::SceneComponent, LightComponent, evnt::IsTransformed>())
     {
-        auto & pos = m_reg.get<evnt::SceneComponent>(ent);
-        auto & lgh = m_reg.get<LightComponent>(ent);
+        auto const & pos = m_reg.get<evnt::SceneComponent>(ent);
+        auto &       lgh = m_reg.get<LightComponent>(ent);
 
-        lgh.position = pos.abs * lgh.position;
+        lgh.position = pos.abs * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
         if(lgh.type == LightType::Spot)
             lgh.spotDirection = glm::vec3(pos.abs * glm::vec4(lgh.spotDirection, 0.0f));

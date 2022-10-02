@@ -4,7 +4,7 @@ mesh 0
 vertices 56
 weights 88
 bbox -1 -0.03926 -1 1 6.94088 1
-material diffuse.tga
+material uv.tga
 vps -1 1.96074 1
 vps -1 -0.03926 -1
 vps -1 -0.03926 1
@@ -291,36 +291,6 @@ fcx 12 13 14
 fcx 12 50 13
 fcx 41 42 43
 fcx 41 52 42
-fcx 33 51 34
-fcx 33 34 35
-fcx 36 33 35
-fcx 36 35 32
-fcx 31 36 32
-fcx 31 32 15
-fcx 3 31 15
-fcx 3 15 16
-fcx 3 16 4
-fcx 3 4 5
-fcx 44 53 45
-fcx 44 45 38
-fcx 37 44 38
-fcx 37 38 18
-fcx 17 37 18
-fcx 17 18 19
-fcx 6 17 19
-fcx 6 19 20
-fcx 6 20 7
-fcx 6 7 8
-fcx 46 54 47
-fcx 46 47 40
-fcx 39 46 40
-fcx 39 40 29
-fcx 28 39 29
-fcx 28 29 21
-fcx 0 28 21
-fcx 0 21 22
-fcx 0 22 1
-fcx 0 1 2
 fcx 48 55 49
 fcx 48 49 26
 fcx 25 48 26
@@ -331,6 +301,36 @@ fcx 9 30 23
 fcx 9 23 24
 fcx 9 24 10
 fcx 9 10 11
+fcx 46 54 47
+fcx 46 47 40
+fcx 39 46 40
+fcx 39 40 29
+fcx 28 39 29
+fcx 28 29 21
+fcx 0 28 21
+fcx 0 21 22
+fcx 0 22 1
+fcx 0 1 2
+fcx 44 53 45
+fcx 44 45 38
+fcx 37 44 38
+fcx 37 38 18
+fcx 17 37 18
+fcx 17 18 19
+fcx 6 17 19
+fcx 6 19 20
+fcx 6 20 7
+fcx 6 7 8
+fcx 33 51 34
+fcx 33 34 35
+fcx 36 33 35
+fcx 36 35 32
+fcx 31 36 32
+fcx 31 32 15
+fcx 3 31 15
+fcx 3 15 16
+fcx 3 16 4
+fcx 3 4 5
 wgi 2
 wgi 3
 wgi 4
@@ -478,5 +478,5 @@ wgh 2 1
 
 bones 2
 jnt 1 0 base 0 0 0 1 0 0 0
-jnt 2 1 up 0 0 0 1 0 -3.76456 0
+jnt 2 1 up 0 0 0 1 0 -3.76457 0
 
