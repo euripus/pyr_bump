@@ -175,11 +175,11 @@ void Renderer::bindLight(Entity entity_id, uint32_t light_num)
     }
     if(lgh.type == LightType::Spot)
     {
-        float angle = glm::degrees(glm::acos(lgh.spotCosCutoff));
+        float angle = glm::degrees(glm::acos(lgh.spot_cos_cutoff));
 
         glLightf(light_src_num, GL_SPOT_CUTOFF, angle);
-        glLightfv(light_src_num, GL_SPOT_DIRECTION, glm::value_ptr(lgh.spotDirection));
-        glLightf(light_src_num, GL_SPOT_EXPONENT, lgh.spotExponent);
+        glLightfv(light_src_num, GL_SPOT_DIRECTION, glm::value_ptr(lgh.spot_direction));
+        glLightf(light_src_num, GL_SPOT_EXPONENT, lgh.spot_exponent);
     }
     // Enable light source
     glEnable(light_src_num);

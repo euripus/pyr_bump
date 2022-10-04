@@ -19,9 +19,9 @@ struct LightComponent
     glm::vec4 specular;
     glm::vec4 position;
     glm::vec3 attenuation;   // constant linear quadratic
-    glm::vec3 spotDirection;
-    float     spotExponent;
-    float     spotCosCutoff;
+    glm::vec3 spot_direction;
+    float     spot_exponent;
+    float     spot_cos_cutoff;
 };
 
 class LightSystem : public ISystem
