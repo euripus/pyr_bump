@@ -358,9 +358,10 @@ void ModelSystem::update(double time)
                 {
                     auto         joint_ent = geom.bone_id_to_entity[msh.weights[j].joint_index];
                     auto const & joint_scn = m_reg.get<evnt::SceneComponent>(joint_ent);
-                    auto const & jont_cmp  = m_reg.get<JointComponent>(joint_ent);
+                    // auto const & jont_cmp  = m_reg.get<JointComponent>(joint_ent);
 
-                    vert_mat += (joint_scn.abs * inverted_model) * jont_cmp.inv_bind * msh.weights[j].w;
+                    // vert_mat += (joint_scn.abs * inverted_model) * jont_cmp.inv_bind * msh.weights[j].w;
+                    vert_mat += (joint_scn.abs * inverted_model) * msh.weights[j].w;
                 }
                 glm::mat3 norm_mat = glm::mat3(vert_mat);
 
