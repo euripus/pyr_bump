@@ -243,7 +243,7 @@ void Window::run()
         glfwSwapBuffers(mp_glfw_win);
         glfwPollEvents();
 
-        m_sys.update(glfwGetTime());
+        m_sys.update(glfwGetTime() / 10.0);
 
         if(m_input_ptr->isKeyPressed(KeyboardKey::Key_F1))
             key_f1();
