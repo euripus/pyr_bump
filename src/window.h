@@ -63,6 +63,7 @@ public:
     // object move
     void objMoveUp(float speed);
     void objRotateUp(float speed);
+    void objRotateSide(float speed);
 
     // keys
     void key_f1();

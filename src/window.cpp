@@ -120,6 +120,10 @@ void Window::create()
                                 "rotate up");
     m_input_ptr->bindKeyFunctor(KeyboardKey::Key_N, std::bind(&Window::objRotateUp, this, -0.02),
                                 "rotate down");
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_M, std::bind(&Window::objRotateSide, this, 0.02f),
+                                "rotate up");
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_K, std::bind(&Window::objRotateSide, this, -0.02),
+                                "rotate down");
 }
 
 void Window::fullscreen(bool is_fullscreen)
@@ -320,6 +324,20 @@ void Window::objRotateUp(float speed)
     auto const & pos = m_reg.get<evnt::SceneComponent>(m_model);
 
     glm::vec4 up        = pos.abs * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+    glm::mat4 new_trans = glm::rotate(glm::mat4(1.0f), speed, glm::vec3(up));
+
+    evnt::TransformComponent tr_cmp;
+    tr_cmp.replase_local_matrix = false;
+    tr_cmp.new_mat              = new_trans;
+
+    m_reg.add_component<evnt::TransformComponent>(m_model, tr_cmp);
+}
+
+void Window::objRotateSide(float speed)
+{
+    auto const & pos = m_reg.get<evnt::SceneComponent>(m_model);
+
+    glm::vec4 up        = pos.abs * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
     glm::mat4 new_trans = glm::rotate(glm::mat4(1.0f), speed, glm::vec3(up));
 
     evnt::TransformComponent tr_cmp;
