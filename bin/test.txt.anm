@@ -1,6 +1,6 @@
 bones 2
 jnt 1 0 base 0 0 0 1 0 0 0
-jnt 2 1 up 0 0 0 1 0 -3.76457 0
+jnt 2 1 up 0 0 0 1 0 -3.76456 0
 
 frames 6
 framerate 28.8005
