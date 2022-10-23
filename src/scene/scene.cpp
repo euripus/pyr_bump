@@ -81,7 +81,7 @@ void evnt::SceneSystem::updateTransform(Entity ent, bool initiator)
     if(NotNull(node.parent))
     {
         auto & parent_node = m_reg.get<SceneComponent>(node.parent);
-        node.abs           = node.rel * parent_node.abs;
+        node.abs           = parent_node.abs * node.rel;
     }
     else
     {
