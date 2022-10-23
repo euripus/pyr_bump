@@ -121,9 +121,9 @@ void Window::create()
     m_input_ptr->bindKeyFunctor(KeyboardKey::Key_N, std::bind(&Window::objRotateUp, this, -0.02),
                                 "rotate down");
     m_input_ptr->bindKeyFunctor(KeyboardKey::Key_M, std::bind(&Window::objRotateSide, this, 0.02f),
-                                "rotate up");
+                                "rotate side");
     m_input_ptr->bindKeyFunctor(KeyboardKey::Key_K, std::bind(&Window::objRotateSide, this, -0.02),
-                                "rotate down");
+                                "rotate side");
 }
 
 void Window::fullscreen(bool is_fullscreen)
