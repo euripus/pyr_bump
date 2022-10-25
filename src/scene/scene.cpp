@@ -73,7 +73,7 @@ void evnt::SceneSystem::addNode(Entity node_id, Entity parent)
         m_transform_updated = true;
     }
 }
-// https://github.com/mortennobel/RenderE/blob/master/src/core/render_e/Transform.cpp
+
 void evnt::SceneSystem::updateTransform(Entity ent, bool initiator)
 {
     auto & node = m_reg.get<SceneComponent>(ent);

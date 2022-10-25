@@ -1,9 +1,6 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-// glm::to_string
-//#include <glm/gtx/string_cast.hpp>
-//#include <iostream>
 
 #include "scene.h"
 #include "material.h"
@@ -319,7 +316,7 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
     in.close();
 
     anm_sequence.controller =
-        Controller(Controller::RepeatType::RT_WRAP, 0.0,
+        Controller(Controller::RepeatType::RT_WRAP, 0.0f,
                    static_cast<double>(anm_sequence.frames.size()) / anm_sequence.frame_rate);
 
     // check data correctness
@@ -364,7 +361,7 @@ void ModelSystem::update(double time)
                 }
                 glm::mat3 norm_mat = glm::mat3(vert_mat);
 
-                glm::vec4 n_pos   = vert_mat * glm::vec4(msh.pos[n], 1.0);
+                glm::vec4 n_pos   = vert_mat * glm::vec4(msh.pos[n], 1.0f);
                 glm::vec3 n_norm  = norm_mat * msh.normal[n];
                 glm::vec3 n_tang  = norm_mat * msh.tangent[n];
                 glm::vec3 n_bitan = norm_mat * msh.bitangent[n];
