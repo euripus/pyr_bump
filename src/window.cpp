@@ -210,7 +210,7 @@ void Window::initScene()
 
 void Window::run()
 {
-    m_sys.update();
+    m_sys.update(0.0);
 
     do
     {
