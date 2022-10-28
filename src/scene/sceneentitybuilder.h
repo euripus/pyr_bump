@@ -61,7 +61,8 @@ class SystemsMgr
 {
     std::vector<std::shared_ptr<ISystem>> m_systems;
 public:
-    SystemsMgr() = default;
+    SystemsMgr()          = default;
+    virtual ~SystemsMgr() = default;
 
     void addSystem(std::shared_ptr<ISystem> sys_ptr);
 
