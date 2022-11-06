@@ -31,6 +31,7 @@ win32:{
 }
 
 SOURCES += \
+    src/input/arcball.cpp \
     src/input/input.cpp \
     src/input/inputglfw.cpp \
     src/main.cpp \
@@ -52,6 +53,7 @@ HEADERS += \
     src/ent/registry.hpp \
     src/ent/sparse_set.hpp \
     src/ent/view.hpp \
+    src/input/arcball.h \
     src/input/input.h \
     src/input/inputglfw.h \
     src/input/key_codes.h \

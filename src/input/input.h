@@ -42,8 +42,8 @@ public:
     int32_t            getMouseWheel() const { return m_mouse_wheel; }
 
     // TODO set mouse pos & hide cursor
-	virtual void setMousePos(glm::ivec2 const & pos) = 0;
-	virtual void hideCursor(bool is_hide) = 0;
+    //    virtual void setMousePos(glm::ivec2 const & pos) = 0;
+    //    virtual void hideCursor(bool is_hide)            = 0;
 
 private:
     std::map<KeyboardKey, std::vector<func_ptr>> m_key_bind_map;
@@ -55,7 +55,7 @@ private:
     glm::ivec2 m_mouse_position                                                 = {};
     int32_t    m_mouse_wheel                                                    = 0;
     bool       m_mouse_buttons_state[static_cast<size_t>(Buttons::ButtonCount)] = {};
-	bool m_is_cursor_visible;
+    bool       m_is_cursor_visible;
 };
 
 #endif   // INPUT_H
