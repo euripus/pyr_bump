@@ -13,8 +13,10 @@ glm::vec3 Arcball::getArcballVector(glm::ivec2 pos) const
     float vec_squared = vec.x * vec.x + vec.y * vec.y;
     if(vec_squared <= 1.0f)
         vec.z = glm::sqrt(1.0f - vec_squared);   // Pythagoras
+	else
+		glm::normalize(vec);
 
-    return glm::normalize(vec);
+    return vec;
 }
 
 glm::mat4 Arcball::getTransformMatrix(glm::ivec2 old_pos, glm::ivec2 new_pos) const
