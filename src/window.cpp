@@ -17,7 +17,11 @@ char const * bump_tex_fname    = "normal.tga";
 }   // namespace
 
 Window::Window(int width, int height, char const * title) :
-    m_size{width, height}, m_title{title}, m_reg{}, m_sys{}
+    m_size{width, height},
+    m_title{title},
+    m_arcball{static_cast<uint32_t>(width), static_cast<uint32_t>(height)},
+    m_reg{},
+    m_sys{}
 {
     // Create scene
     if(!createDefaultScene(width, height))
@@ -101,6 +105,7 @@ void Window::create()
 
     // input backend
     m_input_ptr = std::make_unique<InputGLFW>(mp_glfw_win);
+    m_arcball.setNewWindowSize(static_cast<uint32_t>(cam.m_vp_pos.x), static_cast<uint32_t>(cam.m_vp_pos.y));
 
     // bind keys
     m_input_ptr->bindKeyFunctor(KeyboardKey::Key_W, std::bind(&Window::moveForward, this, 0.02f),
@@ -210,6 +215,7 @@ void Window::initScene()
 
 void Window::run()
 {
+    glm::ivec2 old_cursor_pos = m_input_ptr->getMousePosition();
     m_sys.update(0.0);
 
     do
@@ -247,10 +253,26 @@ void Window::run()
         glfwSwapBuffers(mp_glfw_win);
         glfwPollEvents();
 
-        m_sys.update(glfwGetTime()/10.0);
+        m_sys.update(glfwGetTime() / 10.0);
 
         if(m_input_ptr->isKeyPressed(KeyboardKey::Key_F1))
             key_f1();
+
+        if(m_input_ptr->getMouseButton(Buttons::Button_0))
+        {
+            glm::ivec2 new_corsor_pos = m_input_ptr->getMousePosition();
+            if(old_cursor_pos != new_corsor_pos)
+            {
+                auto mat       = m_arcball.getTransformMatrix(old_cursor_pos, new_corsor_pos);
+                old_cursor_pos = new_corsor_pos;
+
+                evnt::TransformComponent tr_cmp;
+                tr_cmp.replase_local_matrix = false;
+                tr_cmp.new_mat              = mat;
+
+                m_reg.add_component<evnt::TransformComponent>(m_camera, tr_cmp);
+            }
+        }
     }   // Check if the ESC key was pressed or the window was closed
     while(!m_input_ptr->isKeyPressed(KeyboardKey::Key_Escape) && glfwWindowShouldClose(mp_glfw_win) == 0);
 }

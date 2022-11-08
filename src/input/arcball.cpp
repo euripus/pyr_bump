@@ -1,7 +1,7 @@
 #include "arcball.h"
 #include "glm/ext/matrix_transform.hpp"
 
-//https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
+// https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
 
 glm::vec3 Arcball::getArcballVector(glm::ivec2 pos) const
 {
@@ -13,8 +13,8 @@ glm::vec3 Arcball::getArcballVector(glm::ivec2 pos) const
     float vec_squared = vec.x * vec.x + vec.y * vec.y;
     if(vec_squared <= 1.0f)
         vec.z = glm::sqrt(1.0f - vec_squared);   // Pythagoras
-	else
-		glm::normalize(vec);
+    else
+        glm::normalize(vec);
 
     return vec;
 }

@@ -12,6 +12,7 @@
 
 #include "scene/sceneentitybuilder.h"
 #include "input/input.h"
+#include "input/arcball.h"
 #include "scene/scene.h"
 #include "scene/model.h"
 
@@ -27,6 +28,7 @@ class Window
     std::string         m_title;
 
     std::unique_ptr<Input> m_input_ptr;
+    Arcball                m_arcball;
 
     bool createDefaultScene(int width, int height);
 
