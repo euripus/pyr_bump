@@ -4,6 +4,7 @@
 #include "light.h"
 #include "material.h"
 #include "model.h"
+#include <algorithm>
 
 Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
 {
@@ -59,6 +60,21 @@ Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
     }
 
     return entity;
+}
+
+SystemsMgr::~SystemsMgr()
+{
+	// found unique systems, in m_system may be dublicates
+	std::vector<ISystem *> unique_ptrs;
+	for(auto & shd_ptr : m_systems)
+	{
+		ISystem * cur_ptr = shd_ptr.get();
+		if(std::find(begin(unique_ptrs), end(unique_ptrs), cur_ptr) == std::end(unique_ptrs))
+			unique_ptrs.push_back(cur_ptr);
+	}
+
+	for(auto * ptr : unique_ptrs)
+		ptr->terminate();
 }
 
 void SystemsMgr::addSystem(std::shared_ptr<ISystem> sys_ptr)

@@ -36,6 +36,7 @@ public:
     void        update(double time) override;   /// if needed upload new data to GPU
     bool        init() override;
     std::string getName() const override { return "Renderer"; }
+	void        terminate() override;
 
     void setMatrix(MatrixType type, glm::mat4 const & matrix);
     void loadIdentityMatrix(MatrixType type);
@@ -51,6 +52,9 @@ public:
     void uploadModel(Entity entity_id);
     void draw(Entity entity_id);
     void unloadModel(Entity entity_id);
+	
+	// debug draw
+	void drawBBox(AABB const & bbox) const;
 
     // Access to the current clearing parameters for the color, depth, and
     // stencil buffers.
@@ -99,6 +103,10 @@ private:
     glm::vec4 m_clear_color   = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     float     m_clear_depth   = 1.0f;
     int32_t   m_clear_stencil = 0;
+	
+	// bbox vbo
+	uint32_t  m_bbox_vbo_vertices = 0;
+    uint32_t  m_bbox_ibo_elements = 0;
 };
 
 #endif
