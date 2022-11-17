@@ -89,46 +89,36 @@ bool Renderer::init()
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     glEnable(GL_NORMALIZE);
     glEnable(GL_TEXTURE_2D);
-	
-	//bbox
-	float vertices[] = {
-                            -0.5f, -0.5f, -0.5f, 1.0f,
-                             0.5f, -0.5f, -0.5f, 1.0f,
-                             0.5f,  0.5f, -0.5f, 1.0f,
-                            -0.5f,  0.5f, -0.5f, 1.0f,
-                            -0.5f, -0.5f,  0.5f, 1.0f,
-                             0.5f, -0.5f,  0.5f, 1.0f,
-                             0.5f,  0.5f,  0.5f, 1.0f,
-                            -0.5f,  0.5f,  0.5f, 1.0f,
-                            };
 
-        unsigned short elements[] = {
-                            0, 1, 2, 3,
-                            4, 5, 6, 7,
-                            0, 4, 1, 5,
-                            2, 6, 3, 7
-                            };
+    // bbox
+    float vertices[] = {
+        -0.5f, -0.5f, -0.5f, 1.0f,  0.5f, -0.5f, -0.5f, 1.0f, 0.5f, 0.5f, -0.5f,
+        1.0f,  -0.5f, 0.5f,  -0.5f, 1.0f, -0.5f, -0.5f, 0.5f, 1.0f, 0.5f, -0.5f,
+        0.5f,  1.0f,  0.5f,  0.5f,  0.5f, 1.0f,  -0.5f, 0.5f, 0.5f, 1.0f,
+    };
 
-        glGenBuffers(1, &m_bbox_vbo_vertices);
-        glGenBuffers(1, &m_bbox_ibo_elements);
+    unsigned short elements[] = {0, 1, 2, 3, 4, 5, 6, 7, 0, 4, 1, 5, 2, 6, 3, 7};
 
-        glBindBuffer(GL_ARRAY_BUFFER, m_bbox_vbo_vertices);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glGenBuffers(1, &m_bbox_vbo_vertices);
+    glGenBuffers(1, &m_bbox_ibo_elements);
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bbox_ibo_elements);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, m_bbox_vbo_vertices);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bbox_ibo_elements);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     return true;
 }
 
 void Renderer::terminate()
 {
-	glDeleteBuffers(1, &m_bbox_vbo_vertices);
+    glDeleteBuffers(1, &m_bbox_vbo_vertices);
     glDeleteBuffers(1, &m_bbox_ibo_elements);
 }
 
@@ -316,46 +306,45 @@ void Renderer::unloadModel(Entity entity_id)
     }
 }
 
-void Renderer::drawBBox(AABB const & bbox) const
+void Renderer::drawBBox(evnt::AABB const & bbox) const
 {
-	glm::vec3 size = bbox.max() - bbox.min();
-	glm::vec3 center = (bbox.min() + bbox.max())/2.0f;
-	glm::mat4 transform =  glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
+    glm::vec3 size      = bbox.max() - bbox.min();
+    glm::vec3 center    = (bbox.min() + bbox.max()) / 2.0f;
+    glm::mat4 transform = glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
 
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadMatrix(glm::value_ptr(transform));   /// test this
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glMultMatrixf(glm::value_ptr(transform));
 
-	glColor3f(0.0f, 1.0f, 0.0f);
-	glDisable(GL_LIGHTING);
+    glColor3f(0.0f, 1.0f, 0.0f);
+    glDisable(GL_LIGHTING);
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_bbox_vbo_vertices);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(
-		4,                  // number of elements per vertex, here (x,y,z,w));
-		GL_FLOAT,           // the type of each element
-		0,                  // no extra data between each position
-		0                   // offset of first element
-		);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bbox_ibo_elements);
+    glBindBuffer(GL_ARRAY_BUFFER, m_bbox_vbo_vertices);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(4,          // number of elements per vertex, here (x,y,z,w));
+                    GL_FLOAT,   // the type of each element
+                    0,          // no extra data between each position
+                    0           // offset of first element
+    );
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bbox_ibo_elements);
 
-	glEnable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(1, 0);
-	glLineWidth(2);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(1, 0);
+    glLineWidth(3);
 
-	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
-	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4*sizeof(GLushort)));
-	glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8*sizeof(GLushort)));
+    glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, reinterpret_cast<GLvoid *>(4 * sizeof(GLushort)));
+    glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, reinterpret_cast<GLvoid *>(8 * sizeof(GLushort)));
 
-	glDisable(GL_POLYGON_OFFSET_FILL);
+    glDisable(GL_POLYGON_OFFSET_FILL);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	glPopMatrix();
-	glLineWidth(1);
-	glEnable(GL_LIGHTING);
+    glPopMatrix();
+    glLineWidth(1);
+    glEnable(GL_LIGHTING);
 }
 
 void Renderer::clearColorBuffer()

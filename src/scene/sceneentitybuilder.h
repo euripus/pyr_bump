@@ -49,7 +49,7 @@ struct ISystem
     virtual bool        init() { return true; }
     virtual void        update(double time = 1.0) = 0;
     virtual void        postUpdate() {}
-	virtual void        terminate() {}
+    virtual void        terminate() {}
     virtual std::string getName() const = 0;
 
     Registry & getRegistry() const { return m_reg; }
@@ -62,7 +62,7 @@ class SystemsMgr
 {
     std::vector<std::shared_ptr<ISystem>> m_systems;
 public:
-    SystemsMgr()          = default;
+    SystemsMgr() = default;
     virtual ~SystemsMgr();
 
     void addSystem(std::shared_ptr<ISystem> sys_ptr);
