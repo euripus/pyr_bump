@@ -1,6 +1,7 @@
 #ifndef AABB_H
 #define AABB_H
 
+#include <algorithm>
 #include <cassert>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_access.hpp>
@@ -157,18 +158,36 @@ public:
     */
     inline void transform(glm::mat4 const & matrix)
     {
-        // http://dev.theomader.com/transform-bounding-boxes/
-        glm::vec3 xa = glm::vec3(glm::column(matrix, 0)) * m_min.x;
-        glm::vec3 xb = glm::vec3(glm::column(matrix, 0)) * m_max.x;
+        // https://stackoverflow.com/questions/6053522/how-to-recalculate-axis-aligned-bounding-box-after-translate-rotate/
+        glm::vec3 new_min{0.0f}, new_max{0.0f};
+        for(int i = 0; i < 3; i++)
+        {
+            new_min[i] = new_max[i] = matrix[3][i];
+            for(int j = 0; j < 3; j++)
+            {
+                float e = matrix[j][i] * m_min[j];
+                float f = matrix[j][i] * m_max[j];
 
-        glm::vec3 ya = glm::vec3(glm::column(matrix, 1)) * m_min.y;
-        glm::vec3 yb = glm::vec3(glm::column(matrix, 1)) * m_max.y;
+                new_min[i] += glm::min(e, f);
+                new_max[i] += glm::max(e, f);
+            }
+        }
 
-        glm::vec3 za = glm::vec3(glm::column(matrix, 2)) * m_min.z;
-        glm::vec3 zb = glm::vec3(glm::column(matrix, 2)) * m_max.z;
+        m_min = new_min;
+        m_max = new_max;
 
-        m_min = glm::min(xa, xb) + glm::min(ya, yb) + glm::min(za, zb) + glm::vec3(glm::column(matrix, 3));
-        m_max = glm::max(xa, xb) + glm::max(ya, yb) + glm::max(za, zb) + glm::vec3(glm::column(matrix, 3));
+        // slow variant
+        //        std::vector<glm::vec4> corner_points{
+        //            glm::vec4(m_min.x, m_max.y, m_min.z, 1.0f), glm::vec4(m_max.x, m_max.y, m_min.z, 1.0f),
+        //            glm::vec4(m_max.x, m_min.y, m_min.z, 1.0f), glm::vec4(m_min.x, m_min.y, m_min.z, 1.0f),
+        //            glm::vec4(m_min.x, m_max.y, m_max.z, 1.0f), glm::vec4(m_max.x, m_max.y, m_max.z, 1.0f),
+        //            glm::vec4(m_max.x, m_min.y, m_max.z, 1.0f), glm::vec4(m_min.x, m_min.y, m_max.z, 1.0f),
+        //        };
+
+        //        std::for_each(begin(corner_points), end(corner_points),
+        //                      [&matrix](glm::vec4 & pnt) { pnt = matrix * pnt; });
+
+        //        buildBoundBox(corner_points);
     }
 
     /*! Build the bounding box to include the given coordinates.
@@ -181,12 +200,20 @@ public:
         m_max = glm::vec3(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(),
                           std::numeric_limits<float>::min());
 
-        for(unsigned int i = 0; i < positions.size(); i++)
-        {
-            glm::vec3 const & pos = positions[i];
+        std::for_each(begin(positions), end(positions), [this](glm::vec3 const & pos) { expandBy(pos); });
+    }
 
-            expandBy(pos);
-        }
+    /*! Build the bounding box to include the given coordinates.
+        \param[in] positions point set for building AABB
+    */
+    void buildBoundBox(std::vector<glm::vec4> const & positions)
+    {
+        m_min = glm::vec3(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(),
+                          std::numeric_limits<float>::max());
+        m_max = glm::vec3(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(),
+                          std::numeric_limits<float>::min());
+
+        std::for_each(begin(positions), end(positions), [this](glm::vec3 pos) { expandBy(pos); });
     }
 };
 }   // namespace evnt

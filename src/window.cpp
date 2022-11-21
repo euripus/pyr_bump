@@ -184,7 +184,7 @@ bool Window::createDefaultScene(int width, int height)
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
     CameraSystem::SetupProjMatrix(cam, 45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
     // Set cam transform
-    glm::mat4 view    = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.0f, 3.0f));
+    glm::mat4 view    = glm::translate(glm::mat4(1.0f), glm::vec3(10.0f, 0.0f, 10.0f));
     transform.new_mat = glm::rotate(view, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     m_reg.add_component<evnt::TransformComponent>(m_camera, transform);
 
