@@ -14,15 +14,9 @@ evnt::SceneComponent evnt::SceneSystem::GetDefaultSceneComponent()
 
 void evnt::SceneSystem::update(double time)
 {
-    bool in_loop = false;
-
     for(auto ent : m_reg.view<SceneComponent, TransformComponent>())
     {
-        if(!in_loop)
-        {
-            in_loop             = true;
-            m_transform_updated = true;
-        }
+        m_transform_updated = true;
 
         auto & trans = m_reg.get<TransformComponent>(ent);
         auto & pos   = m_reg.get<SceneComponent>(ent);
@@ -33,11 +27,6 @@ void evnt::SceneSystem::update(double time)
             // old transformation first M_new * M_old * vtx
             pos.rel = trans.new_mat * pos.rel;
 
-        // updateTransform(ent, true);
-    }
-
-    for(auto ent : m_reg.view<SceneComponent, TransformComponent>())
-    {
         updateTransform(ent, true);
     }
 
@@ -98,7 +87,7 @@ void evnt::SceneSystem::updateTransform(Entity ent, bool initiator)
 
     updateBound(node);
 
-    if(initiator && NotNull(node.parent))
+    if(initiator && NotNull(node.parent) && node.bbox)
         propagateBoundToRoot(node.parent);
 }
 
