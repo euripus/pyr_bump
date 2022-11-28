@@ -73,8 +73,8 @@ void JointSystem::updateMdlBbox(Entity ent, JointsTransform const & frame) const
     auto & pos = m_reg.get<evnt::SceneComponent>(ent);
     auto & mdl = m_reg.get<ModelComponent>(ent);
 
-    pos.bbox      = frame.bbox;
-    mdl.base_bbox = frame.bbox;
+    pos.initial_bbox = frame.bbox;
+    mdl.base_bbox    = frame.bbox;
 }
 
 bool ModelSystem::LoadMesh(std::string const & fname, ModelComponent & out_mdl,
@@ -401,7 +401,7 @@ Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const &
         throw std::runtime_error{"Failed to load texture"};
 
     // set AABB
-    scn.bbox = geom.base_bbox;
+    scn.initial_bbox = geom.base_bbox;
 
     // if we have skeleton
     if(!joints.empty())

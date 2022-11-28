@@ -5,7 +5,7 @@
 #include "scene/camera.h"
 #include "render/renderer.h"
 #include "scene/light.h"
-//#include "scene/material.h"
+// #include "scene/material.h"
 #include "input/inputglfw.h"
 
 namespace
@@ -241,7 +241,7 @@ void Window::run()
         m_render->setMatrix(Renderer::MatrixType::MODELVIEW, model_view);
 
         m_render->draw(m_model);
-        m_render->drawBBox(*mdl_pos.bbox);
+        m_render->drawBBox(*mdl_pos.initial_bbox);
 
         // glBindTexture(GL_TEXTURE_2D, 0);
         m_render->unbindLight();

@@ -87,25 +87,28 @@ void evnt::SceneSystem::updateTransform(Entity ent, bool initiator)
 
     updateBound(node);
 
-    if(initiator && NotNull(node.parent) && node.bbox)
+    if(initiator && NotNull(node.parent) && node.initial_bbox)
         propagateBoundToRoot(node.parent);
 }
 
 void evnt::SceneSystem::updateBound(SceneComponent & node)
 {
-    if(node.bbox)
-        node.bbox->transform(node.abs);
+    if(node.initial_bbox)
+    {
+        node.transformed_bbox = node.initial_bbox;
+        node.transformed_bbox->transform(node.abs);
+    }
 
     for(auto & ch : node.children)
     {
         auto & child_node = m_reg.get<SceneComponent>(ch);
 
-        if(child_node.bbox)
+        if(child_node.initial_bbox)
         {
-            if(!node.bbox)
-                node.bbox = AABB{};
+            if(!node.initial_bbox)
+                node.initial_bbox = AABB{};
 
-            node.bbox->expandBy(*child_node.bbox);
+            node.initial_bbox->expandBy(*child_node.initial_bbox);
         }
     }
 }

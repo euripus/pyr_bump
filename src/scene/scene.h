@@ -14,7 +14,8 @@ struct SceneComponent
 {
     glm::mat4           abs;
     glm::mat4           rel;
-    std::optional<AABB> bbox;
+    std::optional<AABB> initial_bbox;
+    std::optional<AABB> transformed_bbox;
     std::string         name;
 
     Entity              entity_id;
