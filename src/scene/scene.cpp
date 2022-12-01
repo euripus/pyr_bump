@@ -50,7 +50,7 @@ void evnt::SceneSystem::addNode(Entity node_id, Entity parent)
 
     if(parent == null_entity_id)
     {
-        updateBound(node);
+        updateBound(node_id);
     }
     else
     {
@@ -64,9 +64,9 @@ void evnt::SceneSystem::addNode(Entity node_id, Entity parent)
     }
 }
 
-void evnt::SceneSystem::updateTransform(Entity ent, bool initiator)
+void evnt::SceneSystem::updateTransform(Entity node_id, bool initiator)
 {
-    auto & node = m_reg.get<SceneComponent>(ent);
+    auto & node = m_reg.get<SceneComponent>(node_id);
 
     if(NotNull(node.parent))
     {
@@ -78,46 +78,78 @@ void evnt::SceneSystem::updateTransform(Entity ent, bool initiator)
         node.abs = node.rel;
     }
     // mark entity
-    m_reg.add_component<evnt::IsTransformed>(ent);
+    m_reg.add_component<evnt::IsTransformed>(node_id);
 
     for(auto & ch : node.children)
     {
         updateTransform(ch, false);
     }
 
-    updateBound(node);
+    updateBound(node_id);
 
-    if(initiator && NotNull(node.parent) && node.initial_bbox)
+    if(initiator && NotNull(node.parent) && node.transformed_bbox)
         propagateBoundToRoot(node.parent);
 }
 
-void evnt::SceneSystem::updateBound(SceneComponent & node)
+void evnt::SceneSystem::updateBound(Entity node_id)
 {
+    transformBound(node_id);
+    expandFromChild(node_id);
+}
+
+void evnt::SceneSystem::transformBound(Entity node_id)
+{
+    auto & node = m_reg.get<SceneComponent>(node_id);
+
+    for(auto ch : node.children)
+    {
+        transformBound(ch);
+    }
+
     if(node.initial_bbox)
     {
         node.transformed_bbox = node.initial_bbox;
         node.transformed_bbox->transform(node.abs);
     }
+}
 
-    for(auto & ch : node.children)
+void evnt::SceneSystem::expandFromChild(Entity node_id)
+{
+    auto & node = m_reg.get<SceneComponent>(node_id);
+
+    for(auto ch : node.children)
     {
         auto & child_node = m_reg.get<SceneComponent>(ch);
+        if(!child_node.children.empty())
+            expandFromChild(ch);
 
-        if(child_node.initial_bbox)
+        if(child_node.transformed_bbox)
         {
-            if(!node.initial_bbox)
-                node.initial_bbox = AABB{};
+            if(!node.transformed_bbox)
+                node.transformed_bbox = AABB{};
 
-            node.initial_bbox->expandBy(*child_node.initial_bbox);
+            node.transformed_bbox->expandBy(*child_node.transformed_bbox);
         }
     }
 }
 
-void evnt::SceneSystem::propagateBoundToRoot(Entity ent)
+void evnt::SceneSystem::propagateBoundToRoot(Entity node_id)
 {
-    auto & node = m_reg.get<SceneComponent>(ent);
+    auto & node = m_reg.get<SceneComponent>(node_id);
 
-    updateBound(node);
+    if(!node.transformed_bbox)
+        node.transformed_bbox = AABB{};
+
+    for(auto ch : node.children)
+    {
+        auto & child_node = m_reg.get<SceneComponent>(ch);
+
+        if(child_node.transformed_bbox)
+        {
+            node.transformed_bbox->expandBy(*child_node.transformed_bbox);
+        }
+    }
+
     if(NotNull(node.parent))
         propagateBoundToRoot(node.parent);
 }

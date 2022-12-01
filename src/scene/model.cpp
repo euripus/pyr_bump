@@ -407,7 +407,7 @@ Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const &
     if(!joints.empty())
     {
         // and animation
-        if(ModelSystem::LoadAnim(anim_fname, geom))
+        if(false)   // ModelSystem::LoadAnim(anim_fname, geom))
         {
             // add joints to the scene
             for(auto & jnt : joints)

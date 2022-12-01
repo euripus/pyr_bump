@@ -52,7 +52,9 @@ private:
     bool m_transform_updated = false;
 
     void updateTransform(Entity ent, bool initiator);
-    void updateBound(SceneComponent & node);
+    void updateBound(Entity node_id);
+    void transformBound(Entity node_id);
+    void expandFromChild(Entity node_id);
     void propagateBoundToRoot(Entity ent);
 };
 }   // namespace evnt

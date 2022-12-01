@@ -241,7 +241,7 @@ void Window::run()
         m_render->setMatrix(Renderer::MatrixType::MODELVIEW, model_view);
 
         m_render->draw(m_model);
-        m_render->drawBBox(*mdl_pos.initial_bbox);
+        m_render->drawBBox(*mdl_pos.transformed_bbox);
 
         // glBindTexture(GL_TEXTURE_2D, 0);
         m_render->unbindLight();
