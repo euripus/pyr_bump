@@ -159,7 +159,7 @@ bool Window::createDefaultScene(int width, int height)
     m_sys.addSystem(ptr);
 
     // update joints transform matrices
-    m_sys.addSystem(m_scene_sys);
+    // m_sys.addSystem(m_scene_sys);
 
     m_model_sys = std::make_shared<ModelSystem>(m_reg);
     m_sys.addSystem(m_model_sys);
@@ -241,7 +241,7 @@ void Window::run()
         m_render->setMatrix(Renderer::MatrixType::MODELVIEW, model_view);
 
         m_render->draw(m_model);
-        m_render->drawBBox(*mdl_pos.transformed_bbox);
+        m_render->drawBBox(m_model);
 
         // glBindTexture(GL_TEXTURE_2D, 0);
         m_render->unbindLight();

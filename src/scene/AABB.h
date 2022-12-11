@@ -159,7 +159,7 @@ public:
     inline void transform(glm::mat4 const & matrix)
     {
         // https://stackoverflow.com/questions/6053522/how-to-recalculate-axis-aligned-bounding-box-after-translate-rotate/
-        glm::vec3 new_min{0.0f}, new_max{0.0f};
+        glm::vec3 new_min{std::numeric_limits<float>::min()}, new_max{std::numeric_limits<float>::max()};
         for(int i = 0; i < 3; i++)
         {
             new_min[i] = new_max[i] = matrix[3][i];

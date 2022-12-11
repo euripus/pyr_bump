@@ -33,6 +33,9 @@ struct TransformComponent
 struct IsTransformed
 {};
 
+struct IsBboxUpdated
+{};
+
 class SceneSystem : public ISystem
 {
 public:

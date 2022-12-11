@@ -75,6 +75,8 @@ void JointSystem::updateMdlBbox(Entity ent, JointsTransform const & frame) const
 
     pos.initial_bbox = frame.bbox;
     mdl.base_bbox    = frame.bbox;
+
+    m_reg.add_component<evnt::IsBboxUpdated>(ent);
 }
 
 bool ModelSystem::LoadMesh(std::string const & fname, ModelComponent & out_mdl,
@@ -407,7 +409,7 @@ Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const &
     if(!joints.empty())
     {
         // and animation
-        if(false)   // ModelSystem::LoadAnim(anim_fname, geom))
+        if(ModelSystem::LoadAnim(anim_fname, geom))
         {
             // add joints to the scene
             for(auto & jnt : joints)

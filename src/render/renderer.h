@@ -55,7 +55,7 @@ public:
     void unloadModel(Entity entity_id);
 
     // debug draw
-    void drawBBox(evnt::AABB const & bbox) const;
+    void drawBBox(Entity entity_id) const;
 
     // Access to the current clearing parameters for the color, depth, and
     // stencil buffers.

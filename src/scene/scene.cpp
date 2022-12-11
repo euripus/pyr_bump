@@ -33,6 +33,19 @@ void evnt::SceneSystem::update(double time)
     // clear all TransformComponent
     if(m_transform_updated)
         m_reg.reset<TransformComponent>();
+
+    // update changed Bboxes from joint sysytem upate call
+    for(auto ent : m_reg.view<SceneComponent, IsBboxUpdated>())
+    {
+        auto & pos = m_reg.get<SceneComponent>(ent);
+
+        updateBound(ent);
+
+        if(NotNull(pos.parent) && pos.transformed_bbox)
+            propagateBoundToRoot(pos.parent);
+    }
+
+    m_reg.reset<IsBboxUpdated>();
 }
 
 void evnt::SceneSystem::postUpdate()

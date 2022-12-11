@@ -306,11 +306,17 @@ void Renderer::unloadModel(Entity entity_id)
     }
 }
 
-void Renderer::drawBBox(evnt::AABB const & bbox) const
+void Renderer::drawBBox(Entity entity_id) const
 {
-    glm::vec3 size      = bbox.max() - bbox.min();
-    glm::vec3 center    = (bbox.min() + bbox.max()) / 2.0f;
-    glm::mat4 transform = glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
+    auto const & mdl_scn = m_reg.get<evnt::SceneComponent>(entity_id);
+
+    if(!mdl_scn.transformed_bbox)
+        return;
+
+    glm::vec3 size   = mdl_scn.transformed_bbox->max() - mdl_scn.transformed_bbox->min();
+    glm::vec3 center = (mdl_scn.transformed_bbox->min() + mdl_scn.transformed_bbox->max()) / 2.0f;
+    glm::mat4 transform =
+        glm::inverse(mdl_scn.abs) * glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
