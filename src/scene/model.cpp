@@ -434,3 +434,16 @@ Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const &
 
     return model_ent;
 }
+
+std::optional<Entity> ModelSystem::getBoneIdFromName(Entity model_id, std::string const & bone_name)
+{
+    auto & geom = m_reg.get<ModelComponent>(model_id);
+    for(auto joint_ent : geom.bone_id_to_entity)
+    {
+        auto & jnt_cmp = m_reg.get<JointComponent>(joint_ent);
+        if(jnt_cmp.name == bone_name)
+            return {joint_ent};
+    }
+
+    return {};
+}

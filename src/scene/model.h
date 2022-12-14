@@ -5,6 +5,7 @@
 #include <string>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <optional>
 
 #include "AABB.h"
 #include "sceneentitybuilder.h"
@@ -126,6 +127,8 @@ public:
 
     Entity loadModel(evnt::SceneSystem & scene_sys, std::string const & fname,
                      std::string const & anim_fname = {}) const;
+
+    std::optional<Entity> getBoneIdFromName(Entity model_id, std::string const & bone_name);
 };
 
 #endif

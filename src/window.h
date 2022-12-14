@@ -38,6 +38,7 @@ public:
     Entity                             m_camera;
     Entity                             m_light;
     Entity                             m_model;
+    Entity                             m_cube;
     std::shared_ptr<evnt::SceneSystem> m_scene_sys;
     std::shared_ptr<ModelSystem>       m_model_sys;
     std::shared_ptr<Renderer>          m_render;

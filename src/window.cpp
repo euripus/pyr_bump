@@ -43,6 +43,9 @@ Window::~Window()
     {
         m_render->unloadModel(m_model);
         m_render->unloadMaterialData(m_model);
+
+        m_render->unloadModel(m_cube);
+        m_render->unloadMaterialData(m_cube);
     }
 
     // Close OpenGL window and terminate GLFW
@@ -212,6 +215,20 @@ void Window::initScene()
     m_render->uploadModel(m_model);
 
     m_scene_sys->addNode(m_model, m_root);
+
+    auto bone_id = m_model_sys->getBoneIdFromName(m_model, "foot");
+    if(bone_id)
+    {
+        m_cube = m_model_sys->loadModel(*m_scene_sys.get(), "cube.txt.msh", "");
+
+        auto & cube_pos = m_reg.get<evnt::SceneComponent>(m_cube);
+        cube_pos.rel    = glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, -2.0f});
+
+        m_render->uploadMaterialData(m_cube);
+        m_render->uploadModel(m_cube);
+
+        m_scene_sys->addNode(m_cube, *bone_id);
+    }
 }
 
 void Window::run()
@@ -224,8 +241,9 @@ void Window::run()
         // Clear the screen
         m_render->clearBuffers();
 
-        auto const & cam     = m_reg.get<CameraComponent>(m_camera);
-        auto const & mdl_pos = m_reg.get<evnt::SceneComponent>(m_model);
+        auto const & cam      = m_reg.get<CameraComponent>(m_camera);
+        auto const & mdl_pos  = m_reg.get<evnt::SceneComponent>(m_model);
+        auto const & cube_pos = m_reg.get<evnt::SceneComponent>(m_cube);
 
         // set lights
         m_render->lighting();
@@ -237,7 +255,12 @@ void Window::run()
         // set matrices
         m_render->setMatrix(Renderer::MatrixType::PROJECTION, cam.m_proj_mat);
 
-        glm::mat4 model_view = cam.m_view_mat * mdl_pos.abs;
+        glm::mat4 model_view = cam.m_view_mat * cube_pos.abs;
+        m_render->setMatrix(Renderer::MatrixType::MODELVIEW, model_view);
+
+        m_render->draw(m_cube);
+
+        model_view = cam.m_view_mat * mdl_pos.abs;
         m_render->setMatrix(Renderer::MatrixType::MODELVIEW, model_view);
 
         m_render->draw(m_model);

@@ -11,6 +11,9 @@
 
 namespace evnt
 {
+constexpr float min_float = std::numeric_limits<float>::min();
+constexpr float max_float = std::numeric_limits<float>::max();
+
 //! Axis-aligned minimum bounding box class
 /*!
     This class holds AABB for a given point set,
@@ -23,12 +26,7 @@ class AABB
     glm::vec3 m_max; /*!< The corner with the largest values for each coordinate of the AABB */
 public:
     //! Construct to invalid values to represent an unset bounding box
-    inline AABB() :
-        m_min(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(),
-              std::numeric_limits<float>::max()),
-        m_max(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(),
-              std::numeric_limits<float>::min())
-    {}
+    inline AABB() : m_min(max_float), m_max(min_float) {}
 
     //! Construct to with specified min and max values
     inline AABB(float xmin, float ymin, float zmin, float xmax, float ymax, float zmax) :
@@ -159,7 +157,7 @@ public:
     inline void transform(glm::mat4 const & matrix)
     {
         // https://stackoverflow.com/questions/6053522/how-to-recalculate-axis-aligned-bounding-box-after-translate-rotate/
-        glm::vec3 new_min{std::numeric_limits<float>::min()}, new_max{std::numeric_limits<float>::max()};
+        glm::vec3 new_min(max_float), new_max(min_float);
         for(int i = 0; i < 3; i++)
         {
             new_min[i] = new_max[i] = matrix[3][i];
@@ -195,10 +193,8 @@ public:
     */
     void buildBoundBox(std::vector<glm::vec3> const & positions)
     {
-        m_min = glm::vec3(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(),
-                          std::numeric_limits<float>::max());
-        m_max = glm::vec3(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(),
-                          std::numeric_limits<float>::min());
+        m_min = glm::vec3(max_float);
+        m_max = glm::vec3(min_float);
 
         std::for_each(begin(positions), end(positions), [this](glm::vec3 const & pos) { expandBy(pos); });
     }
@@ -208,10 +204,8 @@ public:
     */
     void buildBoundBox(std::vector<glm::vec4> const & positions)
     {
-        m_min = glm::vec3(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(),
-                          std::numeric_limits<float>::max());
-        m_max = glm::vec3(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(),
-                          std::numeric_limits<float>::min());
+        m_min = glm::vec3(max_float);
+        m_max = glm::vec3(min_float);
 
         std::for_each(begin(positions), end(positions), [this](glm::vec3 pos) { expandBy(pos); });
     }
