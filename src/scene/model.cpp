@@ -56,16 +56,21 @@ void JointSystem::updateModelJoints(Entity ent, JointsTransform const & frame) c
 
     for(uint32_t i = 0; i < mdl.bone_id_to_entity.size(); ++i)
     {
-        auto joint_ent = mdl.bone_id_to_entity[i];
+        auto   joint_ent = mdl.bone_id_to_entity[i];
+        auto & joint_pos = m_reg.get<evnt::SceneComponent>(joint_ent);
 
         glm::mat4 mt = glm::mat4_cast(frame.rot[i]);
         mt           = glm::column(mt, 3, glm::vec4(frame.trans[i], 1.0f));
 
-        evnt::TransformComponent transform{};
-        transform.replase_local_matrix = true;
-        transform.new_mat              = mt;
-        m_reg.add_component<evnt::TransformComponent>(joint_ent, transform);
+        // replace relative matrix with new value
+        joint_pos.rel = mt;
     }
+
+    // update matrices in scene graph from root bone in scene_sys.update()
+    evnt::TransformComponent transform{};
+    transform.replase_local_matrix = false;
+    transform.new_mat              = glm::mat4(1.0f);
+    m_reg.add_component<evnt::TransformComponent>(mdl.bone_id_to_entity[0], transform);
 }
 
 void JointSystem::updateMdlBbox(Entity ent, JointsTransform const & frame) const

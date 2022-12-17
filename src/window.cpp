@@ -222,12 +222,13 @@ void Window::initScene()
         m_cube = m_model_sys->loadModel(*m_scene_sys.get(), "cube.txt.msh", "");
 
         auto & cube_pos = m_reg.get<evnt::SceneComponent>(m_cube);
-        cube_pos.rel    = glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, -2.0f});
+        cube_pos.rel    = glm::translate(glm::mat4(1.0f), {0.0f, -5.0f, 0.0f});
 
         m_render->uploadMaterialData(m_cube);
         m_render->uploadModel(m_cube);
 
         m_scene_sys->addNode(m_cube, *bone_id);
+        // m_scene_sys->addNode(m_cube, m_model);
     }
 }
 
@@ -259,6 +260,7 @@ void Window::run()
         m_render->setMatrix(Renderer::MatrixType::MODELVIEW, model_view);
 
         m_render->draw(m_cube);
+        m_render->drawBBox(m_cube);
 
         model_view = cam.m_view_mat * mdl_pos.abs;
         m_render->setMatrix(Renderer::MatrixType::MODELVIEW, model_view);

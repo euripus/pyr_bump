@@ -56,8 +56,6 @@ private:
 
     void updateTransform(Entity ent, bool initiator);
     void updateBound(Entity node_id);
-    void transformBound(Entity node_id);
-    void expandFromChild(Entity node_id);
     void propagateBoundToRoot(Entity ent);
 };
 }   // namespace evnt
