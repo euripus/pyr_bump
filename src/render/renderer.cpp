@@ -309,6 +309,7 @@ void Renderer::unloadModel(Entity entity_id)
 void Renderer::drawBBox(Entity entity_id) const
 {
     auto const & ent_scn = m_reg.get<evnt::SceneComponent>(entity_id);
+    // auto const & ent_mdl = m_reg.get<ModelComponent>(entity_id);
 
     if(!ent_scn.transformed_bbox)
         return;
@@ -318,12 +319,12 @@ void Renderer::drawBBox(Entity entity_id) const
     glm::mat4 transform =
         glm::inverse(ent_scn.abs) * glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
 
+    glDisable(GL_LIGHTING);
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glMultMatrixf(glm::value_ptr(transform));
 
     glColor3f(0.0f, 1.0f, 0.0f);
-    glDisable(GL_LIGHTING);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_bbox_vbo_vertices);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -349,6 +350,45 @@ void Renderer::drawBBox(Entity entity_id) const
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glPopMatrix();
+
+    // model box
+    //    size   = ent_mdl.base_bbox.max() - ent_mdl.base_bbox.min();
+    //    center = (ent_mdl.base_bbox.min() + ent_mdl.base_bbox.max()) / 2.0f;
+    //    transform =
+    //        glm::inverse(ent_scn.abs) * glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1),
+    //        size);
+
+    //    glPushMatrix();
+    //    glMultMatrixf(glm::value_ptr(transform));
+
+    //    glColor3f(1.0f, 0.0f, 0.0f);
+
+    //    glBindBuffer(GL_ARRAY_BUFFER, m_bbox_vbo_vertices);
+    //    glEnableClientState(GL_VERTEX_ARRAY);
+    //    glVertexPointer(4,          // number of elements per vertex, here (x,y,z,w));
+    //                    GL_FLOAT,   // the type of each element
+    //                    0,          // no extra data between each position
+    //                    0           // offset of first element
+    //    );
+    //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bbox_ibo_elements);
+
+    //    glEnable(GL_POLYGON_OFFSET_FILL);
+    //    glPolygonOffset(1, 0);
+    //    glLineWidth(3);
+
+    //    glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
+    //    glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, reinterpret_cast<GLvoid *>(4 *
+    //    sizeof(GLushort))); glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, reinterpret_cast<GLvoid *>(8 *
+    //    sizeof(GLushort)));
+
+    //    glDisable(GL_POLYGON_OFFSET_FILL);
+
+    //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    //    glDisableClientState(GL_VERTEX_ARRAY);
+    //    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    //    glPopMatrix();
+
     glLineWidth(1);
     glEnable(GL_LIGHTING);
 }

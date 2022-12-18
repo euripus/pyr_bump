@@ -11,7 +11,7 @@
 
 namespace evnt
 {
-constexpr float min_float = std::numeric_limits<float>::min();
+constexpr float min_float = -std::numeric_limits<float>::max();
 constexpr float max_float = std::numeric_limits<float>::max();
 
 //! Axis-aligned minimum bounding box class
@@ -122,9 +122,9 @@ public:
     */
     inline AABB intersect(AABB const & bb) const
     {
-        return AABB(std::max(m_min.x, bb.m_min.x), std::max(m_min.y, bb.m_min.y),
-                    std::max(m_min.z, bb.m_min.z), std::min(m_max.x, bb.m_max.x),
-                    std::min(m_max.y, bb.m_max.y), std::min(m_max.z, bb.m_max.z));
+        return AABB(glm::max(m_min.x, bb.m_min.x), glm::max(m_min.y, bb.m_min.y),
+                    glm::max(m_min.z, bb.m_min.z), glm::min(m_max.x, bb.m_max.x),
+                    glm::min(m_max.y, bb.m_max.y), glm::min(m_max.z, bb.m_max.z));
     }
 
     /*! Check for intersection of bounding boxes
@@ -133,9 +133,9 @@ public:
     */
     inline bool intersects(AABB const & bb) const
     {
-        return std::max(bb.m_min.x, m_min.x) <= std::min(bb.m_max.x, m_max.x)
-               && std::max(bb.m_min.y, m_min.y) <= std::min(bb.m_max.y, m_max.y)
-               && std::max(bb.m_min.z, m_min.z) <= std::min(bb.m_max.z, m_max.z);
+        return glm::max(bb.m_min.x, m_min.x) <= glm::min(bb.m_max.x, m_max.x)
+               && glm::max(bb.m_min.y, m_min.y) <= glm::min(bb.m_max.y, m_max.y)
+               && glm::max(bb.m_min.z, m_min.z) <= glm::min(bb.m_max.z, m_max.z);
     }
 
     /*! Check for the containing of the coordinate in the AABB
@@ -207,7 +207,8 @@ public:
         m_min = glm::vec3(max_float);
         m_max = glm::vec3(min_float);
 
-        std::for_each(begin(positions), end(positions), [this](glm::vec3 pos) { expandBy(pos); });
+        std::for_each(begin(positions), end(positions),
+                      [this](glm::vec4 const & pos) { expandBy(glm::vec3(pos)); });
     }
 };
 }   // namespace evnt

@@ -2,7 +2,7 @@
 #define SCENE_H
 
 #include <glm/glm.hpp>
-#include <vector>
+#include <list>
 #include <string>
 #include <optional>
 #include "AABB.h"
@@ -18,9 +18,9 @@ struct SceneComponent
     std::optional<AABB> transformed_bbox;
     std::string         name;
 
-    Entity              entity_id;
-    Entity              parent;
-    std::vector<Entity> children;
+    Entity            entity_id;
+    Entity            parent;
+    std::list<Entity> children;
 };
 
 struct TransformComponent

@@ -65,6 +65,7 @@ public:
     void moveUp(float speed);
     // object move
     void objMoveUp(float speed);
+    void objMoveSide(float speed);
     void objRotateUp(float speed);
     void objRotateSide(float speed);
 

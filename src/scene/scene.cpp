@@ -93,7 +93,7 @@ void evnt::SceneSystem::updateTransform(Entity node_id, bool initiator)
     // mark entity
     m_reg.add_component<evnt::IsTransformed>(node_id);
 
-    for(auto & ch : node.children)
+    for(auto ch : node.children)
     {
         updateTransform(ch, false);
     }
@@ -139,7 +139,7 @@ void evnt::SceneSystem::propagateBoundToRoot(Entity parent_node_id)
     auto & node = m_reg.get<SceneComponent>(parent_node_id);
 
     if(!node.transformed_bbox)
-        node.transformed_bbox = AABB{};
+        node.transformed_bbox = AABB();
 
     for(auto ch : node.children)
     {
