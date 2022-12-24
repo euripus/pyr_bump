@@ -2,7 +2,6 @@
 #define MATERIAL_H
 
 #include <glm/glm.hpp>
-#include "sceneentitybuilder.h"
 #include "../res/imagedata.h"
 
 struct MaterialComponent
@@ -11,7 +10,7 @@ struct MaterialComponent
     tex::ImageData m_bump;
 
     uint32_t m_base_tex_id;
-    uint32_t m_diff_tex_id;
+    uint32_t m_bump_tex_id;
 
     glm::vec4 m_ambient;
     glm::vec4 m_diffuse;

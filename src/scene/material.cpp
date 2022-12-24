@@ -18,7 +18,7 @@ MaterialComponent MaterialSystem::GetDefaultMaterialComponent()
     mat.m_shininess = 0.0f;
 
     mat.m_base_tex_id = 0;
-    mat.m_diff_tex_id = 0;
+    mat.m_bump_tex_id = 0;
 
     mat.m_diff.height = 4;
     mat.m_diff.width  = 4;

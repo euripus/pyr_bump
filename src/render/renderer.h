@@ -108,6 +108,8 @@ private:
     // bbox vbo
     uint32_t m_bbox_vbo_vertices = 0;
     uint32_t m_bbox_ibo_elements = 0;
+
+    bool m_terminated = false;
 };
 
 #endif

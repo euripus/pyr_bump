@@ -118,8 +118,19 @@ bool Renderer::init()
 
 void Renderer::terminate()
 {
-    glDeleteBuffers(1, &m_bbox_vbo_vertices);
-    glDeleteBuffers(1, &m_bbox_ibo_elements);
+    if(!m_terminated)
+    {
+        glDeleteBuffers(1, &m_bbox_vbo_vertices);
+        glDeleteBuffers(1, &m_bbox_ibo_elements);
+
+        for(auto ent : m_reg.view<ModelComponent, RenderModel, MaterialComponent>())
+        {
+            unloadMaterialData(ent);
+            unloadModel(ent);
+        }
+
+        m_terminated = true;
+    }
 }
 
 void Renderer::setMatrix(MatrixType type, glm::mat4 const & matrix)
@@ -151,6 +162,15 @@ void Renderer::uploadMaterialData(Entity entity_id)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+    glGenTextures(1, &mat.m_bump_tex_id);
+    glBindTexture(GL_TEXTURE_2D, mat.m_bump_tex_id);
+    glTexImage2D(GL_TEXTURE_2D, 0, mat.m_bump.type == tex::ImageData::PixelType::pt_rgb ? 3 : 4,
+                 static_cast<GLsizei>(mat.m_bump.width), static_cast<GLsizei>(mat.m_bump.height), 0,
+                 mat.m_bump.type == tex::ImageData::PixelType::pt_rgb ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE,
+                 mat.m_bump.data.get());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -171,9 +191,13 @@ void Renderer::unloadMaterialData(Entity entity_id)
     if(!m_reg.has<MaterialComponent>(entity_id))
         return;
 
-    auto const & mat = m_reg.get<MaterialComponent>(entity_id);
+    auto & mat = m_reg.get<MaterialComponent>(entity_id);
 
     glDeleteTextures(1, &mat.m_base_tex_id);
+    glDeleteTextures(1, &mat.m_bump_tex_id);
+
+    mat.m_base_tex_id = 0;
+    mat.m_bump_tex_id = 0;
 }
 
 void Renderer::lighting(bool enable)
@@ -248,8 +272,7 @@ void Renderer::uploadModel(Entity entity_id)
         glGenBuffers(1, &cur_msh.m_elementbuffer);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cur_msh.m_elementbuffer);
         cur_msh.m_indices_size = static_cast<GLsizei>(msh.indexes.size());
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                     static_cast<GLsizeiptr>(cur_msh.m_indices_size) * sizeof(uint32_t), msh.indexes.data(),
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, msh.indexes.size() * sizeof(uint32_t), msh.indexes.data(),
                      GL_STATIC_DRAW);
 
         gl_mdl.model.push_back(cur_msh);
@@ -295,14 +318,17 @@ void Renderer::unloadModel(Entity entity_id)
     if(!m_reg.has<RenderModel>(entity_id))
         return;
 
-    auto const & mdl = m_reg.get<RenderModel>(entity_id);
+    auto & mdl = m_reg.get<RenderModel>(entity_id);
 
-    for(auto const & msh : mdl.model)
+    for(auto & msh : mdl.model)
     {
         glDeleteBuffers(1, &msh.m_vertexbuffer);
         glDeleteBuffers(1, &msh.m_normalbuffer);
         glDeleteBuffers(1, &msh.m_uvbuffer);
         glDeleteBuffers(1, &msh.m_elementbuffer);
+
+        msh.m_vertexbuffer = msh.m_normalbuffer = msh.m_uvbuffer = msh.m_elementbuffer = msh.m_indices_size =
+            0;
     }
 }
 

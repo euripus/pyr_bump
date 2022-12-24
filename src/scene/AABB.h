@@ -94,11 +94,33 @@ public:
             m_max.z = v.z;
     }
 
+    /*! Expands the bounding box to include the given coordinate.
+        If this box is uninitialized, set its min and max extents to v.
+        \param[in] v given coordinate
+    */
+    inline void expandBy(glm::vec4 const & v)
+    {
+        if(v.x < m_min.x)
+            m_min.x = v.x;
+        if(v.x > m_max.x)
+            m_max.x = v.x;
+
+        if(v.y < m_min.y)
+            m_min.y = v.y;
+        if(v.y > m_max.y)
+            m_max.y = v.y;
+
+        if(v.z < m_min.z)
+            m_min.z = v.z;
+        if(v.z > m_max.z)
+            m_max.z = v.z;
+    }
+
     /*! Expands this bounding box to include the given bounding box.
         If this box is uninitialized, set it equal to bb.
         \param[in] bb given bounding box
     */
-    void expandBy(AABB const & bb)
+    inline void expandBy(AABB const & bb)
     {
         if(bb.m_min.x < m_min.x)
             m_min.x = bb.m_min.x;
@@ -207,8 +229,7 @@ public:
         m_min = glm::vec3(max_float);
         m_max = glm::vec3(min_float);
 
-        std::for_each(begin(positions), end(positions),
-                      [this](glm::vec4 const & pos) { expandBy(glm::vec3(pos)); });
+        std::for_each(begin(positions), end(positions), [this](glm::vec4 const & pos) { expandBy(pos); });
     }
 };
 }   // namespace evnt

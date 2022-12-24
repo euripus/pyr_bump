@@ -10,10 +10,11 @@
 
 namespace
 {
-char const * mesh_fname        = "test.txt.msh";
-char const * anim_fname        = "test.txt.anm";
-char const * diffuse_tex_fname = "diffuse.tga";
-char const * bump_tex_fname    = "normal.tga";
+char const *    mesh_fname        = "test.txt.msh";
+char const *    anim_fname        = "test.txt.anm";
+char const *    diffuse_tex_fname = "diffuse.tga";
+char const *    bump_tex_fname    = "normal.tga";
+constexpr float def_speed         = 0.02f;
 }   // namespace
 
 Window::Window(int width, int height, char const * title) :
@@ -41,11 +42,7 @@ Window::~Window()
     // Cleanup VBO and shader
     if(mp_glfw_win)
     {
-        m_render->unloadModel(m_model);
-        m_render->unloadMaterialData(m_model);
-
-        m_render->unloadModel(m_cube);
-        m_render->unloadMaterialData(m_cube);
+        m_render->terminate();
     }
 
     // Close OpenGL window and terminate GLFW
@@ -112,30 +109,33 @@ void Window::create()
                                static_cast<uint32_t>(cam.m_vp_size.y));
 
     // bind keys
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_W, std::bind(&Window::moveForward, this, 0.02f),
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_W, std::bind(&Window::moveForward, this, def_speed),
                                 "move forward");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_S, std::bind(&Window::moveForward, this, -0.02),
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_S, std::bind(&Window::moveForward, this, -def_speed),
                                 "move backward");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_A, std::bind(&Window::moveSideward, this, -0.02f),
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_A, std::bind(&Window::moveSideward, this, -def_speed),
                                 "move left");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_D, std::bind(&Window::moveSideward, this, 0.02),
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_D, std::bind(&Window::moveSideward, this, def_speed),
                                 "move right");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_Z, std::bind(&Window::moveUp, this, 0.02f), "move up");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_X, std::bind(&Window::moveUp, this, -0.02), "move down");
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_Z, std::bind(&Window::moveUp, this, def_speed), "move up");
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_X, std::bind(&Window::moveUp, this, -def_speed),
+                                "move down");
 
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_C, std::bind(&Window::objMoveUp, this, 0.02f), "move up");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_V, std::bind(&Window::objMoveUp, this, -0.02), "move down");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_F, std::bind(&Window::objMoveSide, this, 0.02f),
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_C, std::bind(&Window::objMoveUp, this, def_speed),
+                                "move up");
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_V, std::bind(&Window::objMoveUp, this, -def_speed),
+                                "move down");
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_F, std::bind(&Window::objMoveSide, this, def_speed),
                                 "move side");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_G, std::bind(&Window::objMoveSide, this, -0.02),
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_G, std::bind(&Window::objMoveSide, this, -def_speed),
                                 "move side");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_B, std::bind(&Window::objRotateUp, this, 0.02f),
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_B, std::bind(&Window::objRotateUp, this, def_speed),
                                 "rotate up");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_N, std::bind(&Window::objRotateUp, this, -0.02),
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_N, std::bind(&Window::objRotateUp, this, -def_speed),
                                 "rotate down");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_M, std::bind(&Window::objRotateSide, this, 0.02f),
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_M, std::bind(&Window::objRotateSide, this, def_speed),
                                 "rotate side");
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_K, std::bind(&Window::objRotateSide, this, -0.02),
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_K, std::bind(&Window::objRotateSide, this, -def_speed),
                                 "rotate side");
 }
 
