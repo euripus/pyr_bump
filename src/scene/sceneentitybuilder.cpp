@@ -6,7 +6,7 @@
 #include "model.h"
 #include <algorithm>
 
-Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
+Entity EntityBuilder::BuildEntity(Registry & reg, build_flags flags)
 {
     Entity entity = null_entity_id;
 
@@ -60,6 +60,11 @@ Entity SceneEntityBuilder::BuildEntity(Registry & reg, build_flags flags)
     }
 
     return entity;
+}
+
+void EntityBuilder::DestroyEntity(Registry & reg, Entity entity_id)
+{
+    reg.destroy(entity_id);
 }
 
 SystemsMgr::~SystemsMgr()

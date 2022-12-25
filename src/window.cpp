@@ -178,10 +178,10 @@ bool Window::createDefaultScene(int width, int height)
     transform.replase_local_matrix = true;
 
     // root
-    auto root = SceneEntityBuilder::BuildEntity(m_reg, pos_flags);
-    m_scene_sys->addNode(root);
+    auto root = EntityBuilder::BuildEntity(m_reg, pos_flags);
+    m_scene_sys->connectNode(root);
     // camera
-    m_camera   = SceneEntityBuilder::BuildEntity(m_reg, cam_flags);
+    m_camera   = EntityBuilder::BuildEntity(m_reg, cam_flags);
     auto & cam = m_reg.get<CameraComponent>(m_camera);
 
     cam.m_vp_size.x = width;
@@ -194,14 +194,14 @@ bool Window::createDefaultScene(int width, int height)
     transform.new_mat = glm::rotate(view, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     m_reg.add_component<evnt::TransformComponent>(m_camera, transform);
 
-    m_scene_sys->addNode(m_camera, root);
+    m_scene_sys->connectNode(m_camera, root);
     // light
-    m_light = SceneEntityBuilder::BuildEntity(m_reg, light_flags);
+    m_light = EntityBuilder::BuildEntity(m_reg, light_flags);
 
     transform.new_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 5.0f));
     m_reg.add_component<evnt::TransformComponent>(m_light, transform);
 
-    m_scene_sys->addNode(m_light, root);
+    m_scene_sys->connectNode(m_light, root);
 
     return true;
 }
@@ -217,9 +217,9 @@ void Window::initScene()
     m_render->uploadMaterialData(m_model);
     m_render->uploadModel(m_model);
 
-    m_scene_sys->addNode(m_model, m_scene_sys->getRoot());
+    m_scene_sys->connectNode(m_model, m_scene_sys->getRoot());
 
-    auto bone_id = m_model_sys->getBoneIdFromName(m_model, "foot");
+    auto bone_id = m_model_sys->getJointIdFromName(m_model, "foot");
     if(bone_id)
     {
         auto cube = m_model_sys->loadModel(*m_scene_sys.get(), "cube.txt.msh", "");
@@ -230,7 +230,7 @@ void Window::initScene()
         m_render->uploadMaterialData(cube);
         m_render->uploadModel(cube);
 
-        m_scene_sys->addNode(cube, *bone_id);
+        m_scene_sys->connectNode(cube, *bone_id);
         // m_scene_sys->addNode(m_cube, m_model);
     }
 }

@@ -35,10 +35,11 @@ constexpr build_flags light_flags = 0b000101;   // pos + light
 constexpr build_flags obj_flags   = 0b011001;   // pos + material + model
 constexpr build_flags joint_flags = 0b100001;   // pos + joint
 
-class SceneEntityBuilder
+class EntityBuilder
 {
 public:
     static Entity BuildEntity(Registry & reg, build_flags flags);
+    static void   DestroyEntity(Registry & reg, Entity entity_id);
 };
 
 struct ISystem

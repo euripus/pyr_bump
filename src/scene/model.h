@@ -82,7 +82,7 @@ struct ParsedJoint
 struct ModelComponent
 {
     std::vector<Mesh>         meshes;
-    std::vector<Entity>       bone_id_to_entity;   // skel
+    std::vector<Entity>       joint_id_to_entity;   // skel
     std::vector<AnimSequence> animations;
     std::string               material_name;
 
@@ -101,7 +101,6 @@ class JointSystem : public ISystem
 public:
     JointSystem(Registry & reg) : ISystem(reg) {}
 
-    // must be called before scene.update()
     void        update(double time = 1.0) override;
     std::string getName() const override { return "JointSystem"; }
 
@@ -128,7 +127,7 @@ public:
     Entity loadModel(evnt::SceneSystem & scene_sys, std::string const & fname,
                      std::string const & anim_fname = {}) const;
 
-    std::optional<Entity> getBoneIdFromName(Entity model_id, std::string const & bone_name);
+    std::optional<Entity> getJointIdFromName(Entity model_id, std::string const & bone_name);
 };
 
 #endif

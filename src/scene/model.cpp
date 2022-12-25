@@ -54,9 +54,9 @@ void JointSystem::updateModelJoints(Entity ent, JointsTransform const & frame) c
 {
     auto const & mdl = m_reg.get<ModelComponent>(ent);
 
-    for(uint32_t i = 0; i < mdl.bone_id_to_entity.size(); ++i)
+    for(uint32_t i = 0; i < mdl.joint_id_to_entity.size(); ++i)
     {
-        auto   joint_ent = mdl.bone_id_to_entity[i];
+        auto   joint_ent = mdl.joint_id_to_entity[i];
         auto & joint_pos = m_reg.get<evnt::SceneComponent>(joint_ent);
 
         glm::mat4 mt = glm::mat4_cast(frame.rot[i]);
@@ -66,11 +66,11 @@ void JointSystem::updateModelJoints(Entity ent, JointsTransform const & frame) c
         joint_pos.rel = mt;
     }
 
-    // update matrices in scene graph from root bone in scene_sys.update()
+    // update abs matrices in scene graph from root bone in scene_sys.update()
     evnt::TransformComponent transform{};
     transform.replase_local_matrix = false;
     transform.new_mat              = glm::mat4(1.0f);
-    m_reg.add_component<evnt::TransformComponent>(mdl.bone_id_to_entity[0], transform);
+    m_reg.add_component<evnt::TransformComponent>(mdl.joint_id_to_entity[0], transform);
 }
 
 void JointSystem::updateMdlBbox(Entity ent, JointsTransform const & frame) const
@@ -194,8 +194,8 @@ bool ModelSystem::LoadMesh(std::string const & fname, ModelComponent & out_mdl,
             uint32_t           num;
 
             s >> num;
-            out_mdl.bone_id_to_entity.clear();
-            out_mdl.bone_id_to_entity.resize(num, null_entity_id);
+            out_mdl.joint_id_to_entity.clear();
+            out_mdl.joint_id_to_entity.resize(num, null_entity_id);
         }
         else if(line.substr(0, 8) == "material")
         {
@@ -329,8 +329,8 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
     // check data correctness
     for(auto const & frm : anm_sequence.frames)
     {
-        if(out_mdl.bone_id_to_entity.size() != frm.rot.size()
-           || out_mdl.bone_id_to_entity.size() != frm.trans.size())
+        if(out_mdl.joint_id_to_entity.size() != frm.rot.size()
+           || out_mdl.joint_id_to_entity.size() != frm.trans.size())
             return false;
     }
 
@@ -360,7 +360,7 @@ void ModelSystem::update(double time)
                 glm::mat4 vert_mat(0.0f);
                 for(uint32_t j = msh.weight_indxs[n].first; j < msh.weight_indxs[n].second; ++j)
                 {
-                    auto         joint_ent = geom.bone_id_to_entity[msh.weights[j].joint_index];
+                    auto         joint_ent = geom.joint_id_to_entity[msh.weights[j].joint_index];
                     auto const & joint_scn = m_reg.get<evnt::SceneComponent>(joint_ent);
                     auto const & jont_cmp  = m_reg.get<JointComponent>(joint_ent);
 
@@ -389,49 +389,51 @@ void ModelSystem::postUpdate()
     m_reg.reset<VertexDataChanged>();
 }
 
+// mdl_cmp[parent]
+//   jnt_cmp_root[child]
 Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const & fname,
                               std::string const & anim_fname) const
 {
-    auto model_ent = SceneEntityBuilder::BuildEntity(m_reg, obj_flags);
+    auto model_ent = EntityBuilder::BuildEntity(m_reg, obj_flags);
 
-    auto & geom = m_reg.get<ModelComponent>(model_ent);
-    auto & mat  = m_reg.get<MaterialComponent>(model_ent);
-    auto & scn  = m_reg.get<evnt::SceneComponent>(model_ent);
+    auto & mdl = m_reg.get<ModelComponent>(model_ent);
+    auto & mat = m_reg.get<MaterialComponent>(model_ent);
+    auto & scn = m_reg.get<evnt::SceneComponent>(model_ent);
 
     // Load mesh
     std::vector<ParsedJoint> joints;
-    if(!ModelSystem::LoadMesh(fname, geom, joints))
+    if(!ModelSystem::LoadMesh(fname, mdl, joints))
         throw std::runtime_error{"Failed to load mesh"};
 
     // Load the textures
-    if(!MaterialSystem::LoadTGA(mat, geom.material_name, {}))
+    if(!MaterialSystem::LoadTGA(mat, mdl.material_name, {}))
         throw std::runtime_error{"Failed to load texture"};
 
     // set AABB
-    scn.initial_bbox = geom.base_bbox;
+    scn.initial_bbox = mdl.base_bbox;
 
     // if we have skeleton
     if(!joints.empty())
     {
         // and animation
-        if(ModelSystem::LoadAnim(anim_fname, geom))
+        if(ModelSystem::LoadAnim(anim_fname, mdl))
         {
             // add joints to the scene
             for(auto & jnt : joints)
             {
-                auto   joint_ent = SceneEntityBuilder::BuildEntity(m_reg, joint_flags);
+                auto   joint_ent = EntityBuilder::BuildEntity(m_reg, joint_flags);
                 auto & jnt_cmp   = m_reg.get<JointComponent>(joint_ent);
 
-                geom.bone_id_to_entity[jnt.index] = joint_ent;
+                mdl.joint_id_to_entity[jnt.index] = joint_ent;
                 Entity parent_ent                 = model_ent;
                 if(jnt.parent != -1)
-                    parent_ent = geom.bone_id_to_entity[jnt.parent];
+                    parent_ent = mdl.joint_id_to_entity[jnt.parent];
 
                 jnt_cmp.index    = jnt.index;
                 jnt_cmp.name     = jnt.name;
                 jnt_cmp.inv_bind = jnt.inv_bind;
 
-                scene_sys.addNode(joint_ent, parent_ent);
+                scene_sys.connectNode(joint_ent, parent_ent);
             }
             m_reg.assign<CurrentAnimSequence>(model_ent);
         }
@@ -440,10 +442,10 @@ Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const &
     return model_ent;
 }
 
-std::optional<Entity> ModelSystem::getBoneIdFromName(Entity model_id, std::string const & bone_name)
+std::optional<Entity> ModelSystem::getJointIdFromName(Entity model_id, std::string const & bone_name)
 {
     auto & geom = m_reg.get<ModelComponent>(model_id);
-    for(auto joint_ent : geom.bone_id_to_entity)
+    for(auto joint_ent : geom.joint_id_to_entity)
     {
         auto & jnt_cmp = m_reg.get<JointComponent>(joint_ent);
         if(jnt_cmp.name == bone_name)

@@ -51,7 +51,8 @@ public:
     void        postUpdate() override;
     std::string getName() const override { return "Scene positions."; }
 
-    void addNode(Entity node_id, Entity parent = null_entity_id);
+    void connectNode(Entity node_id, Entity parent = null_entity_id);
+    void disconnectNode(Entity node_id);
 
     void updateQueues(Frustum const & frustum1, Frustum const * frustum2);
 

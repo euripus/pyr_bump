@@ -59,7 +59,7 @@ void evnt::SceneSystem::postUpdate()
     }
 }
 
-void evnt::SceneSystem::addNode(Entity node_id, Entity parent)
+void evnt::SceneSystem::connectNode(Entity node_id, Entity parent)
 {
     auto & node = m_reg.get<SceneComponent>(node_id);
 
@@ -82,6 +82,23 @@ void evnt::SceneSystem::addNode(Entity node_id, Entity parent)
         updateTransform(node_id, true);
 
         m_transform_updated = true;
+    }
+}
+
+void evnt::SceneSystem::disconnectNode(Entity node_id)
+{
+    auto & node = m_reg.get<SceneComponent>(node_id);
+
+    if(NotNull(node.parent))
+    {
+        auto & parent_node = m_reg.get<SceneComponent>(node.parent);
+
+        parent_node.children.remove(node_id);
+        updateBound(node.parent);
+        node.parent = null_entity_id;
+//???????
+        if(NotNull(parent_node.parent))
+            propagateBoundToRoot(parent_node.parent);
     }
 }
 
