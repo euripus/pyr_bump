@@ -5,7 +5,6 @@
 #include "scene/camera.h"
 #include "render/renderer.h"
 #include "scene/light.h"
-// #include "scene/material.h"
 #include "input/inputglfw.h"
 
 namespace
@@ -179,8 +178,8 @@ bool Window::createDefaultScene(int width, int height)
     transform.replase_local_matrix = true;
 
     // root
-    m_root = SceneEntityBuilder::BuildEntity(m_reg, pos_flags);
-    m_scene_sys->addNode(m_root);
+    auto root = SceneEntityBuilder::BuildEntity(m_reg, pos_flags);
+    m_scene_sys->addNode(root);
     // camera
     m_camera   = SceneEntityBuilder::BuildEntity(m_reg, cam_flags);
     auto & cam = m_reg.get<CameraComponent>(m_camera);
@@ -195,14 +194,14 @@ bool Window::createDefaultScene(int width, int height)
     transform.new_mat = glm::rotate(view, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     m_reg.add_component<evnt::TransformComponent>(m_camera, transform);
 
-    m_scene_sys->addNode(m_camera, m_root);
+    m_scene_sys->addNode(m_camera, root);
     // light
     m_light = SceneEntityBuilder::BuildEntity(m_reg, light_flags);
 
     transform.new_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 5.0f));
     m_reg.add_component<evnt::TransformComponent>(m_light, transform);
 
-    m_scene_sys->addNode(m_light, m_root);
+    m_scene_sys->addNode(m_light, root);
 
     return true;
 }
@@ -218,20 +217,20 @@ void Window::initScene()
     m_render->uploadMaterialData(m_model);
     m_render->uploadModel(m_model);
 
-    m_scene_sys->addNode(m_model, m_root);
+    m_scene_sys->addNode(m_model, m_scene_sys->getRoot());
 
     auto bone_id = m_model_sys->getBoneIdFromName(m_model, "foot");
     if(bone_id)
     {
-        m_cube = m_model_sys->loadModel(*m_scene_sys.get(), "cube.txt.msh", "");
+        auto cube = m_model_sys->loadModel(*m_scene_sys.get(), "cube.txt.msh", "");
 
-        auto & cube_pos = m_reg.get<evnt::SceneComponent>(m_cube);
+        auto & cube_pos = m_reg.get<evnt::SceneComponent>(cube);
         cube_pos.rel    = glm::translate(glm::mat4(1.0f), {0.0f, -5.0f, 0.0f});
 
-        m_render->uploadMaterialData(m_cube);
-        m_render->uploadModel(m_cube);
+        m_render->uploadMaterialData(cube);
+        m_render->uploadModel(cube);
 
-        m_scene_sys->addNode(m_cube, *bone_id);
+        m_scene_sys->addNode(cube, *bone_id);
         // m_scene_sys->addNode(m_cube, m_model);
     }
 }
@@ -246,33 +245,25 @@ void Window::run()
         // Clear the screen
         m_render->clearBuffers();
 
-        auto const & cam      = m_reg.get<CameraComponent>(m_camera);
-        auto const & mdl_pos  = m_reg.get<evnt::SceneComponent>(m_model);
-        auto const & cube_pos = m_reg.get<evnt::SceneComponent>(m_cube);
+        auto const & cam = m_reg.get<CameraComponent>(m_camera);
+        m_render->setMatrix(Renderer::MatrixType::PROJECTION, cam.m_proj_mat);
 
         // set lights
         m_render->lighting();
         m_render->bindLight(m_light);
 
-        // set material
-        m_render->bindMaterial(m_model);
+        m_scene_sys->updateQueues(cam.m_frustum, nullptr);
+        for(auto node : m_scene_sys->getModelsQueue())
+        {
+            auto const & node_pos   = m_reg.get<evnt::SceneComponent>(node);
+            glm::mat4    model_view = cam.m_view_mat * node_pos.abs;
 
-        // set matrices
-        m_render->setMatrix(Renderer::MatrixType::PROJECTION, cam.m_proj_mat);
+            m_render->bindMaterial(node);
+            m_render->setMatrix(Renderer::MatrixType::MODELVIEW, model_view);
+            m_render->draw(node);
+            m_render->drawBBox(node);
+        }
 
-        glm::mat4 model_view = cam.m_view_mat * cube_pos.abs;
-        m_render->setMatrix(Renderer::MatrixType::MODELVIEW, model_view);
-
-        m_render->draw(m_cube);
-        m_render->drawBBox(m_cube);
-
-        model_view = cam.m_view_mat * mdl_pos.abs;
-        m_render->setMatrix(Renderer::MatrixType::MODELVIEW, model_view);
-
-        m_render->draw(m_model);
-        m_render->drawBBox(m_model);
-
-        // glBindTexture(GL_TEXTURE_2D, 0);
         m_render->unbindLight();
         m_render->lighting(false);
 

@@ -3,10 +3,12 @@
 
 #include <glm/glm.hpp>
 #include <list>
+#include <vector>
 #include <string>
 #include <optional>
 #include "AABB.h"
 #include "sceneentitybuilder.h"
+#include "src/scene/frustum.h"
 
 namespace evnt
 {
@@ -51,12 +53,23 @@ public:
 
     void addNode(Entity node_id, Entity parent = null_entity_id);
 
+    void updateQueues(Frustum const & frustum1, Frustum const * frustum2);
+
+    std::vector<Entity> & getModelsQueue() { return m_models_queue; }
+    Entity                getRoot() const { return m_root; }
+
 private:
-    bool m_transform_updated = false;
+    bool   m_transform_updated = false;
+    Entity m_root              = null_entity_id;   // root node of the scene
+
+    // Queues for culling
+    std::vector<Entity> m_models_queue;
 
     void updateTransform(Entity ent, bool initiator);
     void updateBound(Entity node_id);
     void propagateBoundToRoot(Entity ent);
+
+    void updateQueuesRec(Frustum const & frustum1, Frustum const * frustum2, Entity node_id);
 };
 }   // namespace evnt
 #endif   // SCENE_H
