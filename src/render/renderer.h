@@ -39,20 +39,20 @@ public:
     std::string getName() const override { return "Renderer"; }
     void        terminate() override;
 
-    void setMatrix(MatrixType type, glm::mat4 const & matrix);
-    void loadIdentityMatrix(MatrixType type);
+    void setMatrix(MatrixType type, glm::mat4 const & matrix) const;
+    void loadIdentityMatrix(MatrixType type) const;
 
-    void uploadMaterialData(Entity entity_id);
-    void bindMaterial(Entity entity_id);
-    void unloadMaterialData(Entity entity_id);
+    void uploadMaterialData(Entity entity_id) const;
+    void bindMaterial(Entity entity_id) const;
+    void unloadMaterialData(Entity entity_id) const;
 
-    void lighting(bool enable = true);
-    void bindLight(Entity entity_id, uint32_t light_num = 0);
-    void unbindLight(uint32_t light_num = 0);
+    void lighting(bool enable = true) const;
+    void bindLight(Entity entity_id, uint32_t light_num = 0) const;
+    void unbindLight(uint32_t light_num = 0) const;
 
-    void uploadModel(Entity entity_id);
-    void draw(Entity entity_id);
-    void unloadModel(Entity entity_id);
+    void uploadModel(Entity entity_id) const;
+    void draw(Entity entity_id) const;
+    void unloadModel(Entity entity_id) const;
 
     // debug draw
     void drawBBox(Entity entity_id) const;
@@ -67,12 +67,12 @@ public:
     int32_t           getClearStencil() const { return m_clear_stencil; }
 
     // Support for clearing the color, depth, and stencil buffers.
-    void clearColorBuffer();
-    void clearDepthBuffer();
-    void clearStencilBuffer();
-    void clearBuffers();
+    void clearColorBuffer() const;
+    void clearDepthBuffer() const;
+    void clearStencilBuffer() const;
+    void clearBuffers() const;
 
-    void setViewport(int32_t x_pos, int32_t y_pos, int32_t width, int32_t height);
+    void setViewport(int32_t x_pos, int32_t y_pos, int32_t width, int32_t height) const;
 
     // Override the global state.  If overridden, this state is used instead
     // of the VisualPass state during a drawing call.  To undo the override,
@@ -85,13 +85,13 @@ public:
     void setWireState(WireState const & new_state);
 
 private:
-    void commitAlphaState();
-    void commitCullState();
-    void commitDepthState();
-    void commitOffsetState();
-    void commitStencilState();
-    void commitWireState();
-    void commitAllStates();
+    void commitAlphaState() const;
+    void commitCullState() const;
+    void commitDepthState() const;
+    void commitOffsetState() const;
+    void commitStencilState() const;
+    void commitWireState() const;
+    void commitAllStates() const;
 
     // states
     AlphaState   m_alpha;

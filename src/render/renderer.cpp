@@ -123,6 +123,8 @@ void Renderer::terminate()
         glDeleteBuffers(1, &m_bbox_vbo_vertices);
         glDeleteBuffers(1, &m_bbox_ibo_elements);
 
+        m_bbox_vbo_vertices = m_bbox_ibo_elements = 0;
+
         for(auto ent : m_reg.view<ModelComponent, RenderModel, MaterialComponent>())
         {
             unloadMaterialData(ent);
@@ -133,7 +135,7 @@ void Renderer::terminate()
     }
 }
 
-void Renderer::setMatrix(MatrixType type, glm::mat4 const & matrix)
+void Renderer::setMatrix(MatrixType type, glm::mat4 const & matrix) const
 {
     GLenum const matrix_type = (type == MatrixType::PROJECTION) ? GL_PROJECTION : GL_MODELVIEW;
 
@@ -141,7 +143,7 @@ void Renderer::setMatrix(MatrixType type, glm::mat4 const & matrix)
     glLoadMatrixf(glm::value_ptr(matrix));
 }
 
-void Renderer::loadIdentityMatrix(MatrixType type)
+void Renderer::loadIdentityMatrix(MatrixType type) const
 {
     GLenum const matrix_type = (type == MatrixType::PROJECTION) ? GL_PROJECTION : GL_MODELVIEW;
 
@@ -149,7 +151,7 @@ void Renderer::loadIdentityMatrix(MatrixType type)
     glLoadIdentity();
 }
 
-void Renderer::uploadMaterialData(Entity entity_id)
+void Renderer::uploadMaterialData(Entity entity_id) const
 {
     auto & mat = m_reg.get<MaterialComponent>(entity_id);
 
@@ -174,7 +176,7 @@ void Renderer::uploadMaterialData(Entity entity_id)
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Renderer::bindMaterial(Entity entity_id)
+void Renderer::bindMaterial(Entity entity_id) const
 {
     auto const & mat = m_reg.get<MaterialComponent>(entity_id);
 
@@ -186,7 +188,7 @@ void Renderer::bindMaterial(Entity entity_id)
     glBindTexture(GL_TEXTURE_2D, mat.m_base_tex_id);
 }
 
-void Renderer::unloadMaterialData(Entity entity_id)
+void Renderer::unloadMaterialData(Entity entity_id) const
 {
     if(!m_reg.has<MaterialComponent>(entity_id))
         return;
@@ -200,7 +202,7 @@ void Renderer::unloadMaterialData(Entity entity_id)
     mat.m_bump_tex_id = 0;
 }
 
-void Renderer::lighting(bool enable)
+void Renderer::lighting(bool enable) const
 {
     if(enable)
         glEnable(GL_LIGHTING);
@@ -208,7 +210,7 @@ void Renderer::lighting(bool enable)
         glDisable(GL_LIGHTING);
 }
 
-void Renderer::bindLight(Entity entity_id, uint32_t light_num)
+void Renderer::bindLight(Entity entity_id, uint32_t light_num) const
 {
     assert(light_num < 8);
 
@@ -238,13 +240,13 @@ void Renderer::bindLight(Entity entity_id, uint32_t light_num)
     glEnable(light_src_num);
 }
 
-void Renderer::unbindLight(uint32_t light_num)
+void Renderer::unbindLight(uint32_t light_num) const
 {
     assert(light_num < 8);
     glDisable(GL_LIGHT0 + light_num);
 }
 
-void Renderer::uploadModel(Entity entity_id)
+void Renderer::uploadModel(Entity entity_id) const
 {
     auto const & mdl = m_reg.get<ModelComponent>(entity_id);
     RenderModel  gl_mdl;
@@ -284,7 +286,7 @@ void Renderer::uploadModel(Entity entity_id)
     m_reg.add_component<RenderModel>(entity_id, gl_mdl);
 }
 
-void Renderer::draw(Entity entity_id)
+void Renderer::draw(Entity entity_id) const
 {
     auto const & mdl = m_reg.get<RenderModel>(entity_id);
 
@@ -313,7 +315,7 @@ void Renderer::draw(Entity entity_id)
     }
 }
 
-void Renderer::unloadModel(Entity entity_id)
+void Renderer::unloadModel(Entity entity_id) const
 {
     if(!m_reg.has<RenderModel>(entity_id))
         return;
@@ -419,25 +421,25 @@ void Renderer::drawBBox(Entity entity_id) const
     glEnable(GL_LIGHTING);
 }
 
-void Renderer::clearColorBuffer()
+void Renderer::clearColorBuffer() const
 {
     glClearColor(m_clear_color[0], m_clear_color[1], m_clear_color[2], m_clear_color[3]);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Renderer::clearDepthBuffer()
+void Renderer::clearDepthBuffer() const
 {
     glClearDepth(m_clear_depth);
     glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-void Renderer::clearStencilBuffer()
+void Renderer::clearStencilBuffer() const
 {
     glClearStencil(m_clear_stencil);
     glClear(GL_STENCIL_BUFFER_BIT);
 }
 
-void Renderer::clearBuffers()
+void Renderer::clearBuffers() const
 {
     glClearColor(m_clear_color[0], m_clear_color[1], m_clear_color[2], m_clear_color[3]);
     glClearDepth(m_clear_depth);
@@ -446,7 +448,7 @@ void Renderer::clearBuffers()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void Renderer::setViewport(int32_t x_pos, int32_t y_pos, int32_t width, int32_t height)
+void Renderer::setViewport(int32_t x_pos, int32_t y_pos, int32_t width, int32_t height) const
 {
     glViewport(x_pos, y_pos, width, height);
 }
@@ -505,7 +507,7 @@ void Renderer::setWireState(WireState const & new_state)
     commitWireState();
 }
 
-void Renderer::commitAlphaState()
+void Renderer::commitAlphaState() const
 {
     if(m_alpha.blend_enabled)
     {
@@ -535,7 +537,7 @@ void Renderer::commitAlphaState()
     }
 }
 
-void Renderer::commitCullState()
+void Renderer::commitCullState() const
 {
     if(m_cull.enabled)
     {
@@ -554,7 +556,7 @@ void Renderer::commitCullState()
     }
 }
 
-void Renderer::commitDepthState()
+void Renderer::commitDepthState() const
 {
     if(m_depth.enabled)
     {
@@ -574,7 +576,7 @@ void Renderer::commitDepthState()
         glDepthMask(GL_FALSE);
 }
 
-void Renderer::commitOffsetState()
+void Renderer::commitOffsetState() const
 {
     if(m_offset.fill_enabled)
         glEnable(GL_POLYGON_OFFSET_FILL);
@@ -594,7 +596,7 @@ void Renderer::commitOffsetState()
     glPolygonOffset(m_offset.scale, m_offset.bias);
 }
 
-void Renderer::commitStencilState()
+void Renderer::commitStencilState() const
 {
     if(m_stencil.enabled)
     {
@@ -615,7 +617,7 @@ void Renderer::commitStencilState()
     }
 }
 
-void Renderer::commitWireState()
+void Renderer::commitWireState() const
 {
     if(m_wire.enabled)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -623,7 +625,7 @@ void Renderer::commitWireState()
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void Renderer::commitAllStates()
+void Renderer::commitAllStates() const
 {
     commitAlphaState();
     commitCullState();

@@ -12,6 +12,8 @@
 #include "src/scene/scene.h"
 #include "src/utils/controller.h"
 
+class Renderer;
+
 struct Mesh
 {
     struct Weight
@@ -126,7 +128,7 @@ public:
 
     Entity loadModel(evnt::SceneSystem & scene_sys, std::string const & fname,
                      std::string const & anim_fname = {}) const;
-	void deleteModel(Entity model_id, Renderer const & render) const;
+    void   deleteModel(Entity model_id, Renderer const & render) const;
 
     std::optional<Entity> getJointIdFromName(Entity model_id, std::string const & bone_name);
 };

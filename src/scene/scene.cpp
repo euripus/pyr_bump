@@ -113,7 +113,7 @@ void evnt::SceneSystem::updateQueuesRec(Frustum const & frustum1, Frustum const 
 {
     auto const & node = m_reg.get<SceneComponent>(node_id);
 
-	// mesh nodes
+    // mesh nodes
     if(m_reg.has<ModelComponent>(node_id) && node.transformed_bbox
        && !frustum1.cullBox(*node.transformed_bbox))
     {
@@ -186,29 +186,9 @@ void evnt::SceneSystem::updateBound(Entity node_id)
 
 void evnt::SceneSystem::propagateBoundToRoot(Entity parent_node_id)
 {
-	updateBound(parent_node_id);
-    //auto & node = m_reg.get<SceneComponent>(parent_node_id);
+    updateBound(parent_node_id);
 
-    /*if(node.initial_bbox)
-    {
-        node.transformed_bbox = node.initial_bbox;
-        node.transformed_bbox->transform(node.abs);
-    }
-
-    for(auto ch : node.children)
-    {
-        auto & child_node = m_reg.get<SceneComponent>(ch);
-
-        if(child_node.transformed_bbox)
-        {
-            if(!node.transformed_bbox)
-                node.transformed_bbox = AABB();
-
-            node.transformed_bbox->expandBy(*child_node.transformed_bbox);
-        }
-    }*/
-
-	auto const & node = m_reg.get<SceneComponent>(parent_node_id);
+    auto const & node = m_reg.get<SceneComponent>(parent_node_id);
     if(NotNull(node.parent))
         propagateBoundToRoot(node.parent);
 }

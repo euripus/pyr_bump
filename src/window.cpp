@@ -41,6 +41,11 @@ Window::~Window()
     // Cleanup VBO and shader
     if(mp_glfw_win)
     {
+        for(auto ent : m_reg.view<ModelComponent>())
+        {
+            m_model_sys->deleteModel(ent, *m_render.get());
+        }
+
         m_render->terminate();
     }
 
@@ -231,7 +236,6 @@ void Window::initScene()
         m_render->uploadModel(cube);
 
         m_scene_sys->connectNode(cube, *bone_id);
-        // m_scene_sys->addNode(m_cube, m_model);
     }
 }
 
