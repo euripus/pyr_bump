@@ -188,7 +188,7 @@ void evnt::SceneSystem::propagateBoundToRoot(Entity parent_node_id)
     auto & node = m_reg.get<SceneComponent>(parent_node_id);
 
     if(node.initial_bbox)
-	{
+    {
         node.transformed_bbox = node.initial_bbox;
         node.transformed_bbox->transform(node.abs);
     }
@@ -199,9 +199,9 @@ void evnt::SceneSystem::propagateBoundToRoot(Entity parent_node_id)
 
         if(child_node.transformed_bbox)
         {
-			if(!node.transformed_bbox)
-				node.transformed_bbox = AABB();
-			
+            if(!node.transformed_bbox)
+                node.transformed_bbox = AABB();
+
             node.transformed_bbox->expandBy(*child_node.transformed_bbox);
         }
     }
