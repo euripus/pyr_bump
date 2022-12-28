@@ -442,6 +442,10 @@ Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const &
     return model_ent;
 }
 
+void ModelSystem::deleteModel(Entity model_id, Renderer const & render) const
+{
+}
+
 std::optional<Entity> ModelSystem::getJointIdFromName(Entity model_id, std::string const & bone_name)
 {
     auto & geom = m_reg.get<ModelComponent>(model_id);
