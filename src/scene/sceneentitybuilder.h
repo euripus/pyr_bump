@@ -72,4 +72,17 @@ public:
     void update(double time = 1.0);
 };
 
+// tag structure for EntityDeleterSystem.update()
+struct DeleteEntity
+{};
+
+class EntityDeleterSystem : public ISystem
+{
+public:
+    EntityDeleterSystem(Registry & reg) : ISystem(reg) {}
+
+    void        update(double time = 1.0) override;
+    std::string getName() const override { return "EntityDeleterSystem"; }
+};
+
 #endif   // SCENEENTITYBUILDER_H

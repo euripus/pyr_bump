@@ -5,7 +5,6 @@
 #include "scene.h"
 #include "material.h"
 #include "model.h"
-#include "../render/renderer.h"
 
 void JointSystem::update(double time)
 {
@@ -440,18 +439,19 @@ Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const &
         }
     }
 
+    // mark for render
+    m_reg.add_component<UploadBuffer>(model_ent);
+    m_reg.add_component<UploadTexture>(model_ent);
+
     return model_ent;
 }
 
-void ModelSystem::deleteModel(Entity model_id, Renderer const & render) const
+void ModelSystem::deleteModel(Entity model_id) const
 {
-    if(m_reg.has<MaterialComponent>(model_id))
-        render.unloadMaterialData(model_id);
+    m_reg.assign<UnloadTexture>(model_id);
+    m_reg.assign<UnloadBuffer>(model_id);
 
-    if(m_reg.has<RenderModel>(model_id))
-        render.unloadModel(model_id);
-
-    EntityBuilder::DestroyEntity(m_reg, model_id);
+    m_reg.assign<DeleteEntity>(model_id);
 }
 
 std::optional<Entity> ModelSystem::getJointIdFromName(Entity model_id, std::string const & bone_name)

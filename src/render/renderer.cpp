@@ -60,6 +60,18 @@ GLenum g_gl_stencil_operation[static_cast<uint32_t>(StencilState::OperationType:
 
 void Renderer::update(double time)
 {
+    for(auto ent : m_reg.view<ModelComponent, UploadBuffer>())
+    {
+        uploadModel(ent);
+    }
+    m_reg.reset<UploadBuffer>();
+
+    for(auto ent : m_reg.view<ModelComponent, UploadTexture>())
+    {
+        uploadMaterialData(ent);
+    }
+    m_reg.reset<UploadTexture>();
+
     for(auto ent : m_reg.view<ModelComponent, RenderModel, VertexDataChanged>())
     {
         auto const & geom   = m_reg.get<ModelComponent>(ent);
@@ -78,6 +90,18 @@ void Renderer::update(double time)
                             &msh.frame_normal[0]);
         }
     }
+
+    for(auto ent : m_reg.view<ModelComponent, UnloadBuffer, RenderModel>())
+    {
+        unloadModel(ent);
+    }
+    m_reg.reset<UnloadBuffer>();
+
+    for(auto ent : m_reg.view<ModelComponent, UnloadTexture, MaterialComponent>())
+    {
+        unloadMaterialData(ent);
+    }
+    m_reg.reset<UnloadTexture>();
 }
 
 bool Renderer::init()

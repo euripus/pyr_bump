@@ -12,8 +12,6 @@
 #include "src/scene/scene.h"
 #include "src/utils/controller.h"
 
-class Renderer;
-
 struct Mesh
 {
     struct Weight
@@ -91,8 +89,20 @@ struct ModelComponent
     evnt::AABB base_bbox;
 };
 
-// tag structure for render.update()
+// tag structures for render.update()
 struct VertexDataChanged
+{};
+
+struct UploadBuffer
+{};
+
+struct UploadTexture
+{};
+
+struct UnloadBuffer
+{};
+
+struct UnloadTexture
 {};
 
 // Joint consist of
@@ -128,7 +138,7 @@ public:
 
     Entity loadModel(evnt::SceneSystem & scene_sys, std::string const & fname,
                      std::string const & anim_fname = {}) const;
-    void   deleteModel(Entity model_id, Renderer const & render) const;
+    void   deleteModel(Entity model_id) const;
 
     std::optional<Entity> getJointIdFromName(Entity model_id, std::string const & bone_name);
 };

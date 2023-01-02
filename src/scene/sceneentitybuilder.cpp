@@ -110,3 +110,18 @@ void SystemsMgr::update(double time)
         sys->postUpdate();
     }
 }
+
+void EntityDeleterSystem::update(double time)
+{
+    std::vector<Entity> entities;
+    for(auto ent : m_reg.view<DeleteEntity>())
+    {
+        entities.push_back(ent);
+    }
+
+    if(!entities.empty())
+    {
+        for(auto ent : entities)
+            EntityBuilder::DestroyEntity(m_reg, ent);
+    }
+}

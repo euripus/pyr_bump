@@ -41,11 +41,6 @@ Window::~Window()
     // Cleanup VBO and shader
     if(mp_glfw_win)
     {
-        for(auto ent : m_reg.view<ModelComponent>())
-        {
-            m_model_sys->deleteModel(ent, *m_render.get());
-        }
-
         m_render->terminate();
     }
 
@@ -178,6 +173,10 @@ bool Window::createDefaultScene(int width, int height)
     m_render = std::make_shared<Renderer>(m_reg);
     m_sys.addSystem(m_render);
 
+    // always last
+    ptr = std::make_shared<EntityDeleterSystem>(m_reg);
+    m_sys.addSystem(ptr);
+
     // add nodes
     evnt::TransformComponent transform{};
     transform.replase_local_matrix = true;
@@ -219,9 +218,6 @@ void Window::initScene()
     // mesh
     m_model = m_model_sys->loadModel(*m_scene_sys.get(), mesh_fname, anim_fname);
 
-    m_render->uploadMaterialData(m_model);
-    m_render->uploadModel(m_model);
-
     m_scene_sys->connectNode(m_model, m_scene_sys->getRoot());
 
     auto bone_id = m_model_sys->getJointIdFromName(m_model, "foot");
@@ -231,9 +227,6 @@ void Window::initScene()
 
         auto & cube_pos = m_reg.get<evnt::SceneComponent>(cube);
         cube_pos.rel    = glm::translate(glm::mat4(1.0f), {0.0f, -5.0f, 0.0f});
-
-        m_render->uploadMaterialData(cube);
-        m_render->uploadModel(cube);
 
         m_scene_sys->connectNode(cube, *bone_id);
     }
