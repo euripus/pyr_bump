@@ -72,9 +72,14 @@ public:
     void update(double time = 1.0);
 };
 
-// tag structure for EntityDeleterSystem.update()
+namespace Events
+{
+namespace Deleter
+{
 struct DeleteEntity
 {};
+}
+}
 
 class EntityDeleterSystem : public ISystem
 {

@@ -398,7 +398,7 @@ Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const &
 
     auto & mdl = m_reg.get<ModelComponent>(model_ent);
     auto & mat = m_reg.get<MaterialComponent>(model_ent);
-    auto & scn = m_reg.get<evnt::SceneComponent>(model_ent);
+    auto & scn = m_reg.get<SceneComponent>(model_ent);
 
     // Load mesh
     std::vector<ParsedJoint> joints;

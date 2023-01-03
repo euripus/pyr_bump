@@ -10,8 +10,6 @@
 #include "sceneentitybuilder.h"
 #include "src/scene/frustum.h"
 
-namespace evnt
-{
 struct SceneComponent
 {
     glm::mat4           abs;
@@ -31,12 +29,17 @@ struct TransformComponent
     bool      replase_local_matrix = false;
 };
 
-// tag type
+namespace Events
+{
+namespace Scene
+{
 struct IsTransformed
 {};
 
 struct IsBboxUpdated
 {};
+}
+}
 
 class SceneSystem : public ISystem
 {
@@ -72,5 +75,5 @@ private:
 
     void updateQueuesRec(Frustum const & frustum1, Frustum const * frustum2, Entity node_id);
 };
-}   // namespace evnt
+
 #endif   // SCENE_H

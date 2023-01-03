@@ -89,7 +89,10 @@ struct ModelComponent
     evnt::AABB base_bbox;
 };
 
-// tag structures for render.update()
+namespace Events
+{
+namespace Model
+{
 struct VertexDataChanged
 {};
 
@@ -104,6 +107,8 @@ struct UnloadBuffer
 
 struct UnloadTexture
 {};
+}
+}
 
 // Joint consist of
 //      [scene] [joint_component]
