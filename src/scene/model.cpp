@@ -57,7 +57,7 @@ void JointSystem::updateModelJoints(Entity ent, JointsTransform const & frame) c
     for(uint32_t i = 0; i < mdl.joint_id_to_entity.size(); ++i)
     {
         auto   joint_ent = mdl.joint_id_to_entity[i];
-        auto & joint_pos = m_reg.get<evnt::SceneComponent>(joint_ent);
+        auto & joint_pos = m_reg.get<SceneComponent>(joint_ent);
 
         glm::mat4 mt = glm::mat4_cast(frame.rot[i]);
         mt           = glm::column(mt, 3, glm::vec4(frame.trans[i], 1.0f));
@@ -67,21 +67,21 @@ void JointSystem::updateModelJoints(Entity ent, JointsTransform const & frame) c
     }
 
     // update abs matrices in scene graph from root bone in scene_sys.update()
-    evnt::TransformComponent transform{};
+    TransformComponent transform{};
     transform.replase_local_matrix = false;
     transform.new_mat              = glm::mat4(1.0f);
-    m_reg.add_component<evnt::TransformComponent>(mdl.joint_id_to_entity[0], transform);
+    m_reg.add_component<TransformComponent>(mdl.joint_id_to_entity[0], transform);
 }
 
 void JointSystem::updateMdlBbox(Entity ent, JointsTransform const & frame) const
 {
-    auto & pos = m_reg.get<evnt::SceneComponent>(ent);
+    auto & pos = m_reg.get<SceneComponent>(ent);
     auto & mdl = m_reg.get<ModelComponent>(ent);
 
     pos.initial_bbox = frame.bbox;
     mdl.base_bbox    = frame.bbox;
 
-    m_reg.add_component<evnt::IsBboxUpdated>(ent);
+    m_reg.add_component<Event::Scene::IsBboxUpdated>(ent);
 }
 
 bool ModelSystem::LoadMesh(std::string const & fname, ModelComponent & out_mdl,
@@ -344,7 +344,7 @@ void ModelSystem::update(double time)
     for(auto ent : m_reg.view<ModelComponent, CurrentAnimSequence>())
     {
         auto &       geom = m_reg.get<ModelComponent>(ent);
-        auto const & scn  = m_reg.get<evnt::SceneComponent>(ent);
+        auto const & scn  = m_reg.get<SceneComponent>(ent);
 
         glm::mat4 inverted_model = glm::inverse(scn.abs);
 
@@ -361,7 +361,7 @@ void ModelSystem::update(double time)
                 for(uint32_t j = msh.weight_indxs[n].first; j < msh.weight_indxs[n].second; ++j)
                 {
                     auto         joint_ent = geom.joint_id_to_entity[msh.weights[j].joint_index];
-                    auto const & joint_scn = m_reg.get<evnt::SceneComponent>(joint_ent);
+                    auto const & joint_scn = m_reg.get<SceneComponent>(joint_ent);
                     auto const & jont_cmp  = m_reg.get<JointComponent>(joint_ent);
 
                     vert_mat += inverted_model * joint_scn.abs * jont_cmp.inv_bind * msh.weights[j].w;
@@ -380,18 +380,18 @@ void ModelSystem::update(double time)
             }
         }
         // mark for render for update buffers data
-        m_reg.add_component<VertexDataChanged>(ent);
+        m_reg.add_component<Event::Model::VertexDataChanged>(ent);
     }
 }
 
 void ModelSystem::postUpdate()
 {
-    m_reg.reset<VertexDataChanged>();
+    m_reg.reset<Event::Model::VertexDataChanged>();
 }
 
 // mdl_cmp[parent]
 //   jnt_cmp_root[child]
-Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const & fname,
+Entity ModelSystem::loadModel(SceneSystem & scene_sys, std::string const & fname,
                               std::string const & anim_fname) const
 {
     auto model_ent = EntityBuilder::BuildEntity(m_reg, obj_flags);
@@ -440,18 +440,18 @@ Entity ModelSystem::loadModel(evnt::SceneSystem & scene_sys, std::string const &
     }
 
     // mark for render
-    m_reg.add_component<UploadBuffer>(model_ent);
-    m_reg.add_component<UploadTexture>(model_ent);
+    m_reg.add_component<Event::Model::UploadBuffer>(model_ent);
+    m_reg.add_component<Event::Model::UploadTexture>(model_ent);
 
     return model_ent;
 }
 
 void ModelSystem::deleteModel(Entity model_id) const
 {
-    m_reg.assign<UnloadTexture>(model_id);
-    m_reg.assign<UnloadBuffer>(model_id);
+    m_reg.assign<Event::Model::UnloadTexture>(model_id);
+    m_reg.assign<Event::Model::UnloadBuffer>(model_id);
 
-    m_reg.assign<DeleteEntity>(model_id);
+    m_reg.assign<Event::Deleter::DeleteEntity>(model_id);
 }
 
 std::optional<Entity> ModelSystem::getJointIdFromName(Entity model_id, std::string const & bone_name)

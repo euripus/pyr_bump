@@ -72,14 +72,14 @@ public:
     void update(double time = 1.0);
 };
 
-namespace Events
+namespace Event
 {
 namespace Deleter
 {
-struct DeleteEntity
-{};
-}
-}
+    struct DeleteEntity
+    {};
+}   // namespace Deleter
+}   // namespace Events
 
 class EntityDeleterSystem : public ISystem
 {

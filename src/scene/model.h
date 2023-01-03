@@ -89,26 +89,26 @@ struct ModelComponent
     evnt::AABB base_bbox;
 };
 
-namespace Events
+namespace Event
 {
 namespace Model
 {
-struct VertexDataChanged
-{};
+    struct VertexDataChanged
+    {};
 
-struct UploadBuffer
-{};
+    struct UploadBuffer
+    {};
 
-struct UploadTexture
-{};
+    struct UploadTexture
+    {};
 
-struct UnloadBuffer
-{};
+    struct UnloadBuffer
+    {};
 
-struct UnloadTexture
-{};
-}
-}
+    struct UnloadTexture
+    {};
+}   // namespace Model
+}   // namespace Event
 
 // Joint consist of
 //      [scene] [joint_component]
@@ -141,7 +141,7 @@ public:
     void        postUpdate() override;   // clear tag structures
     std::string getName() const override { return "ModelSystem"; }
 
-    Entity loadModel(evnt::SceneSystem & scene_sys, std::string const & fname,
+    Entity loadModel(SceneSystem & scene_sys, std::string const & fname,
                      std::string const & anim_fname = {}) const;
     void   deleteModel(Entity model_id) const;
 

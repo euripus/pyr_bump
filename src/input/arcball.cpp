@@ -45,11 +45,11 @@ void Arcball::update(Input const * input_ptr, Entity camera, Registry & reg)
                 auto mat         = getTransformMatrix(m_old_cursor_pos, new_corsor_pos);
                 m_old_cursor_pos = new_corsor_pos;
 
-                evnt::TransformComponent tr_cmp;
+                TransformComponent tr_cmp;
                 tr_cmp.replase_local_matrix = false;
                 tr_cmp.new_mat              = mat;
 
-                reg.add_component<evnt::TransformComponent>(camera, tr_cmp);
+                reg.add_component<TransformComponent>(camera, tr_cmp);
             }
         }
         else

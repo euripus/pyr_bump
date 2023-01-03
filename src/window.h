@@ -34,12 +34,12 @@ class Window
 
 public:
     // World
-    Entity                             m_camera;
-    Entity                             m_light;
-    Entity                             m_model;
-    std::shared_ptr<evnt::SceneSystem> m_scene_sys;
-    std::shared_ptr<ModelSystem>       m_model_sys;
-    std::shared_ptr<Renderer>          m_render;
+    Entity                       m_camera;
+    Entity                       m_light;
+    Entity                       m_model;
+    std::shared_ptr<SceneSystem> m_scene_sys;
+    std::shared_ptr<ModelSystem> m_model_sys;
+    std::shared_ptr<Renderer>    m_render;
     // App
     Registry   m_reg;
     SystemsMgr m_sys;

@@ -60,19 +60,19 @@ GLenum g_gl_stencil_operation[static_cast<uint32_t>(StencilState::OperationType:
 
 void Renderer::update(double time)
 {
-    for(auto ent : m_reg.view<ModelComponent, UploadBuffer>())
+    for(auto ent : m_reg.view<ModelComponent, Event::Model::UploadBuffer>())
     {
         uploadModel(ent);
     }
-    m_reg.reset<UploadBuffer>();
+    m_reg.reset<Event::Model::UploadBuffer>();
 
-    for(auto ent : m_reg.view<ModelComponent, UploadTexture>())
+    for(auto ent : m_reg.view<ModelComponent, Event::Model::UploadTexture>())
     {
         uploadMaterialData(ent);
     }
-    m_reg.reset<UploadTexture>();
+    m_reg.reset<Event::Model::UploadTexture>();
 
-    for(auto ent : m_reg.view<ModelComponent, RenderModel, VertexDataChanged>())
+    for(auto ent : m_reg.view<ModelComponent, RenderModel, Event::Model::VertexDataChanged>())
     {
         auto const & geom   = m_reg.get<ModelComponent>(ent);
         auto const & gl_mdl = m_reg.get<RenderModel>(ent);
@@ -91,17 +91,17 @@ void Renderer::update(double time)
         }
     }
 
-    for(auto ent : m_reg.view<ModelComponent, UnloadBuffer, RenderModel>())
+    for(auto ent : m_reg.view<ModelComponent, RenderModel, Event::Model::UnloadBuffer>())
     {
         unloadModel(ent);
     }
-    m_reg.reset<UnloadBuffer>();
+    m_reg.reset<Event::Model::UnloadBuffer>();
 
-    for(auto ent : m_reg.view<ModelComponent, UnloadTexture, MaterialComponent>())
+    for(auto ent : m_reg.view<ModelComponent, MaterialComponent, Event::Model::UnloadTexture>())
     {
         unloadMaterialData(ent);
     }
-    m_reg.reset<UnloadTexture>();
+    m_reg.reset<Event::Model::UnloadTexture>();
 }
 
 bool Renderer::init()
@@ -360,7 +360,7 @@ void Renderer::unloadModel(Entity entity_id) const
 
 void Renderer::drawBBox(Entity entity_id) const
 {
-    auto const & ent_scn = m_reg.get<evnt::SceneComponent>(entity_id);
+    auto const & ent_scn = m_reg.get<SceneComponent>(entity_id);
     // auto const & ent_mdl = m_reg.get<ModelComponent>(entity_id);
 
     if(!ent_scn.transformed_bbox)

@@ -20,9 +20,9 @@ LightComponent LightSystem::GetDefaultLightComponent(LightType l_type)
 
 void LightSystem::update(double time)
 {
-    for(auto ent : m_reg.view<evnt::SceneComponent, LightComponent, evnt::IsTransformed>())
+    for(auto ent : m_reg.view<SceneComponent, LightComponent, Event::Scene::IsTransformed>())
     {
-        auto const & pos = m_reg.get<evnt::SceneComponent>(ent);
+        auto const & pos = m_reg.get<SceneComponent>(ent);
         auto &       lgh = m_reg.get<LightComponent>(ent);
 
         if(lgh.type == LightType::Spot || lgh.type == LightType::Point)

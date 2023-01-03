@@ -14,9 +14,9 @@ Entity EntityBuilder::BuildEntity(Registry & reg, build_flags flags)
     {
         entity = reg.create();
 
-        auto scene      = evnt::SceneSystem::GetDefaultSceneComponent();
+        auto scene      = SceneSystem::GetDefaultSceneComponent();
         scene.entity_id = entity;
-        reg.assign<evnt::SceneComponent>(entity, scene);
+        reg.assign<SceneComponent>(entity, scene);
     }
     if(flags[ComponentFlagsBitsPos::cam])
     {
@@ -114,7 +114,7 @@ void SystemsMgr::update(double time)
 void EntityDeleterSystem::update(double time)
 {
     std::vector<Entity> entities;
-    for(auto ent : m_reg.view<DeleteEntity>())
+    for(auto ent : m_reg.view<Event::Deleter::DeleteEntity>())
     {
         entities.push_back(ent);
     }

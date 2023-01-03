@@ -2,9 +2,9 @@
 #include "model.h"
 #include <stdexcept>
 
-evnt::SceneComponent evnt::SceneSystem::GetDefaultSceneComponent()
+SceneComponent SceneSystem::GetDefaultSceneComponent()
 {
-    evnt::SceneComponent node;
+    SceneComponent node;
     // set defaults
     node.abs       = glm::mat4(1.0f);
     node.rel       = glm::mat4(1.0f);
@@ -14,10 +14,10 @@ evnt::SceneComponent evnt::SceneSystem::GetDefaultSceneComponent()
     return node;
 }
 
-void evnt::SceneSystem::update(double time)
+void SceneSystem::update(double time)
 {
     // update changed Bboxes from joint sysytem upate call
-    for(auto ent : m_reg.view<SceneComponent, IsBboxUpdated>())
+    for(auto ent : m_reg.view<SceneComponent, Event::Scene::IsBboxUpdated>())
     {
         auto & pos = m_reg.get<SceneComponent>(ent);
 
@@ -27,7 +27,7 @@ void evnt::SceneSystem::update(double time)
             propagateBoundToRoot(pos.parent);
     }
 
-    m_reg.reset<IsBboxUpdated>();
+    m_reg.reset<Event::Scene::IsBboxUpdated>();
 
     for(auto ent : m_reg.view<SceneComponent, TransformComponent>())
     {
@@ -50,16 +50,16 @@ void evnt::SceneSystem::update(double time)
         m_reg.reset<TransformComponent>();
 }
 
-void evnt::SceneSystem::postUpdate()
+void SceneSystem::postUpdate()
 {
     if(m_transform_updated)
     {
-        m_reg.reset<evnt::IsTransformed>();
+        m_reg.reset<Event::Scene::IsTransformed>();
         m_transform_updated = false;
     }
 }
 
-void evnt::SceneSystem::connectNode(Entity node_id, Entity parent)
+void SceneSystem::connectNode(Entity node_id, Entity parent)
 {
     auto & node = m_reg.get<SceneComponent>(node_id);
 
@@ -85,7 +85,7 @@ void evnt::SceneSystem::connectNode(Entity node_id, Entity parent)
     }
 }
 
-void evnt::SceneSystem::disconnectNode(Entity node_id)
+void SceneSystem::disconnectNode(Entity node_id)
 {
     auto & node = m_reg.get<SceneComponent>(node_id);
 
@@ -102,14 +102,15 @@ void evnt::SceneSystem::disconnectNode(Entity node_id)
     }
 }
 
-void evnt::SceneSystem::updateQueues(Frustum const & frustum1, Frustum const * frustum2)
+void SceneSystem::updateQueues(evnt::Frustum const & frustum1, evnt::Frustum const * frustum2)
 {
     m_models_queue.resize(0);
 
     updateQueuesRec(frustum1, frustum2, m_root);
 }
 
-void evnt::SceneSystem::updateQueuesRec(Frustum const & frustum1, Frustum const * frustum2, Entity node_id)
+void SceneSystem::updateQueuesRec(evnt::Frustum const & frustum1, evnt::Frustum const * frustum2,
+                                  Entity node_id)
 {
     auto const & node = m_reg.get<SceneComponent>(node_id);
 
@@ -127,7 +128,7 @@ void evnt::SceneSystem::updateQueuesRec(Frustum const & frustum1, Frustum const 
     }
 }
 
-void evnt::SceneSystem::updateTransform(Entity node_id, bool initiator)
+void SceneSystem::updateTransform(Entity node_id, bool initiator)
 {
     auto & node = m_reg.get<SceneComponent>(node_id);
 
@@ -141,7 +142,7 @@ void evnt::SceneSystem::updateTransform(Entity node_id, bool initiator)
         node.abs = node.rel;
     }
     // mark entity
-    m_reg.add_component<evnt::IsTransformed>(node_id);
+    m_reg.add_component<Event::Scene::IsTransformed>(node_id);
 
     for(auto ch : node.children)
     {
@@ -154,7 +155,7 @@ void evnt::SceneSystem::updateTransform(Entity node_id, bool initiator)
         propagateBoundToRoot(node.parent);
 }
 
-void evnt::SceneSystem::updateBound(Entity node_id)
+void SceneSystem::updateBound(Entity node_id)
 {
     auto & node = m_reg.get<SceneComponent>(node_id);
 
@@ -177,14 +178,14 @@ void evnt::SceneSystem::updateBound(Entity node_id)
         if(child_node.transformed_bbox)
         {
             if(!node.transformed_bbox)
-                node.transformed_bbox = AABB();
+                node.transformed_bbox = evnt::AABB();
 
             node.transformed_bbox->expandBy(*child_node.transformed_bbox);
         }
     }
 }
 
-void evnt::SceneSystem::propagateBoundToRoot(Entity parent_node_id)
+void SceneSystem::propagateBoundToRoot(Entity parent_node_id)
 {
     updateBound(parent_node_id);
 

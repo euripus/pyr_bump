@@ -12,11 +12,11 @@
 
 struct SceneComponent
 {
-    glm::mat4           abs;
-    glm::mat4           rel;
-    std::optional<AABB> initial_bbox;
-    std::optional<AABB> transformed_bbox;
-    std::string         name;
+    glm::mat4                 abs;
+    glm::mat4                 rel;
+    std::optional<evnt::AABB> initial_bbox;
+    std::optional<evnt::AABB> transformed_bbox;
+    std::string               name;
 
     Entity            entity_id;
     Entity            parent;
@@ -29,17 +29,17 @@ struct TransformComponent
     bool      replase_local_matrix = false;
 };
 
-namespace Events
+namespace Event
 {
 namespace Scene
 {
-struct IsTransformed
-{};
+    struct IsTransformed
+    {};
 
-struct IsBboxUpdated
-{};
-}
-}
+    struct IsBboxUpdated
+    {};
+}   // namespace Scene
+}   // namespace Events
 
 class SceneSystem : public ISystem
 {
@@ -57,7 +57,7 @@ public:
     void connectNode(Entity node_id, Entity parent = null_entity_id);
     void disconnectNode(Entity node_id);
 
-    void updateQueues(Frustum const & frustum1, Frustum const * frustum2);
+    void updateQueues(evnt::Frustum const & frustum1, evnt::Frustum const * frustum2);
 
     std::vector<Entity> & getModelsQueue() { return m_models_queue; }
     Entity                getRoot() const { return m_root; }
@@ -73,7 +73,7 @@ private:
     void updateBound(Entity node_id);
     void propagateBoundToRoot(Entity ent);
 
-    void updateQueuesRec(Frustum const & frustum1, Frustum const * frustum2, Entity node_id);
+    void updateQueuesRec(evnt::Frustum const & frustum1, evnt::Frustum const * frustum2, Entity node_id);
 };
 
 #endif   // SCENE_H
