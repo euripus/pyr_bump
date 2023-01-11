@@ -1,0 +1,60 @@
+CreatorSystem                       update(ev::create_entity)       // check event
+                                    BuildEntity                     // do work
+                                    add_comp(ev::model_create)      // mark entity aka signal new event
+                                    del_cmp(ev::create_entity)      // remove event to prevent replay
+
+SceneSystem                         update(ev::model_create)
+                                    add_comp(ev::load_model{scene_sys})
+                                    del_cmp(ev::model_create)
+
+CameraSystem
+
+LightSystem
+
+JointSystem
+
+ModelSystem                         update(ev::load_model)                      update(ev::destroy_model)
+                                    loadFile                                    deleteModel
+                                    add_comp(ev::UploadBuffer)                  add_comp(ev::UnloadBuffer)
+                                    del_cmp(ev::load_model)                     add_comp(ev::DeleteEntity)
+                                                                                del_cmp(ev::destroy_model)
+
+Renderer                            update(ev::UploadBuffer)                    update(ev::UnloadBuffer)
+                                    add_comp(RenderModel)                       unloadModel
+                                    del_cmp(ev::UploadBuffer)                   del_cmp(ev::UnloadBuffer)
+
+// always last
+EntityDeleterSystem                                                             update(ev::DeleteEntity)
+                                                                                DestroyEntity(ent_id)
+                                                                                del_cmp(ev::DeleteEntity)
+
+struct create_entity
+{
+    string mesh_name;
+    string anim_name; 
+    string material_name;
+}
+
+struct load_model
+{
+    SceneSystem & scene;
+    
+    string mesh_name;
+    string anim_name; 
+    string material_name;
+}
+
+struct destroy_model
+{
+    Entity entity_id;
+}
+
+void create_model(string mesh_name, string anim_name, string material_name)
+{
+    m_reg.add_component<ev::create_entity>(mesh_name, anim_name, material_name);
+}
+
+void destroy_model(Entity entity_id)
+{
+    m_reg.add_component<ev::destroy_model>(entity_id);
+}
