@@ -136,6 +136,9 @@ void Window::create()
                                 "rotate side");
     m_input_ptr->bindKeyFunctor(KeyboardKey::Key_K, std::bind(&Window::objRotateSide, this, -def_speed),
                                 "rotate side");
+
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_Q, std::bind(&Window::objCreate, this),
+                                "create cube");
 }
 
 void Window::fullscreen(bool is_fullscreen)
@@ -219,17 +222,6 @@ void Window::initScene()
     m_model = m_model_sys->loadModel(*m_scene_sys.get(), mesh_fname, anim_fname);
 
     m_scene_sys->connectNode(m_model, m_scene_sys->getRoot());
-
-    auto bone_id = m_model_sys->getJointIdFromName(m_model, "foot");
-    if(bone_id)
-    {
-        auto cube = m_model_sys->loadModel(*m_scene_sys.get(), "cube.txt.msh", "");
-
-        auto & cube_pos = m_reg.get<SceneComponent>(cube);
-        cube_pos.rel    = glm::translate(glm::mat4(1.0f), {0.0f, -5.0f, 0.0f});
-
-        m_scene_sys->connectNode(cube, *bone_id);
-    }
 }
 
 void Window::run()
@@ -387,6 +379,23 @@ void Window::objRotateSide(float speed)
     tr_cmp.new_mat              = new_trans;
 
     m_reg.add_component<TransformComponent>(m_model, tr_cmp);
+}
+
+void Window::objCreate()
+{
+    if(m_reg.valid(m_cube))
+        return;
+
+    auto bone_id = m_model_sys->getJointIdFromName(m_model, "foot");
+    if(bone_id)
+    {
+        m_cube = m_model_sys->loadModel(*m_scene_sys.get(), "cube.txt.msh", "");
+
+        auto & cube_pos = m_reg.get<SceneComponent>(m_cube);
+        cube_pos.rel    = glm::translate(glm::mat4(1.0f), {0.0f, -5.0f, 0.0f});
+
+        m_scene_sys->connectNode(m_cube, *bone_id);
+    }
 }
 
 void Window::key_f1()
