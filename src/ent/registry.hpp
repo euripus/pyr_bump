@@ -147,7 +147,7 @@ public:
         auto const entt    = entity & traits_type::entity_mask;
         auto const version = 1 + ((entity >> traits_type::version_shift) & traits_type::version_mask);
         entities[entt]     = entt | (version << traits_type::version_shift);
-        available.push_back(entity);
+        available.push_back(entities[entt]);
 
         for(auto && cpool : pools)
         {

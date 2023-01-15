@@ -3,8 +3,9 @@ CreatorSystem                       update(ev::create_entity)       // check eve
                                     add_comp(ev::model_create)      // mark entity aka signal new event
                                     del_cmp(ev::create_entity)      // remove event to prevent replay
 
-SceneSystem                         update(ev::model_create)
-                                    add_comp(ev::load_model{scene_sys})
+SceneSystem                         update(ev::model_create)                    update(ev::destroy_model)
+                                    add_comp(ev::load_model{scene_sys})         disconnect_node(entity)
+                                    connect_node(entity)
                                     del_cmp(ev::model_create)
 
 CameraSystem

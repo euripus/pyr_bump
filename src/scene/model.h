@@ -107,6 +107,20 @@ namespace Model
 
     struct UnloadTexture
     {};
+
+    struct CreateModel
+    {
+        SceneSystem * scene;
+
+        Entity      parent = null_entity_id;
+        std::string mesh_name;
+        std::string anim_name;
+        std::string material_name;
+        glm::mat4   rel_transform;
+    };
+
+    struct DestroyModel
+    {};
 }   // namespace Model
 }   // namespace Event
 
@@ -141,9 +155,9 @@ public:
     void        postUpdate() override;   // clear tag structures
     std::string getName() const override { return "ModelSystem"; }
 
-    Entity loadModel(SceneSystem & scene_sys, std::string const & fname,
-                     std::string const & anim_fname = {}) const;
-    void   deleteModel(Entity model_id) const;
+    void loadModel(Entity model_ent, SceneSystem & scene_sys, std::string const & fname,
+                   std::string const & anim_fname) const;
+    void deleteModel(Entity model_id) const;
 
     std::optional<Entity> getJointIdFromName(Entity model_id, std::string const & bone_name);
 };

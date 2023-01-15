@@ -4,6 +4,7 @@
 #include <bitset>
 #include <vector>
 #include <memory>
+#include <functional>
 
 #include "../ent/registry.hpp"
 
@@ -79,7 +80,20 @@ namespace Deleter
     struct DeleteEntity
     {};
 }   // namespace Deleter
-}   // namespace Events
+}   // namespace Event
+
+class EntityCreatorSystem : public ISystem
+{
+    std::vector<std::function<void()>> m_create_queue;
+
+public:
+    EntityCreatorSystem(Registry & reg) : ISystem(reg) {}
+
+    void addCreatorFunctor(std::function<void()> f) { m_create_queue.push_back(std::move(f)); }
+
+    void        update(double time) override;
+    std::string getName() const override { return "EntityCreatorSystem"; }
+};
 
 class EntityDeleterSystem : public ISystem
 {

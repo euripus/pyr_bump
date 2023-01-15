@@ -125,3 +125,14 @@ void EntityDeleterSystem::update(double time)
             EntityBuilder::DestroyEntity(m_reg, ent);
     }
 }
+
+void EntityCreatorSystem::update(double time)
+{
+    if(m_create_queue.empty())
+        return;
+
+    for(auto & func : m_create_queue)
+        func();
+
+    m_create_queue.resize(0);
+}

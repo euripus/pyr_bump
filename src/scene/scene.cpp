@@ -16,6 +16,16 @@ SceneComponent SceneSystem::GetDefaultSceneComponent()
 
 void SceneSystem::update(double time)
 {
+    for(auto ent : m_reg.view<SceneComponent, Event::Model::CreateModel>())
+    {
+        auto & cm_event = m_reg.get<Event::Model::CreateModel>(ent);
+        auto & pos      = m_reg.get<SceneComponent>(ent);
+
+        pos.rel = cm_event.rel_transform;
+
+        connectNode(ent, cm_event.parent);
+    }
+
     // update changed Bboxes from joint sysytem upate call
     for(auto ent : m_reg.view<SceneComponent, Event::Scene::IsBboxUpdated>())
     {
@@ -26,7 +36,6 @@ void SceneSystem::update(double time)
         if(NotNull(pos.parent) && pos.transformed_bbox)
             propagateBoundToRoot(pos.parent);
     }
-
     m_reg.reset<Event::Scene::IsBboxUpdated>();
 
     for(auto ent : m_reg.view<SceneComponent, TransformComponent>())
@@ -48,6 +57,11 @@ void SceneSystem::update(double time)
     // clear all TransformComponent
     if(m_transform_updated)
         m_reg.reset<TransformComponent>();
+
+    for(auto ent : m_reg.view<SceneComponent, Event::Model::DestroyModel>())
+    {
+        disconnectNode(ent);
+    }
 }
 
 void SceneSystem::postUpdate()

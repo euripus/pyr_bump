@@ -34,13 +34,14 @@ class Window
 
 public:
     // World
-    Entity                       m_camera;
-    Entity                       m_light;
-    Entity                       m_model;
-    Entity                       m_cube;
-    std::shared_ptr<SceneSystem> m_scene_sys;
-    std::shared_ptr<ModelSystem> m_model_sys;
-    std::shared_ptr<Renderer>    m_render;
+    Entity                               m_camera;
+    Entity                               m_light;
+    Entity                               m_model;
+    Entity                               m_cube;
+    std::shared_ptr<EntityCreatorSystem> m_entity_creator_sys;
+    std::shared_ptr<SceneSystem>         m_scene_sys;
+    std::shared_ptr<ModelSystem>         m_model_sys;
+    std::shared_ptr<Renderer>            m_render;
     // App
     Registry   m_reg;
     SystemsMgr m_sys;
@@ -69,6 +70,7 @@ public:
     void objRotateSide(float speed);
     // object creation
     void objCreate();
+    void objDelete();
 
     // keys
     void key_f1();

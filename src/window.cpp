@@ -137,8 +137,8 @@ void Window::create()
     m_input_ptr->bindKeyFunctor(KeyboardKey::Key_K, std::bind(&Window::objRotateSide, this, -def_speed),
                                 "rotate side");
 
-    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_Q, std::bind(&Window::objCreate, this),
-                                "create cube");
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_Q, std::bind(&Window::objCreate, this), "create cube");
+    m_input_ptr->bindKeyFunctor(KeyboardKey::Key_E, std::bind(&Window::objDelete, this), "delete cube");
 }
 
 void Window::fullscreen(bool is_fullscreen)
@@ -153,7 +153,11 @@ void Window::fullscreen(bool is_fullscreen)
 bool Window::createDefaultScene(int width, int height)
 {
     // create systems
-    // input update
+
+    // always first
+    m_entity_creator_sys = std::make_shared<EntityCreatorSystem>(m_reg);
+    m_sys.addSystem(m_entity_creator_sys);
+
     m_scene_sys = std::make_shared<SceneSystem>(m_reg);
     m_sys.addSystem(m_scene_sys);
 
@@ -219,7 +223,8 @@ void Window::initScene()
         throw std::runtime_error{"Failed to init systems"};
 
     // mesh
-    m_model = m_model_sys->loadModel(*m_scene_sys.get(), mesh_fname, anim_fname);
+    m_model = EntityBuilder::BuildEntity(m_reg, obj_flags);
+    m_model_sys->loadModel(m_model, *m_scene_sys.get(), mesh_fname, anim_fname);
 
     m_scene_sys->connectNode(m_model, m_scene_sys->getRoot());
 }
@@ -386,16 +391,33 @@ void Window::objCreate()
     if(m_reg.valid(m_cube))
         return;
 
-    auto bone_id = m_model_sys->getJointIdFromName(m_model, "foot");
-    if(bone_id)
-    {
-        m_cube = m_model_sys->loadModel(*m_scene_sys.get(), "cube.txt.msh", "");
+    auto func = [this]() {
+        auto bone_id = m_model_sys->getJointIdFromName(m_model, "foot");
+        if(bone_id)
+        {
+            m_cube = EntityBuilder::BuildEntity(m_reg, obj_flags);
 
-        auto & cube_pos = m_reg.get<SceneComponent>(m_cube);
-        cube_pos.rel    = glm::translate(glm::mat4(1.0f), {0.0f, -5.0f, 0.0f});
+            Event::Model::CreateModel cm_event{m_scene_sys.get(),
+                                               *bone_id,
+                                               "cube.txt.msh",
+                                               "",
+                                               "",
+                                               glm::translate(glm::mat4(1.0f), {0.0f, -5.0f, 0.0f})};
 
-        m_scene_sys->connectNode(m_cube, *bone_id);
-    }
+            m_reg.add_component<Event::Model::CreateModel>(m_cube, std::move(cm_event));
+        }
+    };
+
+    m_entity_creator_sys->addCreatorFunctor(std::move(func));
+}
+
+void Window::objDelete()
+{
+    if(!m_reg.valid(m_cube))
+        return;
+
+    m_reg.add_component<Event::Model::DestroyModel>(m_cube);
+    m_cube = null_entity_id;
 }
 
 void Window::key_f1()

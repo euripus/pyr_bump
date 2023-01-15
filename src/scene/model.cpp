@@ -340,6 +340,14 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
 
 void ModelSystem::update(double time)
 {
+    for(auto ent : m_reg.view<ModelComponent, Event::Model::CreateModel>())
+    {
+        auto & cm_event = m_reg.get<Event::Model::CreateModel>(ent);
+
+        loadModel(ent, *cm_event.scene, cm_event.mesh_name, cm_event.anim_name);
+    }
+    m_reg.reset<Event::Model::CreateModel>();
+
     // update positions for animated meshes
     for(auto ent : m_reg.view<ModelComponent, CurrentAnimSequence>())
     {
@@ -382,6 +390,12 @@ void ModelSystem::update(double time)
         // mark for render for update buffers data
         m_reg.add_component<Event::Model::VertexDataChanged>(ent);
     }
+
+    for(auto ent : m_reg.view<ModelComponent, Event::Model::DestroyModel>())
+    {
+        deleteModel(ent);
+    }
+    m_reg.reset<Event::Model::DestroyModel>();
 }
 
 void ModelSystem::postUpdate()
@@ -391,11 +405,9 @@ void ModelSystem::postUpdate()
 
 // mdl_cmp[parent]
 //   jnt_cmp_root[child]
-Entity ModelSystem::loadModel(SceneSystem & scene_sys, std::string const & fname,
-                              std::string const & anim_fname) const
+void ModelSystem::loadModel(Entity model_ent, SceneSystem & scene_sys, std::string const & fname,
+                            std::string const & anim_fname) const
 {
-    auto model_ent = EntityBuilder::BuildEntity(m_reg, obj_flags);
-
     auto & mdl = m_reg.get<ModelComponent>(model_ent);
     auto & mat = m_reg.get<MaterialComponent>(model_ent);
     auto & scn = m_reg.get<SceneComponent>(model_ent);
@@ -442,8 +454,6 @@ Entity ModelSystem::loadModel(SceneSystem & scene_sys, std::string const & fname
     // mark for render
     m_reg.add_component<Event::Model::UploadBuffer>(model_ent);
     m_reg.add_component<Event::Model::UploadTexture>(model_ent);
-
-    return model_ent;
 }
 
 void ModelSystem::deleteModel(Entity model_id) const
