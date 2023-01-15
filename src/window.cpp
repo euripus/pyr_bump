@@ -9,11 +9,11 @@
 
 namespace
 {
-char const *    mesh_fname        = "test.txt.msh";
-char const *    anim_fname        = "test.txt.anm";
-char const *    diffuse_tex_fname = "diffuse.tga";
-char const *    bump_tex_fname    = "normal.tga";
-constexpr float def_speed         = 0.02f;
+char const * mesh_fname        = "test.txt.msh";
+char const * anim_fname        = "test.txt.anm";
+char const * diffuse_tex_fname = "uv.tga";
+// char const *    bump_tex_fname    = "normal.tga";
+constexpr float def_speed = 0.02f;
 }   // namespace
 
 Window::Window(int width, int height, char const * title) :
@@ -153,7 +153,6 @@ void Window::fullscreen(bool is_fullscreen)
 bool Window::createDefaultScene(int width, int height)
 {
     // create systems
-
     // always first
     m_entity_creator_sys = std::make_shared<EntityCreatorSystem>(m_reg);
     m_sys.addSystem(m_entity_creator_sys);
@@ -224,7 +223,9 @@ void Window::initScene()
 
     // mesh
     m_model = EntityBuilder::BuildEntity(m_reg, obj_flags);
-    m_model_sys->loadModel(m_model, *m_scene_sys.get(), mesh_fname, anim_fname);
+    m_model_sys->loadModel(m_model, *m_scene_sys.get(), mesh_fname, anim_fname, diffuse_tex_fname);
+
+    m_cube = null_entity_id;
 
     m_scene_sys->connectNode(m_model, m_scene_sys->getRoot());
 }
@@ -397,12 +398,13 @@ void Window::objCreate()
         {
             m_cube = EntityBuilder::BuildEntity(m_reg, obj_flags);
 
-            Event::Model::CreateModel cm_event{m_scene_sys.get(),
-                                               *bone_id,
-                                               "cube.txt.msh",
-                                               "",
-                                               "",
-                                               glm::translate(glm::mat4(1.0f), {0.0f, -5.0f, 0.0f})};
+            Event::Model::CreateModel cm_event{
+                m_scene_sys.get(),                                       // scene_system pointer
+                *bone_id,                                                // parent node
+                "cube.txt.msh",                                          // mesh data file
+                "",                                                      // anim data file
+                diffuse_tex_fname,                                       // material data file
+                glm::translate(glm::mat4(1.0f), {0.0f, -5.0f, 0.0f})};   // relative matrix
 
             m_reg.add_component<Event::Model::CreateModel>(m_cube, std::move(cm_event));
         }

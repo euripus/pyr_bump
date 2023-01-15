@@ -110,7 +110,7 @@ namespace Model
 
     struct CreateModel
     {
-        SceneSystem * scene;
+        SceneSystem * scene = nullptr;
 
         Entity      parent = null_entity_id;
         std::string mesh_name;
@@ -156,7 +156,7 @@ public:
     std::string getName() const override { return "ModelSystem"; }
 
     void loadModel(Entity model_ent, SceneSystem & scene_sys, std::string const & fname,
-                   std::string const & anim_fname) const;
+                   std::string const & anim_fname, std::string const & mat_fname) const;
     void deleteModel(Entity model_id) const;
 
     std::optional<Entity> getJointIdFromName(Entity model_id, std::string const & bone_name);

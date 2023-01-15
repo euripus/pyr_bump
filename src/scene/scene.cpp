@@ -128,6 +128,12 @@ void SceneSystem::updateQueuesRec(evnt::Frustum const & frustum1, evnt::Frustum 
 {
     auto const & node = m_reg.get<SceneComponent>(node_id);
 
+    if(node.transformed_bbox && frustum1.cullBox(*node.transformed_bbox))
+    {
+        if(frustum2 == nullptr || frustum2->cullBox(*node.transformed_bbox))
+            return;
+    }
+
     // mesh nodes
     if(m_reg.has<ModelComponent>(node_id) && node.transformed_bbox
        && !frustum1.cullBox(*node.transformed_bbox))

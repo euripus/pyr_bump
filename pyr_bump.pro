@@ -71,7 +71,3 @@ HEADERS += \
     src/scene/sceneentitybuilder.h \
     src/utils/controller.h \
     src/window.h
-
-DISTFILES += \
-    bin/bump2.0.frag \
-    bin/bump2.0.vert

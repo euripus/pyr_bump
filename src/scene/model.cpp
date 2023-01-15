@@ -344,7 +344,7 @@ void ModelSystem::update(double time)
     {
         auto & cm_event = m_reg.get<Event::Model::CreateModel>(ent);
 
-        loadModel(ent, *cm_event.scene, cm_event.mesh_name, cm_event.anim_name);
+        loadModel(ent, *cm_event.scene, cm_event.mesh_name, cm_event.anim_name, cm_event.material_name);
     }
     m_reg.reset<Event::Model::CreateModel>();
 
@@ -358,10 +358,10 @@ void ModelSystem::update(double time)
 
         for(auto & msh : geom.meshes)
         {
-            msh.frame_pos.clear();
-            msh.frame_normal.clear();
-            msh.frame_tangent.clear();
-            msh.frame_bitangent.clear();
+            msh.frame_pos.resize(0);
+            msh.frame_normal.resize(0);
+            msh.frame_tangent.resize(0);
+            msh.frame_bitangent.resize(0);
 
             for(uint32_t n = 0; n < msh.pos.size(); ++n)
             {
@@ -387,7 +387,7 @@ void ModelSystem::update(double time)
                 msh.frame_bitangent.push_back(n_bitan);
             }
         }
-        // mark for render for update buffers data
+        // event for render for update buffers data
         m_reg.add_component<Event::Model::VertexDataChanged>(ent);
     }
 
@@ -406,7 +406,7 @@ void ModelSystem::postUpdate()
 // mdl_cmp[parent]
 //   jnt_cmp_root[child]
 void ModelSystem::loadModel(Entity model_ent, SceneSystem & scene_sys, std::string const & fname,
-                            std::string const & anim_fname) const
+                            std::string const & anim_fname, std::string const & mat_fname) const
 {
     auto & mdl = m_reg.get<ModelComponent>(model_ent);
     auto & mat = m_reg.get<MaterialComponent>(model_ent);
@@ -418,7 +418,7 @@ void ModelSystem::loadModel(Entity model_ent, SceneSystem & scene_sys, std::stri
         throw std::runtime_error{"Failed to load mesh"};
 
     // Load the textures
-    if(!MaterialSystem::LoadTGA(mat, mdl.material_name, {}))
+    if(!MaterialSystem::LoadTGA(mat, mat_fname, {}))
         throw std::runtime_error{"Failed to load texture"};
 
     // set AABB
