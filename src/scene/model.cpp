@@ -67,10 +67,10 @@ void JointSystem::updateModelJoints(Entity ent, JointsTransform const & frame) c
     }
 
     // update abs matrices in scene graph from root bone in scene_sys.update()
-    TransformComponent transform{};
+    Event::Scene::TransformComponent transform{};
     transform.replase_local_matrix = false;
     transform.new_mat              = glm::mat4(1.0f);
-    m_reg.add_component<TransformComponent>(mdl.joint_id_to_entity[0], transform);
+    m_reg.add_component<Event::Scene::TransformComponent>(mdl.joint_id_to_entity[0], transform);
 }
 
 void JointSystem::updateMdlBbox(Entity ent, JointsTransform const & frame) const

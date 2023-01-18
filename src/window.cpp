@@ -184,7 +184,7 @@ bool Window::createDefaultScene(int width, int height)
     m_sys.addSystem(ptr);
 
     // add nodes
-    TransformComponent transform{};
+    Event::Scene::TransformComponent transform{};
     transform.replase_local_matrix = true;
 
     // root
@@ -202,14 +202,14 @@ bool Window::createDefaultScene(int width, int height)
     // Set cam transform
     glm::mat4 view    = glm::translate(glm::mat4(1.0f), glm::vec3(10.0f, 0.0f, 10.0f));
     transform.new_mat = glm::rotate(view, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    m_reg.add_component<TransformComponent>(m_camera, transform);
+    m_reg.add_component<Event::Scene::TransformComponent>(m_camera, transform);
 
     m_scene_sys->connectNode(m_camera, root);
     // light
     m_light = EntityBuilder::BuildEntity(m_reg, light_flags);
 
     transform.new_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 5.0f));
-    m_reg.add_component<TransformComponent>(m_light, transform);
+    m_reg.add_component<Event::Scene::TransformComponent>(m_light, transform);
 
     m_scene_sys->connectNode(m_light, root);
 
@@ -288,11 +288,11 @@ void Window::moveForward(float speed)
 
     glm::mat4 new_trans = glm::translate(glm::mat4(1.0f), glm::vec3(new_pos));
 
-    TransformComponent tr_cmp;
+    Event::Scene::TransformComponent tr_cmp;
     tr_cmp.replase_local_matrix = false;
     tr_cmp.new_mat              = new_trans;
 
-    m_reg.add_component<TransformComponent>(m_camera, tr_cmp);
+    m_reg.add_component<Event::Scene::TransformComponent>(m_camera, tr_cmp);
 }
 
 void Window::moveSideward(float speed)
@@ -304,11 +304,11 @@ void Window::moveSideward(float speed)
 
     glm::mat4 new_trans = glm::translate(glm::mat4(1.0f), glm::vec3(new_pos));
 
-    TransformComponent tr_cmp;
+    Event::Scene::TransformComponent tr_cmp;
     tr_cmp.replase_local_matrix = false;
     tr_cmp.new_mat              = new_trans;
 
-    m_reg.add_component<TransformComponent>(m_camera, tr_cmp);
+    m_reg.add_component<Event::Scene::TransformComponent>(m_camera, tr_cmp);
 }
 
 void Window::moveUp(float speed)
@@ -320,11 +320,11 @@ void Window::moveUp(float speed)
 
     glm::mat4 new_trans = glm::translate(glm::mat4(1.0f), glm::vec3(new_pos));
 
-    TransformComponent tr_cmp;
+    Event::Scene::TransformComponent tr_cmp;
     tr_cmp.replase_local_matrix = false;
     tr_cmp.new_mat              = new_trans;
 
-    m_reg.add_component<TransformComponent>(m_camera, tr_cmp);
+    m_reg.add_component<Event::Scene::TransformComponent>(m_camera, tr_cmp);
 }
 
 void Window::objMoveUp(float speed)
@@ -336,11 +336,11 @@ void Window::objMoveUp(float speed)
 
     glm::mat4 new_trans = glm::translate(glm::mat4(1.0f), glm::vec3(new_pos));
 
-    TransformComponent tr_cmp;
+    Event::Scene::TransformComponent tr_cmp;
     tr_cmp.replase_local_matrix = false;
     tr_cmp.new_mat              = new_trans;
 
-    m_reg.add_component<TransformComponent>(m_model, tr_cmp);
+    m_reg.add_component<Event::Scene::TransformComponent>(m_model, tr_cmp);
 }
 
 void Window::objMoveSide(float speed)
@@ -352,11 +352,11 @@ void Window::objMoveSide(float speed)
 
     glm::mat4 new_trans = glm::translate(glm::mat4(1.0f), glm::vec3(new_pos));
 
-    TransformComponent tr_cmp;
+    Event::Scene::TransformComponent tr_cmp;
     tr_cmp.replase_local_matrix = false;
     tr_cmp.new_mat              = new_trans;
 
-    m_reg.add_component<TransformComponent>(m_model, tr_cmp);
+    m_reg.add_component<Event::Scene::TransformComponent>(m_model, tr_cmp);
 }
 
 void Window::objRotateUp(float speed)
@@ -366,11 +366,11 @@ void Window::objRotateUp(float speed)
     glm::vec4 up        = pos.abs * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
     glm::mat4 new_trans = glm::rotate(glm::mat4(1.0f), speed, glm::vec3(up));
 
-    TransformComponent tr_cmp;
+    Event::Scene::TransformComponent tr_cmp;
     tr_cmp.replase_local_matrix = false;
     tr_cmp.new_mat              = new_trans;
 
-    m_reg.add_component<TransformComponent>(m_model, tr_cmp);
+    m_reg.add_component<Event::Scene::TransformComponent>(m_model, tr_cmp);
 }
 
 void Window::objRotateSide(float speed)
@@ -380,11 +380,11 @@ void Window::objRotateSide(float speed)
     glm::vec4 up        = pos.abs * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
     glm::mat4 new_trans = glm::rotate(glm::mat4(1.0f), speed, glm::vec3(up));
 
-    TransformComponent tr_cmp;
+    Event::Scene::TransformComponent tr_cmp;
     tr_cmp.replase_local_matrix = false;
     tr_cmp.new_mat              = new_trans;
 
-    m_reg.add_component<TransformComponent>(m_model, tr_cmp);
+    m_reg.add_component<Event::Scene::TransformComponent>(m_model, tr_cmp);
 }
 
 void Window::objCreate()

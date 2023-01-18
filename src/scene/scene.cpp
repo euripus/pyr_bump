@@ -38,11 +38,11 @@ void SceneSystem::update(double time)
     }
     m_reg.reset<Event::Scene::IsBboxUpdated>();
 
-    for(auto ent : m_reg.view<SceneComponent, TransformComponent>())
+    for(auto ent : m_reg.view<SceneComponent, Event::Scene::TransformComponent>())
     {
         m_transform_updated = true;
 
-        auto & trans = m_reg.get<TransformComponent>(ent);
+        auto & trans = m_reg.get<Event::Scene::TransformComponent>(ent);
         auto & pos   = m_reg.get<SceneComponent>(ent);
 
         if(trans.replase_local_matrix)
@@ -56,7 +56,7 @@ void SceneSystem::update(double time)
 
     // clear all TransformComponent
     if(m_transform_updated)
-        m_reg.reset<TransformComponent>();
+        m_reg.reset<Event::Scene::TransformComponent>();
 
     for(auto ent : m_reg.view<SceneComponent, Event::Model::DestroyModel>())
     {

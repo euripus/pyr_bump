@@ -23,23 +23,23 @@ struct SceneComponent
     std::list<Entity> children;
 };
 
-struct TransformComponent
-{
-    glm::mat4 new_mat{1.0f};
-    bool      replase_local_matrix = false;
-};
-
 namespace Event
 {
 namespace Scene
 {
+    struct TransformComponent
+    {
+        glm::mat4 new_mat{1.0f};
+        bool      replase_local_matrix = false;
+    };
+
     struct IsTransformed
     {};
 
     struct IsBboxUpdated
     {};
 }   // namespace Scene
-}   // namespace Events
+}   // namespace Event
 
 class SceneSystem : public ISystem
 {
