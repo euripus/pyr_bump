@@ -60,6 +60,7 @@ public:
     void updateQueues(evnt::Frustum const & frustum1, evnt::Frustum const * frustum2);
 
     std::vector<Entity> & getModelsQueue() { return m_models_queue; }
+    std::vector<Entity> & getLightQueue() { return m_lights_queue; }
     Entity                getRoot() const { return m_root; }
 
 private:
@@ -68,6 +69,7 @@ private:
 
     // Queues for culling
     std::vector<Entity> m_models_queue;
+    std::vector<Entity> m_lights_queue;
 
     void updateTransform(Entity ent, bool initiator);
     void updateBound(Entity node_id);

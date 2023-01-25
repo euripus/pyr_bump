@@ -1,5 +1,6 @@
 #include "scene.h"
 #include "model.h"
+#include "src/scene/light.h"
 #include <stdexcept>
 
 SceneComponent SceneSystem::GetDefaultSceneComponent()
@@ -119,6 +120,7 @@ void SceneSystem::disconnectNode(Entity node_id)
 void SceneSystem::updateQueues(evnt::Frustum const & frustum1, evnt::Frustum const * frustum2)
 {
     m_models_queue.resize(0);
+    m_lights_queue.resize(0);
 
     updateQueuesRec(frustum1, frustum2, m_root);
 }
@@ -140,6 +142,10 @@ void SceneSystem::updateQueuesRec(evnt::Frustum const & frustum1, evnt::Frustum 
     {
         if(frustum2 == nullptr || !frustum2->cullBox(*node.transformed_bbox))
             m_models_queue.push_back(node_id);
+    }
+    else if(m_reg.has<LightComponent>(node_id))
+    {
+        m_lights_queue.push_back(node_id);
     }
 
     for(auto ch : node.children)

@@ -206,12 +206,19 @@ bool Window::createDefaultScene(int width, int height)
 
     m_scene_sys->connectNode(m_camera, root);
     // light
-    m_light = EntityBuilder::BuildEntity(m_reg, light_flags);
+    auto light_id = EntityBuilder::BuildEntity(m_reg, light_flags);
 
-    transform.new_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 5.0f));
-    m_reg.add_component<Event::Scene::TransformComponent>(m_light, transform);
+    auto & light_pos = m_reg.get<SceneComponent>(light_id);
+    light_pos.rel    = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 5.0f));
 
-    m_scene_sys->connectNode(m_light, root);
+    m_scene_sys->connectNode(light_id, root);
+
+    light_id = EntityBuilder::BuildEntity(m_reg, light_flags);
+
+    light_pos     = m_reg.get<SceneComponent>(light_id);
+    light_pos.rel = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
+
+    m_scene_sys->connectNode(light_id, root);
 
     return true;
 }
@@ -243,11 +250,19 @@ void Window::run()
         auto const & cam = m_reg.get<CameraComponent>(m_camera);
         m_render->setMatrix(Renderer::MatrixType::PROJECTION, cam.m_proj_mat);
 
-        // set lights
-        m_render->lighting();
-        m_render->bindLight(m_light);
-
         m_scene_sys->updateQueues(cam.m_frustum, nullptr);
+
+        // set lights
+        for(uint32_t i = 0; i < m_scene_sys->getLightQueue().size() && i < 8; ++i)
+        {
+            if(i == 0)
+                m_render->lighting();
+
+            auto const light_id = m_scene_sys->getLightQueue()[i];
+
+            m_render->bindLight(light_id, i);
+        }
+
         for(auto node : m_scene_sys->getModelsQueue())
         {
             auto const & node_pos   = m_reg.get<SceneComponent>(node);
@@ -259,8 +274,13 @@ void Window::run()
             m_render->drawBBox(node);
         }
 
-        m_render->unbindLight();
-        m_render->lighting(false);
+        for(uint32_t i = 0; i < m_scene_sys->getLightQueue().size() && i < 8; ++i)
+        {
+            if(i == 0)
+                m_render->lighting(false);
+
+            m_render->unbindLight(i);
+        }
 
         m_render->loadIdentityMatrix(Renderer::MatrixType::PROJECTION);
         m_render->loadIdentityMatrix(Renderer::MatrixType::MODELVIEW);
@@ -393,14 +413,14 @@ void Window::objCreate()
         return;
 
     auto func = [this]() {
-        auto bone_id = m_model_sys->getJointIdFromName(m_model, "foot");
-        if(bone_id)
+        auto joint_id = m_model_sys->getJointIdFromName(m_model, "foot");
+        if(joint_id)
         {
             m_cube = EntityBuilder::BuildEntity(m_reg, obj_flags);
 
             Event::Model::CreateModel cm_event{
                 m_scene_sys.get(),                                       // scene_system pointer
-                *bone_id,                                                // parent node
+                *joint_id,                                               // parent node
                 "cube.txt.msh",                                          // mesh data file
                 "",                                                      // anim data file
                 diffuse_tex_fname,                                       // material data file

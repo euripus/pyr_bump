@@ -31,7 +31,7 @@ void LightSystem::update(double time)
             lgh.spot_direction = glm::mat3(pos.abs) * lgh.spot_direction;
         }
 
-        if(lgh.type == LightType::Spot)
+        if(lgh.type == LightType::Directional)
             lgh.spot_direction = glm::vec3(pos.abs * glm::vec4(lgh.spot_direction, 0.0f));
     }
 }

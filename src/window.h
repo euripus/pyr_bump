@@ -35,7 +35,6 @@ class Window
 public:
     // World
     Entity                               m_camera;
-    Entity                               m_light;
     Entity                               m_model;
     Entity                               m_cube;
     std::shared_ptr<EntityCreatorSystem> m_entity_creator_sys;
