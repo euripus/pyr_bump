@@ -1,5 +1,5 @@
-#ifndef SCENE_H
-#define SCENE_H
+#ifndef SCENECMP_H
+#define SCENECMP_H
 
 #include <glm/glm.hpp>
 #include <list>
@@ -78,4 +78,4 @@ private:
     void updateQueuesRec(evnt::Frustum const & frustum1, evnt::Frustum const * frustum2, Entity node_id);
 };
 
-#endif   // SCENE_H
+#endif   // SCENECMP_H

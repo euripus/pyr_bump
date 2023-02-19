@@ -1,4 +1,4 @@
-#include "scene.h"
+#include "scenecmp.h"
 #include "model.h"
 #include "src/scene/light.h"
 #include <stdexcept>

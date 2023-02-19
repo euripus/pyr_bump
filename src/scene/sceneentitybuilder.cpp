@@ -1,5 +1,5 @@
 #include "sceneentitybuilder.h"
-#include "scene.h"
+#include "scenecmp.h"
 #include "camera.h"
 #include "light.h"
 #include "material.h"

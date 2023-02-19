@@ -1,5 +1,5 @@
 #include "light.h"
-#include "scene.h"
+#include "scenecmp.h"
 
 LightComponent LightSystem::GetDefaultLightComponent(LightType l_type)
 {

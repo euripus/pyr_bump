@@ -1,5 +1,5 @@
 #include "camera.h"
-#include "scene.h"
+#include "scenecmp.h"
 #include <cstring>
 
 CameraComponent CameraSystem::GetDefaultCamComponent()

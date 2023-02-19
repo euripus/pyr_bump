@@ -1,6 +1,6 @@
 #include "arcball.h"
 #include "glm/ext/matrix_transform.hpp"
-#include "src/scene/scene.h"
+#include "src/scene/scenecmp.h"
 
 // https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
 

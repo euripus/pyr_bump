@@ -13,7 +13,7 @@
 #include "scene/sceneentitybuilder.h"
 #include "input/input.h"
 #include "input/arcball.h"
-#include "scene/scene.h"
+#include "scene/scenecmp.h"
 #include "scene/model.h"
 
 class Renderer;

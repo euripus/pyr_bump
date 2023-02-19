@@ -9,7 +9,7 @@
 
 #include "AABB.h"
 #include "sceneentitybuilder.h"
-#include "src/scene/scene.h"
+#include "src/scene/scenecmp.h"
 #include "src/utils/controller.h"
 
 struct Mesh

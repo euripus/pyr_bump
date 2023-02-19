@@ -1,9 +1,12 @@
 #ifndef ENTT_ENTITY_REGISTRY_HPP
 #define ENTT_ENTITY_REGISTRY_HPP
 
+#include <stdexcept>
 #include <vector>
 #include <memory>
 #include <utility>
+#include <map>
+#include <any>
 #include <cstddef>
 #include <cassert>
 #include "family.hpp"
@@ -285,10 +288,42 @@ public:
         return View<Entity, Component...>{ensure<Component>()...};
     }
 
+    template<typename Type, typename... Args>
+    Type & ctx_set(Args &&... args)
+    {
+        std::size_t type_id = component_family::type<Type>();
+        context[type_id]    = std::any{std::in_place_type<Type>, std::forward<Args>(args)...};
+
+        return std::any_cast<Type &>(context[type_id]);
+    }
+
+    template<typename Type>
+    void ctx_unset()
+    {
+        std::size_t type_id = component_family::type<Type>();
+        context.erase(type_id);
+    }
+
+    template<typename Type>
+    Type & ctx_get()
+    {
+        std::size_t type_id = component_family::type<Type>();
+
+        auto map_it = context.find(type_id);
+
+        if(map_it != context.end() && map_it->second.has_value())
+        {
+            return std::any_cast<Type &>(map_it->second);
+        }
+
+        throw std::runtime_error("Try to get non existing object");
+    }
+
 private:
     std::vector<std::unique_ptr<SparseSet<Entity>>> pools;
     std::vector<entity_type>                        available;
     std::vector<entity_type>                        entities;
+    std::map<std::size_t, std::any>                 context;
 };
 
 using DefaultRegistry = Registry<std::uint32_t>;

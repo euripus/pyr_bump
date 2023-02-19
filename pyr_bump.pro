@@ -42,7 +42,7 @@ SOURCES += \
     src/scene/light.cpp \
     src/scene/model.cpp \
     src/scene/material.cpp \
-    src/scene/scene.cpp \
+    src/scene/scenecmp.cpp \
     src/scene/sceneentitybuilder.cpp \
     src/utils/controller.cpp \
     src/window.cpp
@@ -67,7 +67,7 @@ HEADERS += \
     src/scene/material.h \
     src/scene/model.h \
     src/scene/plane.h \
-    src/scene/scene.h \
+    src/scene/scenecmp.h \
     src/scene/sceneentitybuilder.h \
     src/utils/controller.h \
     src/window.h

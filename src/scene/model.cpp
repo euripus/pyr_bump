@@ -2,7 +2,7 @@
 #include <sstream>
 #include <algorithm>
 
-#include "scene.h"
+#include "scenecmp.h"
 #include "material.h"
 #include "model.h"
 
