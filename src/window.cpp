@@ -228,13 +228,23 @@ void Window::initScene()
     if(!m_sys.initSystems())
         throw std::runtime_error{"Failed to init systems"};
 
-    // mesh
-    m_model = EntityBuilder::BuildEntity(m_reg, obj_flags);
-    m_model_sys->loadModel(m_model, *m_scene_sys.get(), mesh_fname, anim_fname, diffuse_tex_fname);
+    auto func = [this]() {
+        m_model = EntityBuilder::BuildEntity(m_reg, obj_flags);
+
+        Event::Model::CreateModel cm_event{m_scene_sys.get(),        // scene_system pointer
+                                           m_scene_sys->getRoot(),   // parent node
+                                           mesh_fname,               // mesh data file
+                                           anim_fname,               // anim data file
+                                           diffuse_tex_fname,        // material data file
+                                           glm::mat4(1.0f)};         // relative matrix
+
+        m_reg.add_component<Event::Model::CreateModel>(m_model, std::move(cm_event));
+    };
+    m_entity_creator_sys->addCreatorFunctor(std::move(func));
 
     m_cube = null_entity_id;
 
-    m_scene_sys->connectNode(m_model, m_scene_sys->getRoot());
+    //m_scene_sys->connectNode(m_model, m_scene_sys->getRoot());
 }
 
 void Window::run()

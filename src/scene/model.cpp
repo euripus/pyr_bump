@@ -345,6 +345,10 @@ void ModelSystem::update(double time)
         auto & cm_event = m_reg.get<Event::Model::CreateModel>(ent);
 
         loadModel(ent, *cm_event.scene, cm_event.mesh_name, cm_event.anim_name, cm_event.material_name);
+
+        // mark for render
+        m_reg.add_component<Event::Model::UploadBuffer>(ent);
+        m_reg.add_component<Event::Model::UploadTexture>(ent);
     }
     m_reg.reset<Event::Model::CreateModel>();
 
@@ -450,10 +454,6 @@ void ModelSystem::loadModel(Entity model_ent, SceneSystem & scene_sys, std::stri
             m_reg.assign<CurrentAnimSequence>(model_ent);
         }
     }
-
-    // mark for render
-    m_reg.add_component<Event::Model::UploadBuffer>(model_ent);
-    m_reg.add_component<Event::Model::UploadTexture>(model_ent);
 }
 
 void ModelSystem::deleteModel(Entity model_id) const
