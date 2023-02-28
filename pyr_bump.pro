@@ -71,3 +71,5 @@ HEADERS += \
     src/scene/sceneentitybuilder.h \
     src/utils/controller.h \
     src/window.h
+
+DISTFILES +=

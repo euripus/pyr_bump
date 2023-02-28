@@ -2,6 +2,7 @@
 #define SCENEENTITYBUILDER_H
 
 #include <bitset>
+#include <glm/glm.hpp>
 #include <vector>
 #include <memory>
 #include <functional>
@@ -77,6 +78,18 @@ namespace Event
 {
 namespace Deleter
 {
+    struct CreateEntity
+    {
+        Entity      parent        = null_entity_id;
+        glm::mat4   rel_transform = glm::mat4(1.0f);
+        build_flags entity_type;
+
+        // model part
+        std::string mesh_name;
+        std::string anim_name;
+        std::string material_name;
+    };
+
     struct DeleteEntity
     {};
 }   // namespace Deleter

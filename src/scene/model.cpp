@@ -340,17 +340,17 @@ bool ModelSystem::LoadAnim(std::string const & fname, ModelComponent & out_mdl)
 
 void ModelSystem::update(double time)
 {
-    for(auto ent : m_reg.view<ModelComponent, Event::Model::CreateModel>())
+    for(auto ent : m_reg.view<ModelComponent, Event::Model::LoadModel>())
     {
-        auto & cm_event = m_reg.get<Event::Model::CreateModel>(ent);
+        auto & lm_event = m_reg.get<Event::Model::LoadModel>(ent);
 
-        loadModel(ent, *cm_event.scene, cm_event.mesh_name, cm_event.anim_name, cm_event.material_name);
+        loadModel(ent, *lm_event.scene, lm_event.mesh_name, lm_event.anim_name, lm_event.material_name);
 
         // mark for render
         m_reg.add_component<Event::Model::UploadBuffer>(ent);
         m_reg.add_component<Event::Model::UploadTexture>(ent);
     }
-    m_reg.reset<Event::Model::CreateModel>();
+    m_reg.reset<Event::Model::LoadModel>();
 
     // update positions for animated meshes
     for(auto ent : m_reg.view<ModelComponent, CurrentAnimSequence>())

@@ -2,8 +2,7 @@
 #define SCENECMP_H
 
 #include <glm/glm.hpp>
-#include <list>
-#include <vector>
+#include <unordered_set>
 #include <string>
 #include <optional>
 #include "AABB.h"
@@ -18,9 +17,9 @@ struct SceneComponent
     std::optional<evnt::AABB> transformed_bbox;
     std::string               name;
 
-    Entity            entity_id;
-    Entity            parent;
-    std::list<Entity> children;
+    Entity                     entity_id;
+    Entity                     parent;
+    std::unordered_set<Entity> children;
 };
 
 namespace Event

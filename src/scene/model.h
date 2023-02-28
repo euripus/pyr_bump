@@ -110,13 +110,19 @@ namespace Model
 
     struct CreateModel
     {
-        SceneSystem * scene = nullptr;
-
         Entity      parent = null_entity_id;
         std::string mesh_name;
         std::string anim_name;
         std::string material_name;
         glm::mat4   rel_transform;
+    };
+
+    struct LoadModel
+    {
+        SceneSystem * scene = nullptr;
+        std::string   mesh_name;
+        std::string   anim_name;
+        std::string   material_name;
     };
 
     struct DestroyModel

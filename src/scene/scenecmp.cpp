@@ -25,7 +25,12 @@ void SceneSystem::update(double time)
         pos.rel = cm_event.rel_transform;
 
         connectNode(ent, cm_event.parent);
+
+        Event::Model::LoadModel lm_event{this, std::move(cm_event.mesh_name), std::move(cm_event.anim_name),
+                                         std::move(cm_event.material_name)};
+        m_reg.add_component<Event::Model::LoadModel>(ent, std::move(lm_event));
     }
+    m_reg.reset<Event::Model::CreateModel>();
 
     // update changed Bboxes from joint sysytem upate call
     for(auto ent : m_reg.view<SceneComponent, Event::Scene::IsBboxUpdated>())
@@ -93,7 +98,7 @@ void SceneSystem::connectNode(Entity node_id, Entity parent)
         auto & parent_node = m_reg.get<SceneComponent>(parent);
         node.parent        = parent;
 
-        parent_node.children.push_back(node_id);
+        parent_node.children.insert(node_id);
         updateTransform(node_id, true);
 
         m_transform_updated = true;
@@ -108,7 +113,7 @@ void SceneSystem::disconnectNode(Entity node_id)
     {
         auto & parent_node = m_reg.get<SceneComponent>(node.parent);
 
-        parent_node.children.remove(node_id);
+        parent_node.children.erase(node_id);
         updateBound(node.parent);
         node.parent = null_entity_id;
 

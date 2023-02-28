@@ -190,6 +190,11 @@ bool Window::createDefaultScene(int width, int height)
     // root
     auto root = EntityBuilder::BuildEntity(m_reg, pos_flags);
     m_scene_sys->connectNode(root);
+
+    //    Event::Deleter::CreateEntity ce_event;
+    //    ce_event.entity_type = pos_flags;
+    //    m_reg.add_component<Event::Deleter::CreateEntity>(m_model, std::move(ce_event));
+
     // camera
     m_camera   = EntityBuilder::BuildEntity(m_reg, cam_flags);
     auto & cam = m_reg.get<CameraComponent>(m_camera);
@@ -228,23 +233,19 @@ void Window::initScene()
     if(!m_sys.initSystems())
         throw std::runtime_error{"Failed to init systems"};
 
-    auto func = [this]() {
+    m_entity_creator_sys->addCreatorFunctor([this]() {
         m_model = EntityBuilder::BuildEntity(m_reg, obj_flags);
 
-        Event::Model::CreateModel cm_event{m_scene_sys.get(),        // scene_system pointer
-                                           m_scene_sys->getRoot(),   // parent node
+        Event::Model::CreateModel cm_event{m_scene_sys->getRoot(),   // parent node
                                            mesh_fname,               // mesh data file
                                            anim_fname,               // anim data file
                                            diffuse_tex_fname,        // material data file
                                            glm::mat4(1.0f)};         // relative matrix
 
         m_reg.add_component<Event::Model::CreateModel>(m_model, std::move(cm_event));
-    };
-    m_entity_creator_sys->addCreatorFunctor(std::move(func));
+    });
 
     m_cube = null_entity_id;
-
-    //m_scene_sys->connectNode(m_model, m_scene_sys->getRoot());
 }
 
 void Window::run()
@@ -422,14 +423,13 @@ void Window::objCreate()
     if(m_reg.valid(m_cube))
         return;
 
-    auto func = [this]() {
+    m_entity_creator_sys->addCreatorFunctor([this]() {
         auto joint_id = m_model_sys->getJointIdFromName(m_model, "foot");
         if(joint_id)
         {
             m_cube = EntityBuilder::BuildEntity(m_reg, obj_flags);
 
             Event::Model::CreateModel cm_event{
-                m_scene_sys.get(),                                       // scene_system pointer
                 *joint_id,                                               // parent node
                 "cube.txt.msh",                                          // mesh data file
                 "",                                                      // anim data file
@@ -438,9 +438,7 @@ void Window::objCreate()
 
             m_reg.add_component<Event::Model::CreateModel>(m_cube, std::move(cm_event));
         }
-    };
-
-    m_entity_creator_sys->addCreatorFunctor(std::move(func));
+    });
 }
 
 void Window::objDelete()

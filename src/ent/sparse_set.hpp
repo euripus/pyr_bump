@@ -183,8 +183,8 @@ public:
 
     virtual void reset()
     {
-        reverse.clear();
-        direct.clear();
+        reverse.resize(0);
+        direct.resize(0);
     }
 
 private:
